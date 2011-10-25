@@ -1,0 +1,52 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+ [ osy@loryx.org loryx.org/mod
+    opensymap.org/form/default login
+    loryx.org/mod/start osy_start
+    opensymap.org/menu/title  Menù
+    % es Munàr
+    [ login opensymap.org/form
+        opensymap.org/title Autenticazione
+        opensymap.org/type custom
+        [ txt_login opensymap.org/cmp/text
+            opensymap.org/label User 
+            opensymap.org/pos 1
+        ]
+        [ txt_passwd opensymap.org/cmp/password
+            opensymap.org/label Password
+            opensymap.org/pos 2
+        ] 
+        [ bt_login opensymap.org/cmp/button
+            opensymap.org/type submit
+            opensymap.org/label Accedi
+            opensymap.org/event accedi 
+            opensymap.org/event/save no
+            opensymap.org/pos 3
+        ]
+        [ evn_accedi opensymap.org/event
+            loryx.org/name accedi
+            loryx.org/code % ...
+            $db = env::get_var('dbx');
+            $inst = env::get_var('inst');
+            $cmd = 'select * from [@osy_usr] where login=[0] and inst=[1]';
+            $usr = $db->getFirst($cmd,$form->get_cld('txt_login')->value,$inst->get_urn());
+            FB::log($usr);
+            if ($usr['id'])
+            {
+                if($usr['pwd'] == $form->get_cld('txt_passwd')->value)
+                {
+                    // accesso effettuato
+                    $arg = array('id'=>env::sid(),'id_usr'=>$usr['id'],'id_rol'=>$usr['id_rol']);
+                    $db->insert('[@osy_usr_acc]',$arg);
+                    osy::code("osy.get_input('_[osy][aut]').val('{$arg['id']}').closest('form').submit();");
+                    return;
+                }
+            } 
+            osy::alert('Accesso negato');
+            ...
+        ]
+    ]
+]

@@ -1,0 +1,217 @@
+[main/install@loryx.org
+    loryx.org/store no
+    opensymap.org/form/default frm_inst
+    loryx.org/include/chdir no
+    loryx.org/serialize no
+    [ frm_inst opensymap.org/form
+        opensymap.org/label Istallazione Loryx
+        opensymap.org/size/width 500
+        opensymap.org/type custom
+        [ cnt_info opensymap.org/cmp/descr
+            opensymap.org/pos 1
+            loryx.org/value % ...
+                <h1>LoryX installer</h1> 
+                <p>Loryx è framework per la gestione e l'esecuzione di web-service.</p>
+                <p>Proseguendo si effettuerà l'istallazione di Loryx sulla macchina</p>
+                ...
+        ]
+        #
+        # PANEL TBL NAME 
+        #
+        [ pnl_tbl_base opensymap.org/cmp/panel
+            opensymap.org/label Prefisso tabelle
+            opensymap.org/pos 2
+        ]
+        [ cnt_tbl_base opensymap.org/cmp/descr
+            loryx.org/parent pnl_tbl_base
+            opensymap.org/pos 1
+            loryx.org/value % ...
+                <h2>Prefisso tabelle LoryX</h2>
+                <p>I nome delle tabelle gesite da LoryX non vengono scelte dal programmatore dell'applicazione, 
+                   ma sarà il sistema a dargli un nome sequenziale.
+                   In questo step è possibile scegliere il prefisso che Loryx adotterà per la creazione
+                   delle tabelle richieste dai diversi applicativi che si installeranno</p>
+                ...
+        ]
+        [ txt_lrx_base opensymap.org/cmp/text
+            loryx.org/parent pnl_tbl_base
+            opensymap.org/label Prefisso base
+            opensymap.org/pos 2
+            loryx.org/value lrx
+        ]
+        #
+        # PANEL DB TYPE
+        #
+        [ pnl_db opensymap.org/cmp/panel
+            opensymap.org/pos 3
+            opensymap.org/label Tipo Data Base
+            loryx.org/eval $rs->tag->Att('onfocus',"W(this).find({'osy_map':'pnl_msg'}).fadeOut(); this.onfocus=false;");
+        ]
+        
+        [ pnl_db_typ opensymap.org/cmp/panel
+            loryx.org/parent pnl_db
+            opensymap.org/pos 1,1
+            opensymap.org/type tab
+        ]
+        # # # mySql
+
+        [ pnl_cnf_mysql opensymap.org/cmp/panel
+            loryx.org/parent pnl_db_typ
+            opensymap.org/label mySql
+            loryx.org/function mk_mysql
+        ]
+        [ inp_mysql_host opensymap.org/cmp/text
+            loryx.org/parent pnl_cnf_mysql
+            opensymap.org/label Host
+            opensymap.org/pos   1
+            opensymap.org/value/regexp float
+        ]
+        [ inp_mysql_dbname opensymap.org/cmp/text
+            loryx.org/parent pnl_cnf_mysql
+            opensymap.org/label DB name
+            opensymap.org/pos   2
+        ]
+        [ inp_mysql_usr opensymap.org/cmp/text
+            loryx.org/parent pnl_cnf_mysql
+            opensymap.org/label User
+            opensymap.org/pos   3
+        ]
+        [ inp_mysql_pwd opensymap.org/cmp/password
+            loryx.org/parent pnl_cnf_mysql
+            opensymap.org/label Password
+            opensymap.org/pos   4 
+        ]
+
+        # # # pgSql
+
+        [ pnl_cnf_pgsql opensymap.org/cmp/panel
+            loryx.org/parent pnl_db_typ
+            opensymap.org/label PosgreSQL
+            loryx.org/function mk_pgsql
+        ]
+        [ inp_pgsql_host opensymap.org/cmp/text
+            loryx.org/parent pnl_cnf_pgsql
+            opensymap.org/label Host
+            opensymap.org/pos   1
+        ]
+        [ inp_pgsql_usr opensymap.org/cmp/text
+            loryx.org/parent pnl_cnf_pgsql
+            opensymap.org/label User
+            opensymap.org/pos   2
+        ]
+        [ inp_pgsql_pwd opensymap.org/cmp/password
+            loryx.org/parent pnl_cnf_pgsql
+            opensymap.org/label Password
+            opensymap.org/pos   3 
+        ]
+
+        # # # sqLite
+        
+        [ pnl_cnf_sqlite opensymap.org/cmp/panel
+            loryx.org/parent pnl_db_typ
+            opensymap.org/label SQLite
+            loryx.org/function mk_sqlite
+        ]
+        [ inp_sqlite_fname opensymap.org/cmp/text
+            loryx.org/parent pnl_cnf_sqlite
+            opensymap.org/label File name
+            opensymap.org/pos   1
+            loryx.org/value loryx.sqlite
+        ]
+        
+        [ bt_next opensymap.org/cmp/button 
+            opensymap.org/label Verifica
+            # opensymap.org/form chk_inst
+            opensymap.org/event verify
+        ]
+        
+        #
+        # PANNELLO MESSAGGI
+        #
+        
+        [ pnl_msg opensymap.org/cmp/panel
+            loryx.org/parent pnl_db
+            opensymap.org/pos 1,2
+            opensymap.org/size/width 200
+            opensymap.org/map 1
+        ]
+        
+        [ ev_1 opensymap.org/event
+            loryx.org/name verify
+            loryx.org/builder lrx_install
+        ]
+        [ ev_2 opensymap.org/event
+            loryx.org/name install
+            loryx.org/builder lrx_install
+        ]
+        [ db loryx.org/db
+            [ tbl_loryx loryx.org/db/table
+                loryx.org/name loryx
+                loryx.org/db/table lrx_0
+                [? loryx.org/db/field
+                    loryx.org/db/field/type varchar
+                    loryx.org/db/field/size 100
+                    loryx.org/name l
+                ]
+                [? loryx.org/db/field
+                    loryx.org/db/field/type varchar
+                    loryx.org/db/field/size 600
+                    loryx.org/name o
+                ]
+                [? loryx.org/db/field
+                    loryx.org/db/field/type varchar
+                    loryx.org/db/field/size 50
+                    loryx.org/name r
+                ]
+                [? loryx.org/db/field
+                    loryx.org/db/field/type varchar
+                    loryx.org/db/field/size 250
+                    loryx.org/name y
+                ]
+                [? loryx.org/db/field
+                    loryx.org/db/field/type text
+                    loryx.org/name x
+                    loryx.org/db/charset utf8
+                ]
+                [? loryx.org/db/field
+                    loryx.org/db/field/type varchar
+                    loryx.org/db/field/size 50
+                    loryx.org/name k
+                ]
+                [? loryx.org/db/field
+                    loryx.org/db/field/type varchar
+                    loryx.org/db/field/size 256
+                    loryx.org/name s
+                ]
+                [pk loryx.org/db/pkey
+                    loryx.org/db/field l,o,r,y
+                ]
+            ]
+            [ tbl_loryx_trl loryx.org/db/table
+                loryx.org/name loryt
+                loryx.org/db/table lrx_1
+                # chiave sha
+                [? loryx.org/db/field
+                    loryx.org/db/field/type varchar
+                    loryx.org/db/field/size 256
+                    loryx.org/name s
+                ]
+                # idioma
+                [? loryx.org/db/field
+                    loryx.org/db/field/type varchar
+                    loryx.org/db/field/size 20
+                    loryx.org/name l
+                ]
+                # valore
+                [? loryx.org/db/field
+                    loryx.org/db/field/type text
+                    loryx.org/name v
+                    loryx.org/db/charset utf8
+                ]
+                [pk loryx.org/db/pkey
+                    loryx.org/db/field s,l
+                ]
+            ]
+        ]
+    ]
+]

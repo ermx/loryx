@@ -1,0 +1,16 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ sdk@opensymap.org opensymap.org/app
+    opensymap.org/title Opensymap SDK
+    [ men_app opensymap.org/menu
+        opensymap.org/form vw_app
+        opensymap.org/title Open SDK
+    ]
+    [ men_lrx opensymap.org/menu
+        opensymap.org/form vw_lrx
+        opensymap.org/title LoryX
+    ]
+]

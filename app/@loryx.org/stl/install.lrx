@@ -1,0 +1,313 @@
+[ stl/install@loryx.org loryx.org/cmd
+    [ ? loryx.org/db/conf
+        [tbl_stl loryx.org/db/table
+            loryx.org/name stl
+            [fld_id loryx.org/db/field
+                loryx.org/name id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/db/pkey 1
+            ]
+            [fld_trl loryx.org/db/field
+                loryx.org/name id_trl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_tbl_trl loryx.org/db/field
+                loryx.org/name tbl_trl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_prp loryx.org/db/field
+                loryx.org/name id_prp
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_tbl_prp loryx.org/db/field
+                loryx.org/name tbl_prp
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_dom loryx.org/db/field
+                loryx.org/name dom
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [fld_lng loryx.org/db/field
+                loryx.org/name lng_def
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+        ]
+        [tbl_stl_lng loryx.org/db/table
+            loryx.org/name stl_lng
+            [fld_id loryx.org/db/field
+                loryx.org/name id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/db/pkey 1
+            ]
+            [fld_stl loryx.org/db/field
+                loryx.org/name id_stl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_lng loryx.org/db/field
+                loryx.org/name lng
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_ttl loryx.org/db/field
+                loryx.org/name ttl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_dsc loryx.org/db/field
+                loryx.org/name dsc
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [fld_ord loryx.org/db/field
+                loryx.org/name ord
+                loryx.org/db/field/type integer
+                loryx.org/db/field/size 3
+            ]
+            [fld_tbl_trl loryx.org/db/field
+                loryx.org/name trl_tbl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+        ]
+        [tbl_stl_prp loryx.org/db/table
+            loryx.org/name stl_prp
+            [fld_id loryx.org/db/field
+                loryx.org/name id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/db/pkey 1
+            ]
+            [fld_res_typ loryx.org/db/field
+                loryx.org/name res_typ
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_res_nme loryx.org/db/field
+                loryx.org/name res_nme
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_res_id loryx.org/db/field
+                loryx.org/name res_id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+        ]
+        [tbl_stl_prp_det loryx.org/db/table
+            loryx.org/name stl_prp_det
+            [fld_id loryx.org/db/field
+                loryx.org/name id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/db/pkey 1
+            ]
+            [fld_id_prp loryx.org/db/field
+                loryx.org/name id_prp
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_id_trl loryx.org/db/field
+                loryx.org/name id_trl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_nme loryx.org/db/field
+                loryx.org/name nme
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_val loryx.org/db/field
+                loryx.org/name val
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+        ]
+        [tbl_stl_trl loryx.org/db/table
+            loryx.org/name stl_trl
+            [fld_id loryx.org/db/field
+                loryx.org/name id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/db/pkey 1
+            ]
+            [fld_res_typ loryx.org/db/field
+                loryx.org/name res_typ
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_res_nme loryx.org/db/field
+                loryx.org/name res_nme
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_res_id loryx.org/db/field
+                loryx.org/name res_id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+        ]
+        [tbl_stl_trl_det loryx.org/db/table
+            loryx.org/name stl_trl_det
+            [fld_id loryx.org/db/field
+                loryx.org/name id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/db/pkey 1
+            ]
+            [fld_id_trl loryx.org/db/field
+                loryx.org/name id_trl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_nme loryx.org/db/field
+                loryx.org/name nme
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_lng loryx.org/db/field
+                loryx.org/name lng
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_val loryx.org/db/field
+                loryx.org/name val
+                loryx.org/db/field/type text
+            ]
+        ]
+        [tbl_stl_trk loryx.org/db/table
+            loryx.org/name stl_trk
+            [fld_id loryx.org/db/field
+                loryx.org/name id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/db/pkey 1
+            ]
+            [fld_id_stl loryx.org/db/field
+                loryx.org/name id_stl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_id_par loryx.org/db/field
+                loryx.org/name id_par
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_proto loryx.org/db/field
+                loryx.org/name lng
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [? loryx.org/db/field
+                loryx.org/name proto
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_uri loryx.org/db/field
+                loryx.org/name url
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [fld_agent loryx.org/db/field
+                loryx.org/name agent
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [fld_addr loryx.org/db/field
+                loryx.org/name ip_addr
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [fld_referer loryx.org/db/field
+                loryx.org/name referer
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [fld_6 loryx.org/db/field
+                loryx.org/db/field/type datetime
+                loryx.org/db/field/default now
+                loryx.org/name dat_ins
+            ]
+        ]
+        [tbl_stl_sec loryx.org/db/table
+            loryx.org/name stl_sec
+            [? loryx.org/db/field
+                loryx.org/name id
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/db/pkey 1
+            ]
+            [? loryx.org/db/field
+                loryx.org/name id_stl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [? loryx.org/db/field
+                loryx.org/name id_rol
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [? loryx.org/db/field
+                loryx.org/name id_prp
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [? loryx.org/db/field
+                loryx.org/name id_trl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [? loryx.org/db/field
+                loryx.org/name id_par
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [? loryx.org/db/field
+                loryx.org/name ttl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [? loryx.org/db/field
+                loryx.org/name url
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [? loryx.org/db/field
+                loryx.org/name lbl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [? loryx.org/db/field
+                loryx.org/name bld
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [? loryx.org/db/field
+                loryx.org/name lvl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+            [? loryx.org/db/field
+                loryx.org/name ord
+                loryx.org/db/field/type integer
+                loryx.org/db/field/size 6
+            ]
+            [? loryx.org/db/field
+                loryx.org/name cls
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+            ]
+        ]   
+        [? 
+            loryx.org/builder stl_db_init
+        ]
+    ]
+]

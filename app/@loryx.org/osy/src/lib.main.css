@@ -1,0 +1,103 @@
+html, body, form {
+    margin:0px; padding:0px;
+}
+html, body
+{
+    overflow:hidden;
+}
+.dsk, .dsk body {
+    width:100%;
+    height:100%;
+    background-color:#faddac;
+    overflow:auto;
+}
+* {
+    font-family: verdana;
+}
+form {
+    float:left;
+}
+.box {
+    background-color:white;
+    color:#777777;
+    border:2px solid silver;
+    position:absolute;
+}
+.box .titlebar {background-color:#cedfed; border-bottom:2px solid silver;}
+.box .title{cursor:move; text-align:left;}
+.box .cmd td{cursor:pointer; padding: 0px 3px 0px 3px; border-left:2px solid silver;}
+
+input, textarea, select {
+    font-family:verdana;
+    font-size:12px;
+    border:0px;
+    border:1px solid silver;
+    color:black;
+    padding:3px;
+    width:100%;
+    font-family:courier
+}
+
+td, th {
+    vertical-align:top;
+    padding:0px;
+    margin:0px;
+}
+
+
+.nowrap     {white-space:pre;}
+.nodisplay  {display:none;}
+.hide {visibility:hidden;}
+
+.link       {cursor:pointer;}
+
+.option       {cursor:pointer; background-color:#ceddef;}
+.over {background-color:#ceddef;}
+
+.box_g  {background-color:#cccccc; border:1px solid silver;}
+.box_w  {background-color:#ffffff; border:1px solid silver;}
+.box_c  {background-color:#ceddef; border:1px solid silver;}
+
+.pad_1 {padding:1px;}
+.pad_2 {padding:2px;}
+.pad_3 {padding:3px;}
+.pad_4 {padding:4px;}
+.pad_5 {padding:5px;}
+
+.mrg_1 {margin:1px;}
+.mrg_2 {margin:2px;}
+.mrg_3 {margin:3px;}
+.mrg_4 {margin:4px;}
+.mrg_5 {margin:5px;}
+
+.alert{border:2px dotted red; background-color:#FFCC99; padding:10px;}
+.message{border:2px dotted green; background-color:#F0F0F0; padding:10px;}
+
+input.error {background-color:pink; color: red;}
+
+.dg_data th {
+    padding:3px;
+    background-color:#eeeeee;
+    color:#777777;
+}
+.dg_data td {
+    padding:3px;
+}
+.dg_data {
+    border-top:1px solid #ceddef;
+    border-left:0px solid #ffffff;
+    border-right:1px solid #ceddef;
+    border-bottom:0px solid #ceddef;
+}
+.dg_data th {
+    border-bottom:1px solid #ceddef;
+    border-right:1px solid #ffffff;
+    border-left:1px solid #dddddd;
+    border-top:1px solid #ffffff;
+}
+.dg_data td {
+    border-bottom:1px solid #ceddef;
+    border-right:1px solid #ffffff;
+    border-left:1px solid #ceddef;
+    border-top:1px solid #ffffff;
+}

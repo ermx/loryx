@@ -1,0 +1,177 @@
+[ stl/frm_cld@opensymap.org opensymap.org/form
+    opensymap.org/db/table loryx
+    opensymap.org/title Figli
+    [ ev_delete opensymap.org/event
+        opensymap.org/type after
+        loryx.org/name delete
+        loryx.org/code $rs->delete_cld_lrx();
+    ]
+    [ ev_save opensymap.org/event
+        loryx.org/name save
+        loryx.org/code $rs->save_cld_lrx();
+        opensymap.org/type after
+    ]
+    [ grd_cld opensymap.org/cmp/datagrid
+        opensymap.org/pos 4
+        opensymap.org/form frm_cld
+        opensymap.org/title Figli
+        loryx.org/parent pnl_tab
+        [ c1 opensymap.org/column
+            opensymap.org/db/pk 1
+            opensymap.org/title Lib
+            opensymap.org/hide 1
+            opensymap.org/db/var hdn_sys
+            opensymap.org/db/field l
+        ]
+        [ c2 opensymap.org/column
+            opensymap.org/db/var hdn_base
+            opensymap.org/hide 1
+            opensymap.org/title Base
+            opensymap.org/db/field o
+            opensymap.org/db/pk 1
+        ]
+        [ c3 opensymap.org/column
+            opensymap.org/db/var txt_name
+            opensymap.org/title Name
+            opensymap.org/db/pk 1
+            opensymap.org/db/field r
+        ]
+        [ c5 opensymap.org/column
+            opensymap.org/db/var txt_value
+            opensymap.org/title Tipo
+            opensymap.org/db/field x
+        ]
+        [ q1 opensymap.org/db/query
+            loryx.org/value % OTbf4nFOy6
+select a.*
+from [@loryx] a
+where a.l=[#hdn_sys]
+and a.o = '<[#hdn_base]>/<[#txt_name]>'
+and a.y = 'loryx.org/type'
+OTbf4nFOy6
+        ]
+    ]
+    [ grd_prp opensymap.org/cmp/datagrid
+        opensymap.org/pos 3
+        opensymap.org/form frm_prp
+        opensymap.org/title Propietà
+        loryx.org/parent pnl_tab
+        [ c1 opensymap.org/column
+            opensymap.org/hide 1
+            opensymap.org/db/var hdn_sys
+            opensymap.org/db/field l
+            opensymap.org/db/pk 1
+            opensymap.org/title Lib
+        ]
+        [ c2 opensymap.org/column
+            opensymap.org/db/var hdn_base
+            opensymap.org/hide 1
+            opensymap.org/title Base
+            opensymap.org/db/pk 1
+            opensymap.org/db/field o
+        ]
+        [ c3 opensymap.org/column
+            opensymap.org/db/field r
+            opensymap.org/db/pk 1
+            opensymap.org/title Name
+            opensymap.org/hide 1
+            opensymap.org/db/var txt_name
+        ]
+        [ c4 opensymap.org/column
+            opensymap.org/db/var txt_type
+            opensymap.org/title Nome
+            opensymap.org/db/pk 1
+            opensymap.org/db/field y
+        ]
+        [ c5 opensymap.org/column
+            opensymap.org/title Valore
+            opensymap.org/db/var txt_value
+            opensymap.org/db/field x
+        ]
+        [ q1 opensymap.org/db/query
+            loryx.org/value % cACteg0TeK
+select a.*
+from [@loryx] a
+where a.l=[#hdn_sys]
+and a.o = [#hdn_base]
+and a.r = [#txt_name]
+cACteg0TeK
+        ]
+    ]
+    [ hdn_base opensymap.org/cmp/view
+        opensymap.org/pos 2
+        opensymap.org/db/empty 1
+        opensymap.org/colspan 2
+        loryx.org/parent pnl_dat
+        opensymap.org/db/insert <[##hdn_base]>/<[##txt_name]>
+        opensymap.org/db/field o
+        opensymap.org/title Base
+        opensymap.org/db/pk 1
+    ]
+    [ hdn_sys opensymap.org/cmp/text
+        loryx.org/parent pnl_dat
+        opensymap.org/colspan 2
+        opensymap.org/pos 1
+        opensymap.org/db/empty 1
+        opensymap.org/db/insert <[##hdn_sys]>
+        opensymap.org/title Libreria
+        opensymap.org/db/field l
+        opensymap.org/db/pk 1
+        loryx.org/eval if(!empty($_POST['_']['prt']['txt_name'])) $rs->set_prp('loryx.org/builder','osy_cmp_view');
+    ]
+    [ hdn_type opensymap.org/cmp/const
+        opensymap.org/db/field y
+        opensymap.org/db/pk 1
+        loryx.org/value loryx.org/type
+        opensymap.org/colspan 2
+        loryx.org/parent pnl_dat
+    ]
+    [ pnl_dat opensymap.org/cmp/panel
+        opensymap.org/pos 1
+    ]
+    [ pnl_tab opensymap.org/cmp/panel
+        opensymap.org/type tab
+    ]
+    [ q1 opensymap.org/db/query
+        loryx.org/value % 04Rfvkqs89
+select c.*
+from [@loryx] c
+left join [@loryx] ooo on (c.l=ooo.l and c.o=ooo.o and c.r=ooo.r and ooo.y='loryx.org/ord')
+where c.y = 'loryx.org/type'
+and c.l=[#hdn_sys]
+and c.o=[#hdn_base]
+and c.r=[#txt_name]
+04Rfvkqs89
+    ]
+    [ txt_name opensymap.org/cmp/text
+        opensymap.org/colspan 2
+        loryx.org/parent pnl_dat
+        opensymap.org/pos 3
+        opensymap.org/title Nome
+        opensymap.org/db/pk 1
+        opensymap.org/db/field r
+    ]
+    [ txt_ord opensymap.org/cmp/text
+        opensymap.org/db/field/load ooo
+        opensymap.org/pos 4,2
+        loryx.org/parent pnl_dat
+        loryx.org/prp loryx.org/ord
+        opensymap.org/title Ord
+        [ ev_load opensymap.org/event
+            loryx.org/code $rs->load_prp_lrx();
+            opensymap.org/type disable
+            loryx.org/name load
+        ]
+        [ ev_save opensymap.org/event
+            opensymap.org/type after
+            loryx.org/code $rs->save_prp_lrx();
+            loryx.org/name save
+        ]
+    ]
+    [ txt_type opensymap.org/cmp/text
+        loryx.org/parent pnl_dat
+        opensymap.org/pos 4,1
+        opensymap.org/title Tipo
+        opensymap.org/db/field x
+    ]
+]

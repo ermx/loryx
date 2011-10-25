@@ -1,0 +1,277 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ osy/install@loryx.org loryx.org/cmd
+    opensymap.org/form/default frm1
+    [ frm1 opensymap.org/form
+        opensymap.org/label Istallazione Opensymap
+        opensymap.org/size/width 500
+        opensymap.org/type custom
+        #
+        # PANEL PATH OSY
+        #
+        [ pnl_osy opensymap.org/cmp/panel
+            opensymap.org/label Configurazione Opensymap
+            opensymap.org/pos 1
+        ]
+        [ cnt_osy opensymap.org/cmp/descr
+            loryx.org/parent pnl_osy
+            opensymap.org/pos 1
+            loryx.org/value % ...
+                <h2>Istallazione OpenSymap</h2>
+                <p>Opensymap è un sistema open per la gestione delle applicazioni. Esso verrà eseguito nel path indicato.</p>
+                ...
+        ]
+        [ inp_path_osy opensymap.org/cmp/text
+            loryx.org/parent pnl_osy
+            opensymap.org/label Osy Path
+            loryx.org/value osyx
+            
+            opensymap.org/pos   2
+        ]
+        #
+        # PANEL USER ADMIN
+        #
+        [ cnt_adm  opensymap.org/cmp/descr
+            loryx.org/parent pnl_osy
+            opensymap.org/pos 3
+            loryx.org/value % ...
+                <p>Parametri di accesso come amministratore.</p>
+                ...
+        ]
+        [ inp_adm_name opensymap.org/cmp/text
+            loryx.org/parent pnl_osy
+            opensymap.org/label Nominativo
+            opensymap.org/pos 4
+        ]
+        [ inp_adm_login opensymap.org/cmp/text
+            loryx.org/parent pnl_osy
+            opensymap.org/label Login
+            opensymap.org/pos 5
+        ]
+        [ inp_adm_passwd opensymap.org/cmp/password
+            loryx.org/parent pnl_osy
+            opensymap.org/label Password
+            opensymap.org/pos 6
+        ]
+        [ inp_adm_repasswd opensymap.org/cmp/password
+            loryx.org/parent pnl_osy
+            opensymap.org/label Re-password
+            opensymap.org/pos 7
+        ]
+        
+        [ bt_next opensymap.org/cmp/button 
+            opensymap.org/label Conferma
+            opensymap.org/event conf
+        ]
+        
+        [ ev_1 opensymap.org/event
+            loryx.org/name conf
+            loryx.org/code % ...
+                if (empty($rs->get_cld('inp_adm_login')->value)) osy::alert("Indicare l'utente amministratore");
+                if (empty($rs->get_cld('inp_adm_passwd')->value)) osy::alert("Password vuota");
+                if ($rs->get_cld('inp_adm_repasswd')->value!=$rs->get_cld('inp_adm_passwd')->value) osy::alert('Password non uguali');
+ 
+                $aosy = env::get_var('inst');
+                $db = env::get_var('dbx');                           ;
+
+                // Prime configurazioni
+                $aosy->set_prp('loryx.org/path',$rs->get_cld('inp_path_osy')->value);
+                $cnf = $aosy->get_cld('config',3)
+                             ->set_prp('opensymap.org/style','background-color:#ceddef;');
+                // impostazione database
+                $db = $cnf->set_cld($db->name,$db->get_urn())
+                          ->sync(1);
+                //impostazione applicazioni
+				$apx = $cnf->set_cld('app');
+				$apx->set_cld(env::sid('tbl'),'cnf@opensymap.org');
+				$apx->set_cld(env::sid('tbl'),'sdk@opensymap.org');
+				$apx->set_cld(env::sid('tbl'),'stl@opensymap.org');
+				
+				// memorizzazione
+                $db->rs2store($aosy);
+
+                // impostazione tabelle utente
+                $db->rs2make($rs->get_par()->get_cld('db'));
+                
+                // impostazione utente amministratore
+                $usr_id = env::sid();
+                $db->insert('[@osy_usr]',array('id'=>$usr_id,
+                                            'inst'=>$aosy->get_urn(),
+                                            'login'=>$rs->get_cld('inp_adm_login')->value,
+                                            'pwd'=>$rs->get_cld('inp_adm_passwd')->value,
+                                            'id_rol'=>'ADM',
+                                            'lng'=>nvl($rs->get_cld('inp_adm_idioma')->value,'it')));
+                
+                // impostazione app sull'admin
+				foreach($apx->get_clds() as $k=>$c)
+				{
+					$db->insert('[@osy_usr_prs]',array('id'=>env::sid(),
+												'id_usr'=>$usr_id,
+												'prp'=>'opensymap.org/app',
+												'val'=>$k));
+				}
+                $db->insert('[@osy_usr_prs]',array('id'=>env::sid(),
+                                            'id_usr'=>$usr_id,
+                                            'prp'=>'name',
+                                            'val'=>$rs->get_cld('inp_adm_name')->value));
+                
+                // stl@loryx.org : molulo gestione siti multi lingua
+                env::get_rs('stl@loryx.org')
+                    ->install();
+                
+                // cnf@opensymap.org : applicativo osy per la configurazione del sistema
+                // env::get_rs('cnf@opensymap.org')->install($aosy);
+
+                // sdk@opensymap.org : applicativo osy per la costruzione delle applicazioni
+                // env::get_rs('sdk@opensymap.org')->install($aosy);
+                
+                // stl@opensymap.org : applicativo osy per stl@loryx.org
+                // env::get_rs('stl@opensymap.org')->install($aosy);
+                
+                // il desktop viene ricaricato
+                $path = $rs->get_cld('inp_path_osy')->value;
+                osy::code("location = location.href+'{$path}'");
+                ...
+        ]
+    ]
+    [ db loryx.org/db/conf
+        [ tbl_osy_usr loryx.org/db/table
+            loryx.org/name osy_usr
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name id
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 600
+                loryx.org/name inst
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name id_grp
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name id_rol
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name login
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name pwd
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name lng
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type datetime
+                loryx.org/name dat_ins
+                loryx.org/db/field/default now
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type date
+                loryx.org/name dat_att
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type date
+                loryx.org/name dat_del
+            ]
+            [? loryx.org/db/pkey
+                loryx.org/db/field id
+            ]
+        ]
+        [ tbl_osy_usr_prs loryx.org/db/table
+            loryx.org/name osy_usr_prs
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name id
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name id_usr
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 250
+                loryx.org/name prp
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 512
+                loryx.org/name val
+            ]
+            [? loryx.org/db/pkey
+                loryx.org/db/field id
+            ]
+        ]
+        [ tbl_osy_acc loryx.org/db/table
+            loryx.org/name osy_usr_acc
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name id
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name id_usr
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name id_rol
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name id_grp
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name pro
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+                loryx.org/name url
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 50
+                loryx.org/name ip_adr
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+                loryx.org/name ref
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type datetime
+                loryx.org/db/field/default now
+                loryx.org/name dat_ins
+            ]
+            [? loryx.org/db/field
+                loryx.org/db/field/type date
+                loryx.org/name dat_end
+            ]
+            [? loryx.org/db/pkey
+                loryx.org/db/field id
+            ]
+        ]
+    ]
+]

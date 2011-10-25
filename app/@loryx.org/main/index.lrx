@@ -1,0 +1,7 @@
+[ main@loryx.org loryx.org/mod
+    loryx.org/store no
+    loryx.org/mod/start lrx_start
+    loryx.org/config ./config.php
+    loryx.org/include/chdir no
+    loryx.org/serialize no
+]

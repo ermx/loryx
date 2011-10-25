@@ -1,0 +1,24 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ sdk/frm_app@opensymap.org sdk/frm_templ@opensymap.org
+    opensymap.org/size/width 700
+    opensymap.org/title Applicazione
+    [ prova opensymap.org/cmp/text
+        opensymap.org/title Prova
+    ]
+    [ bt_mk_form opensymap.org/command
+        opensymap.org/event mk_form
+        opensymap.org/label Build Form
+    ]
+    [ bt_serialize opensymap.org/command
+        opensymap.org/event serialize
+        opensymap.org/label Serialize
+    ]
+    [ bt_tbl_import opensymap.org/command
+        opensymap.org/form frm_imp_tbl
+        opensymap.org/label Import Table
+    ]
+]

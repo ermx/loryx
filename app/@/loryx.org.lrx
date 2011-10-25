@@ -1,0 +1,45 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ loryx.org loryx.org/ns 
+    loryx.org/descr % ...
+        Namespace principale 
+        del pacchetto
+        ...
+    [ type 
+        loryx.org/ord 1 
+    ]
+    [ ns 
+        loryx.org/ord 2 
+    ] 
+    [ cmd 
+        loryx.org/store no
+    ]
+    [ builder ]
+    [ include ]
+    [ descr ]
+    [ eval
+        loryx.org/descr % ...
+        Permette di poter eseuire codice php arbitrario. 
+        Usare con molta attenzione
+        ...
+    ]
+    [ db 
+        loryx.org/builder lrx_db
+        loryx.org/sync copychild
+        loryx.org/copy noRestoreChild
+    ]
+    [ dbs
+        loryx.org/builder lrx_dbs
+        loryx.org/sync copychild
+    ]
+    [ host
+        loryx.org/sync nochild
+    ]
+    [ mod 
+        loryx.org/builder lrx_mod
+    ]
+]
+

@@ -1,0 +1,36 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ sdk/vw_app@opensymap.org opensymap.org/view
+	opensymap.org/form frm_app
+	opensymap.org/title Applicazioni
+	[ c1 opensymap.org/column
+		opensymap.org/db/var hdn_sys
+		opensymap.org/title Lib
+		opensymap.org/db/pk 1
+		opensymap.org/db/field l
+	]
+	[ c2 opensymap.org/column
+		opensymap.org/db/var hdn_base
+		opensymap.org/hide 1
+		opensymap.org/title Base
+		opensymap.org/db/field o
+		opensymap.org/db/pk 1
+	]
+	[ c3 opensymap.org/column
+		opensymap.org/db/var txt_name
+		opensymap.org/title Name
+		opensymap.org/db/pk 1
+		opensymap.org/db/field r
+	]
+	[ q1 opensymap.org/db/query
+		loryx.org/value % ts8turU3M7
+select *
+from [@loryx]
+where y='loryx.org/type'
+and x='opensymap.org/app'
+ts8turU3M7
+	]
+]

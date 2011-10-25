@@ -1,0 +1,15 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ sdk/frm_root@opensymap.org sdk/tmpl_frm@opensymap.org
+    opensymap.org/size/width 500
+    opensymap.org/title Root
+    [ hdn_base opensymap.org/cmp/const
+        opensymap.org/db/empty 1
+        opensymap.org/db/insert <[##hdn_base]>/<[##txt_name]>
+        opensymap.org/db/field o
+        opensymap.org/db/pk 1
+    ]    
+]

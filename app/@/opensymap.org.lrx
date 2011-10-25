@@ -1,0 +1,87 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ opensymap.org loryx.org/ns
+    loryx.org/store/data 1
+    loryx.org/store serialize
+    # loryx.org/debug 1
+    [ app
+        loryx.org/sync copychild
+    ]
+    [ form
+        loryx.org/builder osy_form
+        opensymap.org/size/width 250
+        loryx.org/sync copychild
+    ]
+    [ view
+        loryx.org/builder osy_view
+        opensymap.org/size/width 250 
+    ]
+    [ cmp
+        loryx.org/ord 1
+        opensymap.org/type/is_cmp 1
+        loryx.org/sync nocopy
+        loryx.org/builder osy_cmp
+        
+        [ panel opensymap.org/cmp
+            loryx.org/builder osy_panel
+            opensymap.org/panel/label no
+        ]
+        [ descr opensymap.org/cmp
+            loryx.org/builder osy_descr
+            opensymap.org/panel/label no
+            opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/insert,loryx.org/value
+        ]
+        [ view opensymap.org/cmp
+            loryx.org/builder osy_cmp_view
+            opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/insert,loryx.org/value
+        ]
+        [ text opensymap.org/cmp
+            loryx.org/builder osy_cmp_text 
+            opensymap.org/type text 
+            loryx.org/ord 2
+            opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/noempty,opensymap.org/db/insert,loryx.org/value
+        ]
+        [ password opensymap.org/cmp/text 
+            opensymap.org/type password
+            opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/noempty,loryx.org/value
+        ]
+        [ radio opensymap.org/cmp
+            loryx.org/builder osy_cmp_radio
+            opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/noempty,loryx.org/value
+        ]
+        [ check opensymap.org/cmp
+            loryx.org/builder osy_cmp_check
+            opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/noempty,loryx.org/value
+        ]
+        [ datagrid opensymap.org/cmp
+            loryx.org/builder osy_grid
+            opensymap.org/form/prps opensymap.org/form
+        ]
+        [ button opensymap.org/cmp
+            loryx.org/builder osy_cmp_button
+            opensymap.org/type button
+            opensymap.org/panel/label hidden
+        ] 
+        [ combo opensymap.org/cmp
+            loryx.org/builder osy_cmp_combo
+            opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/noempty
+        ] 
+        [ const opensymap.org/cmp 
+            opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/insert,loryx.org/value
+        ]
+    ] 
+    [ command 
+        loryx.org/builder osy_cmp_button
+    ] 
+    [ event 
+        loryx.org/builder osy_event 
+        opensymap.org/event/stop 1
+    ]
+    [ reload 
+        loryx.org/builder osy_event 
+    ]
+]
+
