@@ -191,19 +191,47 @@ var osy = new (function()
                               .appendTo(fcp);
             }
         });
-        console.log(opt);
         return fcp;
+    }
+    function move_obj(el,ev)
+    {
+        var $el = $(el);
+        $el.css('position','absolute');
+        var pos = $el.offset();
+        var skp = {'x':pos.left-ev.pageX,'y':pos.top-ev.pageY};
+        // copertura oggetto
+        var cov = $('<div style="position:absolute; background-color:red;"/>')
+                    .css('height',$el.height())
+                    .css('width',$el.width())
+                    .bind('mouseup',function(){$(document).trigger('movestop.osy')})
+                    .prependTo(el);
+        $(document).bind('mousemove.osy',function(evm)
+        {
+            $el.css('left',max(evm.pageX+skp.x,0));
+            $el.css('top',max(evm.pageY+skp.y,0));
+        }).bind('mouseout',function(evn)
+        {
+            if($(evn.fromElement).is('html') || $(evn.toElement).is('html')) 
+            {
+                $(this).trigger('movestop.osy');
+            }
+        }).one('movestop.osy',function()
+        {
+            cov.remove();
+            $(this).unbind('mousemove.osy');
+        });
     }
     function mk_box(frm,opt)
     {
-        var box = $('<div class="box"><div class="titlebar"><table cellspacing="0" cellpadding="3px" width="100%"><tr class="cmd"><th class="title" width="100%"></th></tr></table></div><div class="content"></div><div class="foot"></div></div>')
+        var box = $('<div class="box" style="position:absolute;"><div class="titlebar"><table cellspacing="0" cellpadding="3px" width="100%"><tr class="cmd"><th class="title" width="100%"></th></tr></table></div><div class="content"></div><div class="foot"></div></div>')
                              .appendTo('body');
         // impostazione elementi principali
         box.find('.title, .cmd, .content, .foot')
            .each(function(){box.data(this.className,$(this))});
+        box.data('title').bind('mousedown',function(ev){move_obj(box,ev)});
         // impostazione elementi del contenuto
         box.data('content')
-           .append('<iframe frameborder="no" name="'+rand('win_')+'" onload="osy.event(this, \'#init\', this.contentWindow, this)"></iframe>')
+           .append('<iframe frameborder="no" style="width:100%" name="'+rand('win_')+'" onload="osy.event(this, \'#init\', this.contentWindow, this)"></iframe>')
            .find(':first').each(function()
            {
                 this.dsk = dsk;
@@ -213,8 +241,30 @@ var osy = new (function()
                    .append('<form method="post" target="'+$(this).attr('name')+'"></form>')
                    .find(':last').hide());
             });
-        box.data('iframe').bind('#cmd',function(evn,data)
+        box.data('content').css('position','relative')
+           .append('<div></div>')
+           .find(':last')
+           .each(function()
+           {
+                $(this).attr('style','position:absolute; top:0px; left:0px; width:100%; background-color:yellow;');
+                box.data('cover',$(this));
+            });
+        box.bind('unfocus',function()
         {
+            box.data('cover').css('height',box.height());
+            box.css('z-index',0);
+        });
+        box.bind('focus',function()
+        {
+            box.data('cover').css('height',0);
+            box.css('z-index',10);
+        });
+        box.bind('click',function (){focus(box)});
+        box.data('iframe').bind('#cmd',function()
+        {
+            var args = $.AR(arguments);
+            var evn = args.shift();
+            var data = args.shift();
             box.data('cmd').find('td').remove();
             $.each(data.split(','),function(idx,val)
             {
@@ -231,6 +281,15 @@ var osy = new (function()
                 case 'init':
                     $('<td>i</td>').bind('click',function(){box.data('form').submit()})
                                    .appendTo(box.data('cmd'));
+                    break;
+                case 'center':
+                    box.css('left',($(document.body).width()-box.width())/2);
+                    box.css('top',($(document.body).height()-box.height())/2);
+                    break;
+                case 'position':
+                    var pos = args.shift();
+                    if (pos.x) box.css('left',pos.x);
+                    if (pos.y) box.css('top',pos.y);
                     break;
                 }
             });
@@ -296,7 +355,6 @@ var osy = new (function()
         }
         box.bind('#init',function(evn,win,ifr)
         {
-            console.log(win,ifr);
             var doc = win.document;
             box.data('iform',doc && doc.body && $(doc.body).find('form'));
             box.data('idata',doc && doc.body && $(doc.body).find(':last'));
@@ -332,7 +390,7 @@ var osy = new (function()
             var frm = box.data('iform');
             if (!frm) return;
             if (frm.height()) box.data('iframe').css('height',frm.height()+'px');
-            if (frm.width()) box.data('iframe').css('width',frm.width()+'px');
+            if (frm.width())  box.css('width',frm.width()+'px');
             
             init_input(box.data('iform'));
             
@@ -411,14 +469,52 @@ var osy = new (function()
         box.data('form').submit();
         return box;
     }
+    var wfocus = $(null);
+    function focus(box)
+    {
+        wfocus.trigger('unfocus');
+        wfocus = box;
+        wfocus.trigger('focus');
+        return box;
+    }
     this.win = function(el,opt)
     {
         // form di riferimento dal quale viene fatta la richiesta
         var fst  = $(el).parents('form');
         if(!fst.length) fst=$('form:first');
         
-        var box = mk_box(fst,opt);
+        var box = focus(mk_box(fst,opt));
+        
         box.bind('#init',function(evn,win,ifr){box.data('title').text(win.document.title)});
+        var box_self = $(el.ownerDocument && el.ownerDocument.defaultView && el.ownerDocument.defaultView.box);
+        
+        switch(typeof(opt.pos))
+        {
+        case 'string':
+            switch(opt.pos)
+            {
+            case 'right':
+                console.log(box_self.css('left'),box_self.width());
+                box.css('top',box_self.css('top'));
+                box.css('left',parseInt(box_self.css('left'))+parseInt(box_self.width())+10);
+                break;
+            }
+            break;
+        case 'function':
+            opt.pos.apply(box,[box_self]);
+            break;
+        case 'object':
+            if(opt.pos.x) box.css('top',opt.pos.x);
+            if(opt.pos.y) box.css('lef',opt.pos.y);
+            break;
+        default:
+            var pos = box_self.offset();
+            if(pos)
+            {
+                box.css('top',pos.top+15);
+                box.css('left',pos.left+15);
+            }
+        }
     }
     this.trigger = function()
     {

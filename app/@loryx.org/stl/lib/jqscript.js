@@ -195,6 +195,10 @@ var osy = new (function()
         console.log(opt);
         return fcp;
     }
+    function move_obj(el,ev)
+    {
+        console.log(el,ev);
+    }
     function mk_box(frm,opt)
     {
         var box = $('<div class="box"><div class="titlebar"><table cellspacing="0" cellpadding="3px" width="100%"><tr class="cmd"><th class="title" width="100%"></th></tr></table></div><div class="content"></div><div class="foot"></div></div>')
@@ -202,6 +206,8 @@ var osy = new (function()
         // impostazione elementi principali
         box.find('.title, .cmd, .content, .foot')
            .each(function(){box.data(this.className,$(this))});
+        box.data('title').bind('mousedown',function(ev){move_obj(box,ev)})
+                         .bind('mouseup',function(ev){move_obj(false,ev));
         // impostazione elementi del contenuto
         box.data('content')
            .append('<iframe frameborder="no" name="'+rand('win_')+'" onload="osy.event(this, \'#init\', this.contentWindow, this)"></iframe>')
@@ -420,6 +426,10 @@ var osy = new (function()
         
         var box = mk_box(fst,opt);
         box.bind('#init',function(evn,win,ifr){box.data('title').text(win.document.title)});
+        box.bind('title_down',function()
+        {
+            console.log('move');
+        });
     }
     this.trigger = function()
     {

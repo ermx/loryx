@@ -45,7 +45,7 @@
                     return;
                 }
             } 
-            osy::alert('Accesso negato');
+            osy::alert('Accesso negato '.$inst->get_urn());
             ...
         ]
     ]

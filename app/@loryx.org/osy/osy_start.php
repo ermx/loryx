@@ -89,10 +89,12 @@ class osy_start
                 // MENU'
                 // se l'utente non è loggatto allora parte la form di default
                 // .. se la form di default non è impostata ... parte il login standard
-                $page->AddScript('')->Add('window.dsk = frameElement.dsk; window.box = frameElement.box; window.$ = dsk.$; window.W=window.$, window.osy = dsk.osy;');
+                $scr = $page->AddScript('');
+                $scr->Add('window.dsk = frameElement.dsk; window.box = frameElement.box; window.$ = dsk.$; window.W=window.$, window.osy = dsk.osy;');
                 $usr = $this->aut($rs,$oaut->value);
                 if (!$usr['id'])
                 {
+                    $scr->Add("osy.trigger(frameElement,'#cmd','center');");
                     //$page->AddScript()->Add("W(frameElement,'#cmd','rm','close');");
                     $frm_name = nvl($ofrm->value,$rs->get_prp('opensymap.org/form/default'));
                     $frm = $rs->get_cld($frm_name);
@@ -114,6 +116,7 @@ class osy_start
                 }
                 else
                 {
+                    $scr->Add("osy.trigger(frameElement,'#cmd','position',{'x':10,'y':10});");
                     $page->setTitle($rs->get_prp('opensymap.org/menu/title'));
 					$apx = $rs->get_cld('config/app');
 					
@@ -128,7 +131,7 @@ class osy_start
 							$b = $m->get_prp('opensymap.org/form');
 							$page->form->Add(new Tag('div'))
 									   ->Att('style','margin:3px 3px 0px 15px; padding:3px; cursor:pointer;')
-									   ->Att('onclick',"osy.win(this,{'osy':{'app':'{$a}','frm':'{$b}'}})")
+									   ->Att('onclick',"osy.win(this,{'osy':{'app':'{$a}','frm':'{$b}'},'pos':'right'})")
 									   ->Add($m->get_prp('opensymap.org/title'));
 						}
 					}
