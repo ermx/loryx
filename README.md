@@ -15,6 +15,7 @@ Il secondo è l'implementazione di un gestore di siti multilingua
 
 Requirements
 ------------
+php 4 o superiore
 
 Installation
 ------------
