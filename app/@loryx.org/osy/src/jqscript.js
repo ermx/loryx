@@ -12,6 +12,7 @@ if (!window['console'])
 }
 (function($)
 {
+    window['W'] = $;
     function _cc(c)
     {
         if (typeof(c)=='object') 
@@ -200,30 +201,26 @@ var osy = new (function()
         var pos = $el.offset();
         var skp = {'x':pos.left-ev.pageX,'y':pos.top-ev.pageY};
         // copertura oggetto
-        var cov = $('<div style="position:absolute; background-color:red;"/>')
+        var cov = $('<div style="position:absolute; background-color:red; top:0px; left:0px;"/>')
                     .css('height',$el.height())
                     .css('width',$el.width())
                     .bind('mouseup',function(){$(document).trigger('movestop.osy')})
-                    .prependTo(el);
+                    .appendTo(el);
         $(document).bind('mousemove.osy',function(evm)
         {
             $el.css('left',max(evm.pageX+skp.x,0));
             $el.css('top',max(evm.pageY+skp.y,0));
-        }).bind('mouseout',function(evn)
-        {
-            if($(evn.fromElement).is('html') || $(evn.toElement).is('html')) 
-            {
-                $(this).trigger('movestop.osy');
-            }
+            if (min(evm.pageX,evm.pageY)<0) $(document).trigger('movestop.osy');
         }).one('movestop.osy',function()
         {
             cov.remove();
+            // stop movimento
             $(this).unbind('mousemove.osy');
         });
     }
     function mk_box(frm,opt)
     {
-        var box = $('<div class="box" style="position:absolute;"><div class="titlebar"><table cellspacing="0" cellpadding="3px" width="100%"><tr class="cmd"><th class="title" width="100%"></th></tr></table></div><div class="content"></div><div class="foot"></div></div>')
+        var box = $('<div class="box" style="position:absolute; visibility:hidden; width:100px;"><div class="titlebar"><table cellspacing="0" cellpadding="3px" width="100%"><tr class="cmd"><th class="title" width="100%"></th></tr></table></div><div class="content"></div><div class="foot"></div></div>')
                              .appendTo('body');
         // impostazione elementi principali
         box.find('.title, .cmd, .content, .foot')
@@ -251,15 +248,16 @@ var osy = new (function()
             });
         box.bind('unfocus',function()
         {
-            box.data('cover').css('height',box.height());
+            if (!box.data('everyfocus')) box.data('cover').css('height',box.data('content').height());
             box.css('z-index',0);
         });
-        box.bind('focus',function()
+        box.bind('focus',function() 
         {
             box.data('cover').css('height',0);
             box.css('z-index',10);
         });
         box.bind('click',function (){focus(box)});
+        box.bind('close',function(){$(this).remove()});
         box.data('iframe').bind('#cmd',function()
         {
             var args = $.AR(arguments);
@@ -271,7 +269,13 @@ var osy = new (function()
                 switch(val)
                 {
                 case 'close':
-                    $('<td>x</td>').bind('click',function(){box.remove()})
+                    $('<td>x</td>').bind('click',function()
+                    {
+                        try{
+                            osy.event(box.data('iwin'),'close.osy'); 
+                            osy.event(box,'close');
+                        }catch(e){}
+                    })
                                    .appendTo(box.data('cmd'));
                     break;
                 case 'reload':
@@ -281,6 +285,9 @@ var osy = new (function()
                 case 'init':
                     $('<td>i</td>').bind('click',function(){box.data('form').submit()})
                                    .appendTo(box.data('cmd'));
+                    break;
+                case 'everyfocus':
+                    box.data('everyfocus',1);
                     break;
                 case 'center':
                     box.css('left',($(document.body).width()-box.width())/2);
@@ -356,6 +363,7 @@ var osy = new (function()
         box.bind('#init',function(evn,win,ifr)
         {
             var doc = win.document;
+            box.data('iwin',$(win));
             box.data('iform',doc && doc.body && $(doc.body).find('form'));
             box.data('idata',doc && doc.body && $(doc.body).find(':last'));
             function init_input(sel)
@@ -390,8 +398,8 @@ var osy = new (function()
             var frm = box.data('iform');
             if (!frm) return;
             if (frm.height()) box.data('iframe').css('height',frm.height()+'px');
-            if (frm.width())  box.css('width',frm.width()+'px');
-            
+            if (frm.width())  box.css('width',(frm.width()+2)+'px');
+            box.css('visibility','');
             init_input(box.data('iform'));
             
             box.data('iform')
@@ -447,10 +455,10 @@ var osy = new (function()
                                 }
                             });
                             break;
-                        case 'command':
+                        case 'exe':
                             frm.find('code').each(function()
                             {
-                                (new Function('',$(this).html())).apply(evn.target,[]);
+                                (new Function('args',$(this).html())).apply(evn.target,[$(this)]);
                             });
                             break;
                         default : // copia
@@ -485,8 +493,10 @@ var osy = new (function()
         
         var box = focus(mk_box(fst,opt));
         
-        box.bind('#init',function(evn,win,ifr){box.data('title').text(win.document.title)});
         var box_self = $(el.ownerDocument && el.ownerDocument.defaultView && el.ownerDocument.defaultView.box);
+        
+        box.bind('#init',function(evn,win,ifr){box.data('title').text(win.document.title)})
+           .bind('close',function(){focus(box_self); osy.event(box_self.data('iwin'),'closechild')});
         
         switch(typeof(opt.pos))
         {

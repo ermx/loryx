@@ -144,7 +144,7 @@
             {
                 $th = $tbl->Head(Tag::mk('span',array('class'=>"hide"),'+'))
                           ->Att('class','link')
-                          ->Att('style',"width:12px")
+                          ->Att('style',"width:20px")
                           ->Att('onmouseover',"W('span:first',this).removeClass('hide')")
                           ->Att('onmouseout',"W('span:first',this).addClass('hide')")
                           ->Att('onclick',"osy.event(W(this).closest({'osy_type':'datagrid'}),'open',this,'insert')");
@@ -172,7 +172,7 @@
         if (count($rs->pky) and $rs->mod)
         {
             if ($rs->del) $th = $tbl->Head(NBSP)
-                                    ->Att('style',"width:12px");
+                                    ->Att('style',"width:20px");
             if ($rs->upd) $this->mk_itm($tbl,$rs,array());
         }
         if (is_array($data)) foreach($data as $itm)

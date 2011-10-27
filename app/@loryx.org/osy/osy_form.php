@@ -360,6 +360,7 @@ class osy_form
                 } // if update or insert
                 $rs->pk = $pk;
 				$code = $cnt->Add(new Tag('code'));
+                $page->form->Att('osy_type','exe');
 				foreach($pk as $n=>$v)
 				{
 					$code->Att('val_'.$n,$v)
