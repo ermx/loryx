@@ -46,7 +46,7 @@ class osy_form
     {
         $page = env::get_var('page');
         $page->setTitle($rs->get_prp('opensymap.org/title'));
-        $page->form->Att('evn_save',"osy.trigger(this,'exec',{'osy':{'evn':'save'}});");
+        $page->form->Att('evn_save',"osy.event(this,'exec',{'osy':{'evn':'save'}},args[0]);");
         $rs->cmp = array();
         $rs->prt = array();
         $rs->pky = array();
@@ -360,6 +360,7 @@ class osy_form
                 } // if update or insert
                 $rs->pk = $pk;
 				$code = $cnt->Add(new Tag('code'));
+                $page->form->Att('osy_type','exe');
 				foreach($pk as $n=>$v)
 				{
 					$code->Att('val_'.$n,$v)
