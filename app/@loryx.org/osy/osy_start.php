@@ -172,7 +172,7 @@ class osy_start
         catch(ExCode $e)
         {
             $page->form
-                ->Att('osy_type','command')
+                ->Att('osy_type','exe')
                 ->Add(new Tag('code'))
                 ->Add($e->getMessage());
         }

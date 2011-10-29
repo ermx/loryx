@@ -220,7 +220,13 @@ var osy = new (function()
     }
     function mk_box(frm,opt)
     {
-        var box = $('<div class="box" style="position:absolute; visibility:hidden; width:100px;"><div class="titlebar"><table cellspacing="0" cellpadding="3px" width="100%"><tr class="cmd"><th class="title" width="100%"></th></tr></table></div><div class="content"></div><div class="foot"></div></div>')
+        var box = $('<div class="box" style="position:absolute; visibility:hidden; width:100px;">'+
+                        '<div class="titlebar"><table cellspacing="3px" cellpadding="5px" width="100%">'+
+                            '<tr class="cmd"><th class="title" width="100%"></th></tr>'+
+                        '</table></div>'+
+                        '<div class="content"></div>'+
+                        '<div class="foot"></div>'+
+                    '</div>')
                              .appendTo('body');
         // impostazione elementi principali
         box.find('.title, .cmd, .content, .foot')
@@ -290,6 +296,9 @@ var osy = new (function()
                     box.data('everyfocus',1);
                     break;
                 case 'center':
+                    var b = null;
+                    var w = box.data('iframe').each(function(){b=this.contentWindow.document});
+                    console.log(b);
                     box.css('left',($(document.body).width()-box.width())/2);
                     box.css('top',($(document.body).height()-box.height())/2);
                     break;
