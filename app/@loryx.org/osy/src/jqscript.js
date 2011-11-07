@@ -6,6 +6,10 @@
  */
 
 Array.prototype.IS_ARRAY = 1;
+Array.prototype.each = function(f)
+{
+	return $.each(this,f);
+}
 if (!window['console'])
 {
     var console = {'log':function(){}};
@@ -53,6 +57,9 @@ if (!window['console'])
         },
         'AR':function(as)
         {
+			if (!as) return [];
+			if (as.IS_ARRAY) return as;
+			if (as.length== undefined) return [as];
             var _args = [];
             $.each(as, function (i,a)
             {
@@ -369,6 +376,10 @@ var osy = new (function()
             $el.removeClass('error');
             if (!re.test(el.value)) $el.addClass('error');
         }
+		function event_proc(el,ev)
+		{
+			console.log('event_proc',el,ev);
+		}
         box.bind('#init',function(evn,win,ifr)
         {
             var doc = win.document;
@@ -412,8 +423,9 @@ var osy = new (function()
             init_input(box.data('iform'));
             
             box.data('iform')
-               .bind('exec',function(evn,data)
+               .bind('exec',function(evn,data,obs)
             {
+				console.log(obs);
                 data['osy']['sta'] = 'form';
                 var frm = _cp_frm(this,data);
                 // richiesta ajax
@@ -428,7 +440,7 @@ var osy = new (function()
                         var frm = this.html(xhr.responseText).find('form:first');
                         if (!frm.length) 
                         {
-                            alert(this.html());
+							event_proc(evn.target,this.find(':first').first());
                             return;
                         }
                         var ttl = frm.attr('osy_title');
@@ -464,6 +476,7 @@ var osy = new (function()
                             });
                             break;
                         case 'exe':
+							$(evn.target).data('obs',obs);
                             frm.find('code').each(function()
                             {
                                 (new Function('args',$(this).html())).apply(evn.target,[$(this)]);
@@ -537,12 +550,24 @@ var osy = new (function()
     this.trigger = function()
     {
         var args = $.AR(arguments);
-        $(args.shift()).trigger(args.shift(),args);
+		var el = $(args.shift());
+		var ev = args.shift();
+        el.trigger(ev,args);
+		$.AR(el.data('obs')).each(function(idx,el)
+		{
+			$(el).trigger(ev,args);
+		});
     },
     this.event = function()
     {
         var args = $.AR(arguments);
-        $(args.shift()).trigger(args.shift(),args,false);
+		var el = $(args.shift());
+		var ev = args.shift();
+        el.trigger(ev,args,false);
+		$.AR(el.data('obs')).each(function(idx,el)
+		{
+			$(el).trigger(ev,args,false);
+		});
     },
     this.get_input = function(el,nm)
     {

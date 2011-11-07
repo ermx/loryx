@@ -230,10 +230,13 @@ class osy_form
                 foreach($rs->cmp as $k=>$ch)
                 {
                     if ($val = $ch->get_prp('opensymap.org/db/insert'))
-                    $ch->setValue($db->merge ($val,
-                                            $_POST,
-                                            $_POST['_']['pky'],
-                                            $_POST['_']['prt']));
+					{
+						$ch->setValue($db->merge ($val,
+												$_POST,
+												$_POST['_']['pky'],
+												$_POST['_']['prt']));
+					}
+					FB::log($val,$ch->get_urn());
                 }
                 break;
             case 'delete':
@@ -366,6 +369,7 @@ class osy_form
 					$code->Att('val_'.$n,$v)
 						 ->Add("osy.get_input(this,'_[pky][{$n}]').val(W(args[0]).attr('val_{$n}'));");
 				}
+				$code->Add("osy.event(this,'ok')");
             }
         }
         
