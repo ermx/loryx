@@ -77,8 +77,8 @@ class env
         $this->time = new c_timer();
         
         $this->app_root = './app/';
-        $this->apx_root = sys_get_temp_dir().'org.loryx.www/apx/';
-        if (!is_dir($this->apx_root)) mkdir($this->apx_root,0777,true);
+        $this->apx_root = sys_get_temp_dir().'/org.loryx.www/apx/';
+		if (!is_dir($this->apx_root)) mkdir($this->apx_root,0777,true);
         
         $this->mtime = 1?filemtime(__FILE__):0;
         $this->lng = 'it';
@@ -229,7 +229,6 @@ class env
         if(count($rsa))
         {
             $dir = dirname($fname);
-			var_dump($dir); 
             if (!is_dir($dir)) mkdir($dir,0777,true);
             $fp = @fopen($fname,'w');
         }
