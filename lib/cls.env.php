@@ -229,6 +229,7 @@ class env
         if(count($rsa))
         {
             $dir = dirname($fname);
+			var_dump($dir); 
             if (!is_dir($dir)) mkdir($dir,0777,true);
             $fp = @fopen($fname,'w');
         }
