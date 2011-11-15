@@ -225,7 +225,7 @@ var osy = new (function()
             $(this).unbind('mousemove.osy');
         });
     }
-    function mk_box(frm,opt)
+    function mk_box(frm,opt,obs)
     {
         var box = $('<div class="box" style="position:absolute; visibility:hidden; width:100px;">'+
                         '<div class="titlebar"><table cellspacing="3px" cellpadding="5px" width="100%">'+
@@ -270,7 +270,14 @@ var osy = new (function()
             box.css('z-index',10);
         });
         box.bind('click',function (){focus(box)});
-        box.bind('close',function(){$(this).remove()});
+        box.bind('close',function()
+		{
+			$.AR(obs).each(function()
+			{
+				osy.event(this,'close');
+			}); 
+			$(this).remove();
+		});
         box.data('iframe').bind('#cmd',function()
         {
             var args = $.AR(arguments);
@@ -303,12 +310,8 @@ var osy = new (function()
                     box.data('everyfocus',1);
                     break;
                 case 'center':
-                    var b = null;
-                    var w = box.data('iframe').each(function(){b=this.contentWindow.document});
-                    console.log(b);
-                    box.css('left',($(document.body).width()-box.width())/2);
-                    box.css('top',($(document.body).height()-box.height())/2);
-                    break;
+					box.data('center',1);
+					break;
                 case 'position':
                     var pos = args.shift();
                     if (pos.x) box.css('left',pos.x);
@@ -376,9 +379,15 @@ var osy = new (function()
             $el.removeClass('error');
             if (!re.test(el.value)) $el.addClass('error');
         }
-		function event_proc(el,ev)
+		function event_proc(el,b)
 		{
-			console.log('event_proc',el,ev);
+			var f = b.find(':first').first();
+			if (!f.length)
+			{
+				alert(b.text());
+				return;
+			}
+			console.log('event_proc',f,ev,el);
 		}
         box.bind('#init',function(evn,win,ifr)
         {
@@ -417,8 +426,13 @@ var osy = new (function()
             }
             var frm = box.data('iform');
             if (!frm) return;
-            if (frm.height()) box.data('iframe').css('height',frm.height()+'px');
-            if (frm.width())  box.css('width',(frm.width()+2)+'px');
+			osy.event(box,'set_dim',frm);
+			if (box.data('center'))
+			{
+				box.css('left',($(document.body).width()-box.width())/2);
+				box.css('top',($(document.body).height()-box.height())/2);
+				box.data('center',0);
+			}
             box.css('visibility','');
             init_input(box.data('iform'));
             
@@ -440,7 +454,7 @@ var osy = new (function()
                         var frm = this.html(xhr.responseText).find('form:first');
                         if (!frm.length) 
                         {
-							event_proc(evn.target,this.find(':first').first());
+							event_proc(evn.target,this);
                             return;
                         }
                         var ttl = frm.attr('osy_title');
@@ -493,7 +507,11 @@ var osy = new (function()
         {
             if (box.data('iform') && box.data('iform').length) box.data('iform').submit();
             else box.data('form').submit();
-        });
+        }).bind('set_dim',function(ev,frm)
+		{
+            if (frm.height()) box.data('iframe').css('height',frm.height()+'px');
+            if (frm.width())  box.css('width',(frm.width())+'px');
+		});
     
         box.data('form').submit();
         return box;
@@ -506,13 +524,17 @@ var osy = new (function()
         wfocus.trigger('focus');
         return box;
     }
-    this.win = function(el,opt)
+    this.win = function(el,opt,obs)
     {
         // form di riferimento dal quale viene fatta la richiesta
         var fst  = $(el).parents('form');
         if(!fst.length) fst=$('form:first');
-        
-        var box = focus(mk_box(fst,opt));
+        if (obs) 
+		{
+			if (obs.IS_ARRAY) obs.unshift(el);
+			else obs = [el,obs];
+		}
+        var box = focus(mk_box(fst,opt,obs));
         
         var box_self = $(el.ownerDocument && el.ownerDocument.defaultView && el.ownerDocument.defaultView.box);
         
@@ -579,5 +601,9 @@ var osy = new (function()
         if (typeof(nm)!='object') nm = {'name':nm};
 		nm['#'] = 'input';
         return $(el).closest('form').find(nm);
-    }
+    },
+	this.exe = function(el,opt,obs)
+	{
+		this.trigger(el,'exec',opt,obs);
+	}
 })();

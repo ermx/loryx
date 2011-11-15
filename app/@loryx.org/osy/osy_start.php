@@ -94,7 +94,7 @@ class osy_start
                 $usr = $this->aut($rs,$oaut->value);
                 if (!$usr['id'])
                 {
-                    $scr->Add("osy.trigger(frameElement,'#cmd','center');");
+                    $scr->Add("W(function(){osy.trigger(frameElement,'#cmd','center')});");
                     //$page->AddScript()->Add("W(frameElement,'#cmd','rm','close');");
                     $frm_name = nvl($ofrm->value,$rs->get_prp('opensymap.org/form/default'));
                     $frm = $rs->get_cld($frm_name);

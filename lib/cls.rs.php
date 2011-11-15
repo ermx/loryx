@@ -72,7 +72,7 @@ class rs
             foreach($this->typ->get_clds() as $h=>$v) 
             {
                 if (!$v->get_styp()) continue;
-                $el = $this->copy($v);
+                $el = $this->copy($v,0);
             }
         };
         foreach($this->cld as $ch) $ch->sync();
@@ -86,7 +86,7 @@ class rs
         if ($this->typ and $this->typ!=$this) return $this->typ->is_a($t);
         return false;
     }
-    function set_prp($p,$v='')
+    function set_prp($p,$v='',$overwrite=1)
     {
         if (is_array($p))
         {
@@ -101,7 +101,7 @@ class rs
             if ($this->par) $this->par->map[$v][] = $this;
             break;
         }
-        if (!$noset) $this->prp[$p] = $v;
+        if ($overwrite  or !isset($this->prp[$p])) $this->prp[$p] = $v;
 		return $this;
     }
     function get_prp($p,$onlySelf = 0)
@@ -185,16 +185,16 @@ class rs
 
         return $this->cld[$c->name ];
     }
-    function dup($c)
+    function dup($c,$overwrite=1)
     {
         if (is_array($c->trl)) 
             foreach($c->trl as $p=>$t) 
                 foreach($t as $l=>$v) 
                     $this->trl[$p][$l] = $v;
-        foreach($c->prp as $k=>$v) $this->set_prp($k,$v);
+        foreach($c->prp as $k=>$v) $this->set_prp($k,$v,$overwrite);
         foreach($c->cld as $k=>$v) 
         {
-            $el = $this->copy($v);
+            $el = $this->copy($v,$overwrite);
             if($c->get_prp('loryx.org/copy')=='noRestoreChild')
             {
                 $el->set_prp('loryx.org/store','no');
@@ -202,10 +202,10 @@ class rs
         }
         return $this;
     }
-    function copy($rs)
+    function copy($rs,$overwrite=1)
     {
         //var_dump('copy '.$this->get_urn().'--'.$rs->get_urn());
-        $el = $this->set_cld($rs->name)->dup($rs);
+        $el = $this->set_cld($rs->name)->dup($rs,$overwrite);
         $el->sync();
         return $el;
     }

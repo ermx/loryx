@@ -42,7 +42,7 @@
         }
         if ($rs->frm) 
         {
-            $rs->tag->Att('evn_win' ,"osy.win(args[0],{'osy':{'frm':'{$rs->frm}','evn':args[1]},'pky':$(args[0]).closest('tr').find({'osy_type':'pky'})},{evn_close:function(){osy.trigger(window,'reload')}})");
+            $rs->tag->Att('evn_win' ,"osy.win(args[0],{'osy':{'frm':'{$rs->frm}','evn':args[1]},'pky':$(args[0]).closest('tr').find({'osy_type':'pky'})},{evn_close:function(){osy.trigger(box,'reload')}})");
         }
         if ($rs->del)
         {
@@ -55,7 +55,7 @@
         }
         if ($rs->upd)
         {
-            $rs->tag->Att('evn_save_itm',"osy.event(W(this).closest('form'),'exec',{'osy':{'cmp':'{$rs->name}','evn':'save'},'vars':W(args[0]).find({'osy_type':'nopost'})})");
+            $rs->tag->Att('evn_save_itm',"var tr = W(args[0]), frm = W(this).closest('form'); osy.event(frm,'save',{'evn_ok':function(){osy.event(frm,'exec',{'osy':{'cmp':'{$rs->name}','evn':'save'},'vars':tr.find({'osy_type':'nopost'})})}})");
         }
         // gestione ordinamento colonne
         $col_name = $rs->name.'[col]';
@@ -198,10 +198,9 @@
             // modifica inline degli elementi
             $tr->Att('evn_modified',"this.vvupd = true;")
                ->Att('evn_focusin',"clearTimeout(this.ttupd)")
-               ->Att('evn_focusout',"console.log(this.vvupd); if (!this.vvupd) return; ".
+               ->Att('evn_focusout',"if (!this.vvupd) return; ".
                                     "this.ttupd = setTimeout(function(tr){".
-                                            "tr=W(tr); ".
-                                            "osy.event(tr.closest({'osy_type':'datagrid'}),'save_itm',tr);".
+                                            "tr = W(tr); osy.event(tr.closest({'osy_type':'datagrid'}),'save_itm',tr);".
                                     "}, 100, this);");
         }
         else

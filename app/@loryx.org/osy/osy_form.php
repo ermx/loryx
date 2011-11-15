@@ -75,7 +75,7 @@ class osy_form
                 $cmd->Cell(new TagButton('elimina',"osy.exe(this,{'osy':{'evn':'delete'},'form':this.form})"))
                     ->Last->Att('class','bt_frm_del')
                           ->Att('exe_msg',"Eliminare l'elemento?")
-                          ->Att('ev_ok',"lrx.ev_start(window.frameElement,'close')");
+                          ->Att('evn_ok',"osy.event(box,'close')");
             }
             $dcmd = $cmd->Cell(new Table)
                         ->Att('width','100%')
@@ -87,10 +87,10 @@ class osy_form
             {
                 $dcmd->Cell($bt->exe()->tag);
             }
-            $cmd->Cell(new TagButton('conferma',"osy.trigger(this.form,'save')"))
+            $cmd->Cell(new TagButton('conferma',"osy.event(this.form,'save',this)"))
                 ->Last->Att('class','bt_frm_cnf')
-                      ->Att('ev_ok',"osy.trigger(window.frameElement,'close')");
-            $cmd->Cell(new TagButton('chiudi',"osy.trigger(window.frameElement,'close')"))
+                      ->Att('evn_ok',"osy.event(box,'close')");
+            $cmd->Cell(new TagButton('chiudi',"osy.event(box,'close')"))
                 ->Last->Att('class','bt_frm_cls');
         }
 
@@ -236,8 +236,8 @@ class osy_form
 												$_POST['_']['pky'],
 												$_POST['_']['prt']));
 					}
-					FB::log($val,$ch->get_urn());
                 }
+					FB::log($val,$ch->get_urn());
                 break;
             case 'delete':
                 $rs->evn->stop = true;
@@ -250,7 +250,10 @@ class osy_form
                 //return new TagEvnError($wh);
                 //$db->noexe();
                 $db->delete('[@'.$rs->get_prp('opensymap.org/db/table').']',$wh);
-                $cnt->Add(new TagEvnOk());
+				$code = $cnt->Add(new Tag('code'));
+                $page->form->Att('osy_type','exe');
+				$code->Add("osy.event(this,'ok')");
+
                 break;
             case 'save':
                 $rs->evn->stop = true;
@@ -340,7 +343,7 @@ class osy_form
                                     if (empty($fl[$f]))
                                     {
                                         $ttl = $ch->get_prp('opensymap.org/label');
-                                        return new TagEvnError("{$ttl} : Chiave non impostata. ".$ch);
+                                        osy::alert("{$ttl} : Chiave non impostata. ".$ch);
                                     }
                                 }
                             }
@@ -480,6 +483,7 @@ class osy_form
         // lista dei figli del pannello corrente
         $rs->pnl = array('childs'=>array());
         $this->init_cmp($rs);
+		//var_dump($rs->dump());
         foreach($rs->cmp as $ch)
         {
             if ($ch->get_prp('opensymap.org/db/pk'))
