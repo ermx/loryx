@@ -194,6 +194,7 @@ class lrx_install
         // nome tabella
         $tbl_base = $f->get_cld('txt_lrx_base');
         // tipo database scelto
+		//var_dump($_POST);
         $db_typ = $f->get_cld($f->get_cld('pnl_db_typ')->value);
         $m = $db_typ->get_prp('loryx.org/function');
         if (empty($m)) 
@@ -224,7 +225,7 @@ class lrx_install
                             ->Att('osy_map','pnl_msg');
         try
         {
-            if ($mysqli->real_connect($rs->get_cld('inp_mysql_host')->value, 
+            if (@$mysqli->real_connect($rs->get_cld('inp_mysql_host')->value, 
                               $rs->get_cld('inp_mysql_usr')->value, 
                               $rs->get_cld('inp_mysql_pwd')->value))
             {
@@ -265,8 +266,19 @@ class lrx_install
                     $tbl->Row();
                     $tbl->Cell($info);
                     $tbl->Row();
-                    $tbl->Cell(new TagButton('Installa',"osy.trigger(this,'exec',{'osy':{'evn':'install'}})"))
-                        ->Att('style','text-align:center; padding-top:10px;');
+					$fp = @fopen($rs->get_root()->get_prp('loryx.org/config'),'w');
+					// se il filesystem è scrivibile ...
+					if ($fp)
+					{
+						$tbl->Cell(new TagButton('Installa',"osy.trigger(this,'exec',{'osy':{'evn':'install'}})"))
+							->Att('style','text-align:center; padding-top:10px;');
+					}
+					else
+					{
+						// ci sarà il download del file
+						$tbl->Cell(new TagButton('Installa',"osy.frm(this,{'osy':{'evn':'install'},'frm':this.form})"))
+							->Att('style','text-align:center; padding-top:10px;');
+					}
                 }
             }
             else

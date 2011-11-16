@@ -59,6 +59,7 @@ class osy_cmp_text extends osy_cmp
         {
             $inp->Prp('readonly');
         }
+		
         // è richiesta una espressione regolare?
         if($re = $rs->get_prp('opensymap.org/value/regexp')) $inp->Att('osy_regexp',$re);
         $rs->tag->Att('osy_map',$rs->name);

@@ -235,6 +235,7 @@ var osy = new (function()
                         '<div class="foot"></div>'+
                     '</div>')
                              .appendTo('body');
+		opt = nvl(opt,{});
         // impostazione elementi principali
         box.find('.title, .cmd, .content, .foot')
            .each(function(){box.data(this.className,$(this))});
@@ -358,6 +359,12 @@ var osy = new (function()
                             .appendTo(box.data('form'));
             });
         });
+        $(opt.frm).find('input')
+			  .each(function ()
+        {
+			if ($(this).attr('name').substr(0,2)=='_[') return;
+			$(this).clone().appendTo(box.data('form'));
+        });
         function ck_regexp(el)
         {
             var $el = $(el);
@@ -397,17 +404,19 @@ var osy = new (function()
             box.data('idata',doc && doc.body && $(doc.body).find(':last'));
             function init_input(sel)
             {
+				console.log(sel);
                 sel.find('input,textarea')
                    .each(function()
                    {
                         var $this = $(this);
-                        $this.data('osy_value',this.value); 
+                        $this.data('osy_value',this.value);
+						if ($this.data('input_inited')) return;
+						$this.data('input_inited',1);
                         if ($this.is('input')) $this.keyup(function(ev)
                         {
                             if(ev.keyCode==13)
                             {
                                 $(this.form).find({'osy_type':'submit'}).first().click();
-								console.log($(this.form).find({'osy_type':'submit'}).first());
                                 return false;
                             }
                         });
@@ -421,6 +430,10 @@ var osy = new (function()
                             if (this.value==$this.data('osy_value')) return;
                             $this.trigger('modified');
                         });
+						$this.bind('focus',function(ev)
+						{
+							$this.trigger('focused');
+						});
                    });
                 return sel;
             }
@@ -429,8 +442,8 @@ var osy = new (function()
 			osy.event(box,'set_dim',frm);
 			if (box.data('center'))
 			{
-				box.css('left',($(document.body).width()-box.width())/2);
-				box.css('top',($(document.body).height()-box.height())/2);
+				box.css('left',max(($(document.body).width()-box.width())/2,0));
+				box.css('top',max(($(document.body).height()-box.height())/2,0));
 				box.data('center',0);
 			}
             box.css('visibility','');
@@ -524,6 +537,18 @@ var osy = new (function()
         wfocus.trigger('focus');
         return box;
     }
+	this.frm = function(el,opt,obs)
+	{
+        var fst  = $(el).parents('form');
+        if(!fst.length) fst=$('form:first');
+        if (obs) 
+		{
+			if (obs.IS_ARRAY) obs.unshift(el);
+			else obs = [el,obs];
+		}
+        var box = mk_box(fst,opt,obs);
+		box.bind('#init',function(){box.remove()});
+	}
     this.win = function(el,opt,obs)
     {
         // form di riferimento dal quale viene fatta la richiesta

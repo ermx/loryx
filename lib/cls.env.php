@@ -566,11 +566,13 @@ class env
             }
             if (!$handle)
             {
+				$fname = basename($fname);
+				FB::log($fname,'upload');
                 ob_clean();
                 //$fname = basename($fname);
                 // upload del file
                 header("Content-Type: text/plain");
-                header("Content-Disposition: attachment; filename=\"$fname\"");
+                header('Content-Disposition: attachment; filename="'.$fname.'"');
                 header("Content-Length: " . strlen($code));
                 echo $code;
                 exit;

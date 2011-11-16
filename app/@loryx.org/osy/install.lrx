@@ -6,7 +6,7 @@
 [ osy/install@loryx.org loryx.org/cmd
     opensymap.org/form/default frm1
     [ frm1 opensymap.org/form
-        opensymap.org/label Istallazione Opensymap
+        opensymap.org/title Istallazione Opensymap
         opensymap.org/size/width 500
         opensymap.org/type custom
         #
@@ -20,7 +20,6 @@
             loryx.org/parent pnl_osy
             opensymap.org/pos 1
             loryx.org/value % ...
-                <h2>Istallazione OpenSymap</h2>
                 <p>Opensymap è un sistema open per la gestione delle applicazioni. Esso verrà eseguito nel path indicato.</p>
                 ...
         ]
@@ -65,20 +64,21 @@
         [ bt_next opensymap.org/cmp/button 
             opensymap.org/label Conferma
             opensymap.org/event conf
+			opensymap.org/type submit
         ]
         
         [ ev_1 opensymap.org/event
             loryx.org/name conf
             loryx.org/code % ...
-                if (empty($rs->get_cld('inp_adm_login')->value)) osy::alert("Indicare l'utente amministratore");
-                if (empty($rs->get_cld('inp_adm_passwd')->value)) osy::alert("Password vuota");
-                if ($rs->get_cld('inp_adm_repasswd')->value!=$rs->get_cld('inp_adm_passwd')->value) osy::alert('Password non uguali');
+                if (empty($form->get_cld('inp_adm_login')->value)) osy::alert("Indicare l'utente amministratore");
+                if (empty($form->get_cld('inp_adm_passwd')->value)) osy::alert("Password vuota");
+                if ($form->get_cld('inp_adm_repasswd')->value!=$form->get_cld('inp_adm_passwd')->value) osy::alert('Password non uguali');
  
                 $aosy = env::get_var('inst');
                 $db = env::get_var('dbx');                           ;
 
                 // Prime configurazioni
-                $aosy->set_prp('loryx.org/path',$rs->get_cld('inp_path_osy')->value);
+                $aosy->set_prp('loryx.org/path',$form->get_cld('inp_path_osy')->value);
                 $cnf = $aosy->get_cld('config',3)
                              ->set_prp('opensymap.org/style','background-color:#ceddef;');
                 // impostazione database
@@ -94,16 +94,16 @@
                 $db->rs2store($aosy);
 
                 // impostazione tabelle utente
-                $db->rs2make($rs->get_par()->get_cld('db'));
+                $db->rs2make($form->get_par()->get_cld('db'));
                 
                 // impostazione utente amministratore
                 $usr_id = env::sid();
                 $db->insert('[@osy_usr]',array('id'=>$usr_id,
                                             'inst'=>$aosy->get_urn(),
-                                            'login'=>$rs->get_cld('inp_adm_login')->value,
-                                            'pwd'=>$rs->get_cld('inp_adm_passwd')->value,
+                                            'login'=>$form->get_cld('inp_adm_login')->value,
+                                            'pwd'=>$form->get_cld('inp_adm_passwd')->value,
                                             'id_rol'=>'ADM',
-                                            'lng'=>nvl($rs->get_cld('inp_adm_idioma')->value,'it')));
+                                            'lng'=>nvl($form->get_cld('inp_adm_idioma')->value,'it')));
                 
                 // impostazione app sull'admin
 				foreach($apx->get_clds() as $k=>$c)
@@ -116,7 +116,7 @@
                 $db->insert('[@osy_usr_prs]',array('id'=>env::sid(),
                                             'id_usr'=>$usr_id,
                                             'prp'=>'name',
-                                            'val'=>$rs->get_cld('inp_adm_name')->value));
+                                            'val'=>$form->get_cld('inp_adm_name')->value));
                 
                 // stl@loryx.org : molulo gestione siti multi lingua
                 env::get_rs('stl@loryx.org')
@@ -132,7 +132,7 @@
                 // env::get_rs('stl@opensymap.org')->install($aosy);
                 
                 // il desktop viene ricaricato
-                $path = $rs->get_cld('inp_path_osy')->value;
+                $path = $form->get_cld('inp_path_osy')->value;
                 osy::code("location = location.href+'{$path}'");
                 ...
         ]
