@@ -117,6 +117,7 @@ class lrx_start
         }
         if (!$xapp) 
         {
+			return;
             $xapp = array(1 =>env::get_rs('stl@loryx.org')->set_prp('loryx.org/debug',''));
         }
         else
