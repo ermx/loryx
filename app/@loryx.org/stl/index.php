@@ -361,7 +361,7 @@ class stl_start
 	{
         // caricamento dati di pertinenza del sito
         $this->_dat = $this->db->getFirst("select * from [@stl] where dom = [0]",$this->uri->server);
-        if ($this->id)
+        if (!$this->id)
         {
             //$this->_dat = $this->db->getFirst("select * from [@stl] order by id",$this->uri->server);
 			env::set_ctype('text/html');
