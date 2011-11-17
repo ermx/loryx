@@ -427,8 +427,8 @@ var osy = new (function()
                         }
                         $this.bind('blur',function(ev)
                         { 
-                            if (this.value==$this.data('osy_value')) return;
-                            $this.trigger('modified');
+                            if (this.value==$this.data('osy_value')) $this.trigger('nomodified');
+                            else $this.trigger('modified');
                         });
 						$this.bind('focus',function(ev)
 						{

@@ -196,8 +196,9 @@
         if ($rs->upd)
         {
             // modifica inline degli elementi
-            $tr->Att('evn_modified',"this.vvupd = true;")
-               ->Att('evn_focusin',"clearTimeout(this.ttupd)")
+            $tr->Att('evn_modified',"console.log(args); this.vvupd = true; osy.event(this,'focusout')")
+               ->Att('evn_nomodified',"console.log(args); osy.event(this,'focusout')")
+               ->Att('evn_focused',"clearTimeout(this.ttupd)")
                ->Att('evn_focusout',"if (!this.vvupd) return; ".
                                     "this.ttupd = setTimeout(function(tr){".
                                             "tr = W(tr); osy.event(tr.closest({'osy_type':'datagrid'}),'save_itm',tr);".
@@ -254,9 +255,7 @@
                     {
                         $val = new TagInput($name,$itm[$p],'text');
                     }
-                    $val->Att('onfocus',"if (!this.tr) this.tr = W(this).closest('tr'); osy.event(this.tr,'focusin')")
-                        ->Att('onblur',"osy.event(this.tr,'focusout')")
-                        ->Att('osy_type','nopost');
+                    $val->Att('osy_type','nopost');
 
                 }
                 else
