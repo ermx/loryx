@@ -1,3 +1,4 @@
 [ stl@loryx.org loryx.org/mod
     loryx.org/mod/start stl_start
+	loryx.org/mod/autoinstall 0
 ]

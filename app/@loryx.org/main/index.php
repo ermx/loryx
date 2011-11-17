@@ -17,7 +17,11 @@
         
         $rs->config = $rs->get_cld('config',5); 
 
-        if (!$rs->config) if (!$this->install($rs)) return;
+        if (!$rs->config)
+		{
+			if (!$rs->get_prp('loryx.org/mod/autoinstall')) return;
+			if (!$this->install($rs)) return;
+		}
         // nome di default dell'elemento "database principale"
         $db = $rs->config->get_cld($dbx?$dbx->name:'dbx');
         // se precedentemente non era stato impostato il db .. ri effettua la rilettura
@@ -97,7 +101,8 @@ class lrx_start
     function run($rs)
     {
         $req = env::get_var('request');
-        if (is_array($rs->map[trim($req->server.$req->base,'/')]) and $host = array_shift($rs->map[trim($req->server.$req->base,'/')]))
+		$sname = trim($req->server.$req->base,'/');
+        if (is_array($rs->map[$sname]) and $host = array_shift($rs->map[$sname]))
         {
             $xapp = null;
             foreach($host->get_clds() as $app)
