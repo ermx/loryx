@@ -44,6 +44,7 @@ foreach($this->menu['bar'] as $m)
        ->Add($m['lbl']);
     if ($this->uri->sec['id'] == $m['id']) $li->Att('class','cur');
 } 
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -56,7 +57,7 @@ foreach($this->menu['bar'] as $m)
     <?php echo $this->head?>
     <style>
 html,body {
-    background-image : url('/loryx/img/bg1.png');
+    background-image : url('<?php echo $this->uri->host?>/img/bg1.png');
     background-repeat: repeat-x;
     margin:0px;
     padding:0px;
@@ -65,7 +66,7 @@ html,body {
 #header {height:40px;}
 #header .menu{float:right;}
 #content {
-    background-image : url('/loryx/img/bga.png'); 
+    background-image : url('<?php echo $this->uri->host?>/img/bga.png'); 
     background-repeat: no-repeat;
     padding:10px;
     min-height:100px;}
