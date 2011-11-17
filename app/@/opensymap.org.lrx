@@ -70,6 +70,7 @@
             opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/noempty
         ] 
         [ const opensymap.org/cmp 
+			opensymap.org/display none
             opensymap.org/form/prps opensymap.org/db/field,opensymap.org/db/pk,opensymap.org/db/insert,loryx.org/value
         ]
     ] 

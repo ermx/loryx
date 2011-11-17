@@ -6,6 +6,7 @@
 [ sdk/vw_app@opensymap.org opensymap.org/view
 	opensymap.org/form frm_app
 	opensymap.org/title Applicazioni
+    opensymap.org/size/width 550 
 	[ c1 opensymap.org/column
 		opensymap.org/db/var hdn_sys
 		opensymap.org/title Lib

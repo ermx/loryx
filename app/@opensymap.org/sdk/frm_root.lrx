@@ -13,6 +13,8 @@
     ]    
 	[ hdn_base opensymap.org/cmp/const
         opensymap.org/db/insert 
-		
     ]    
+    [ txt_name opensymap.org/cmp/text
+        opensymap.org/label Nome
+    ]
 ]

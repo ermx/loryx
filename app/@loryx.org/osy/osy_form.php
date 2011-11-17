@@ -489,12 +489,12 @@ class osy_form
             if ($ch->get_prp('opensymap.org/db/pk'))
             {
                 $rs->pky[$ch->name] = $ch;
-                //FB::log($ch->name,'pky');
             }
             if ($f = $ch->get_prp('opensymap.org/db/field'))
             {
                 $rs->fld[$f] = $ch;
             }
+			if ($ch->get_prp('opensymap.org/display')=='none') continue;
             $par = $ch->get_prp('loryx.org/parent');
             
             // non è stato specificato un pannello genitore ..

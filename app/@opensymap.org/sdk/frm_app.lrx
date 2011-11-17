@@ -3,22 +3,23 @@
 # See LICENSE for license.
 #
 
-[ sdk/frm_app@opensymap.org sdk/frm_templ@opensymap.org
-    opensymap.org/size/width 700
+[ sdk/frm_app@opensymap.org sdk/tmpl_frm@opensymap.org
+    opensymap.org/size/width 500
     opensymap.org/title Applicazione
-    [ prova opensymap.org/cmp/text
-        opensymap.org/title Prova
-    ]
-    [ bt_mk_form opensymap.org/command
-        opensymap.org/event mk_form
-        opensymap.org/label Build Form
-    ]
-    [ bt_serialize opensymap.org/command
-        opensymap.org/event serialize
-        opensymap.org/label Serialize
-    ]
-    [ bt_tbl_import opensymap.org/command
-        opensymap.org/form frm_imp_tbl
-        opensymap.org/label Import Table
-    ]
+    [ txt_typ opensymap.org/cmp/const
+        loryx.org/value opensymap.org/app
+		opensymap.org/label 
+    ]    
+    [ hdn_sys opensymap.org/cmp/text
+        opensymap.org/type/readonly 0
+        loryx.org/parent pnl_dat
+        opensymap.org/db/insert 
+    ]    
+	[ hdn_base opensymap.org/cmp/const
+        opensymap.org/db/insert 
+		
+    ]    
+    [ txt_name opensymap.org/cmp/text
+        opensymap.org/label Nome
+    ] 
 ]
