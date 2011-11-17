@@ -361,10 +361,11 @@ class stl_start
 	{
         // caricamento dati di pertinenza del sito
         $this->_dat = $this->db->getFirst("select * from [@stl] where dom = [0]",$this->uri->server);
-        if (!$this->id)
+        if ($this->id)
         {
-            $this->_dat = $this->db->getFirst("select * from [@stl] order by id",$this->uri->server);
-            //return include('std_bad.php');
+            //$this->_dat = $this->db->getFirst("select * from [@stl] order by id",$this->uri->server);
+			env::set_ctype('text/html');
+            return include('std_bad.php');
         }
         env::set_var('trl_tbl',nvl($this->_dat['trl_tbl'],'stl_trl_det'));
         if (stl::get_cookie('__v'))
@@ -419,6 +420,7 @@ class stl_start
         $this->lay = $this->_dat['lay_std']?"./home/{$this->root}/{$this->_dat['lay_std']}":'lay_std.php';
         if (!count($this->path) && $this->lay_spl)
         {
+			env::set_ctype('text/html');
             return include($this->lay_spl);
         }
 
