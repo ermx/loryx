@@ -12,7 +12,7 @@ body{
 </head>
 <body>
 <div style="width:400px; padding:30px; margin:auto;  border:2px solid red; background-color:#ebebeb;">
-	Sito non configurato : <code><?php echo $this->uri->server?></code>
+	Sito in manutenzione : <code><?php echo $this->uri->server?></code>
 </div>
 </body>
 </html>
