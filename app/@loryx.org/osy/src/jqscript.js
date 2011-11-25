@@ -8,7 +8,16 @@
 Array.prototype.IS_ARRAY = 1;
 Array.prototype.each = function(f)
 {
-	return $.each(this,f);
+	for(var i=0; i< this.length; i++)
+	{
+		if (f.apply(this,[i,this[i]])===false) break;
+	}
+	return this;
+}
+Array.prototype.remove = function(el)
+{
+	this.each(function(i,e){if (e!=el) return; this.slice(i,1); return false;});
+	return el;
 }
 if (!window['console'])
 {
@@ -42,6 +51,7 @@ if (!window['console'])
     var _each = $.each;
     
     var _trigger    = $.event.trigger;    
+	var __trigger   = $.fn.trigger;
     
     var prefix_event = 'evn_';
     $.extend($,
@@ -99,7 +109,8 @@ if (!window['console'])
 					console.log(elem,ev,e);
 				}
             }
-            return _trigger.apply(this,arguments);
+            var ret = _trigger.apply(this,arguments);
+			return ret;
         }
     });
     $.extend($.fn, 
@@ -113,8 +124,45 @@ if (!window['console'])
         'closest':function()
         {
             arguments[0] = _cc(arguments[0]);
-            return _closest.apply(this,arguments);
-        }
+			try{
+				return _closest.apply(this,arguments);
+			}
+			catch(e)
+			{
+				return new $();
+			}
+        },
+		'observer':function(el,ev)
+		{
+			ev = nvl(ev,'*');
+			var obs = nvl(this.data('obs.osy'),{});
+			obs[ev] = nvl(obs[ev],[]);
+			function obs_itm(el)
+			{
+				this.remove = function()
+				{
+					obs[ev].remove(this);
+				}
+				this.trigger = function(arg)
+				{
+					__trigger.apply(el,arg);
+				}
+			}
+			var o = new obs_itm($(el));
+			obs[ev].push(o);
+			this.data('obs.osy',obs);
+			return o;
+		},
+		'trigger':function(ev,data)
+		{
+			var ev_name = ev.type?ev.type:ev;
+			var ar = arguments;
+            var ret = __trigger.apply(this,ar);
+			var obs = nvl($(this).data('obs.osy'),{}) 	;
+			$.AR(obs['*']).each(function(idx,el){el.trigger(ar)});
+			$.AR(obs[ev_name]).each(function(idx,el){el.trigger(ar)});
+			return ret;
+		}
     });
 }
 )(jQuery);
@@ -225,9 +273,11 @@ var osy = new (function()
             $(this).unbind('mousemove.osy');
         });
     }
-    function mk_box(frm,opt,obs)
+    function mk_box(el,opt,obs)
     {
-        var box = $('<div class="box" style="position:absolute; visibility:hidden; width:100px;">'+
+        var frm = $(el).closest('form');
+        if(!frm.length) frm=$('form:first');
+		var box = $('<div class="box" style="position:absolute; visibility:hidden; width:100px;">'+
                         '<div class="titlebar"><table cellspacing="3px" cellpadding="5px" width="100%">'+
                             '<tr class="cmd"><th class="title" width="100%"></th></tr>'+
                         '</table></div>'+
@@ -235,11 +285,14 @@ var osy = new (function()
                         '<div class="foot"></div>'+
                     '</div>')
                              .appendTo('body');
+		box.observer(el);
+		box.observer(obs);
 		opt = nvl(opt,{});
         // impostazione elementi principali
-        box.find('.title, .cmd, .content, .foot')
+        box.find('.title, .cmd, .content, .foot, .titlebar')
            .each(function(){box.data(this.className,$(this))});
         box.data('title').bind('mousedown',function(ev){move_obj(box,ev)});
+		box.data('titlebar').hide();
         // impostazione elementi del contenuto
         box.data('content')
            .append('<iframe frameborder="no" style="width:100%" name="'+rand('win_')+'" onload="osy.event(this, \'#init\', this.contentWindow, this)"></iframe>')
@@ -270,15 +323,8 @@ var osy = new (function()
             box.data('cover').css('height',0);
             box.css('z-index',10);
         });
-        box.bind('click',function (){focus(box)});
-        box.bind('close',function()
-		{
-			$.AR(obs).each(function()
-			{
-				osy.event(this,'close');
-			}); 
-			$(this).remove();
-		});
+        box.bind('click',function(){focus(box)});
+        box.bind('close',function(){$(this).remove()});
         box.data('iframe').bind('#cmd',function()
         {
             var args = $.AR(arguments);
@@ -365,6 +411,7 @@ var osy = new (function()
 			if ($(this).attr('name').substr(0,2)=='_[') return;
 			$(this).clone().appendTo(box.data('form'));
         });
+
         function ck_regexp(el)
         {
             var $el = $(el);
@@ -386,7 +433,7 @@ var osy = new (function()
             $el.removeClass('error');
             if (!re.test(el.value)) $el.addClass('error');
         }
-		function event_proc(el,b)
+		function event_proc(el,b,ev)
 		{
 			var f = b.find(':first').first();
 			if (!f.length)
@@ -447,6 +494,8 @@ var osy = new (function()
 				box.data('center',0);
 			}
             box.css('visibility','');
+			
+			box.data('iwin').trigger('show.osy');
             init_input(box.data('iform'));
             
             box.data('iform')
@@ -467,7 +516,7 @@ var osy = new (function()
                         var frm = this.html(xhr.responseText).find('form:first');
                         if (!frm.length) 
                         {
-							event_proc(evn.target,this);
+							event_proc(evn.target,this,evn);
                             return;
                         }
                         var ttl = frm.attr('osy_title');
@@ -503,10 +552,15 @@ var osy = new (function()
                             });
                             break;
                         case 'exe':
-							$(evn.target).data('obs',obs);
                             frm.find('code').each(function()
                             {
-                                (new Function('args',$(this).html())).apply(evn.target,[$(this)]);
+								var h = [];
+								var tg = $(evn.target);
+								h.push(tg.observer(box));
+								$.AR(obs).each(function(i,o){h.push(tg.observer(o))});
+								console.log(h);
+                                (new Function('args',$(this).html())).apply(evn.target,[$(this),frm]);
+								h.each(function(idx,el){console.log(el);el.remove()});
                             });
                             break;
                         default : // copia
@@ -539,6 +593,7 @@ var osy = new (function()
     }
 	this.frm = function(el,opt,obs)
 	{
+		/*
         var fst  = $(el).parents('form');
         if(!fst.length) fst=$('form:first');
         if (obs) 
@@ -546,25 +601,24 @@ var osy = new (function()
 			if (obs.IS_ARRAY) obs.unshift(el);
 			else obs = [el,obs];
 		}
-        var box = mk_box(fst,opt,obs);
+		*/
+        var box = mk_box(el,opt,obs);
 		box.bind('#init',function(){box.remove()});
 	}
     this.win = function(el,opt,obs)
     {
-        // form di riferimento dal quale viene fatta la richiesta
+        /*/ form di riferimento dal quale viene fatta la richiesta
         var fst  = $(el).parents('form');
         if(!fst.length) fst=$('form:first');
-        if (obs) 
-		{
-			if (obs.IS_ARRAY) obs.unshift(el);
-			else obs = [el,obs];
-		}
-        var box = focus(mk_box(fst,opt,obs));
+		*/
+        var box = focus(mk_box(el,opt,obs));
+		box.data('titlebar').show();
         
         var box_self = $(el.ownerDocument && el.ownerDocument.defaultView && el.ownerDocument.defaultView.box);
         
         box.bind('#init',function(evn,win,ifr){box.data('title').text(win.document.title)})
-           .bind('close',function(){focus(box_self); osy.event(box_self.data('iwin'),'closechild')});
+           .bind('close',function(){focus(box_self); osy.event(box_self.data('iwin'),'closechild')})
+		   .bind('closechild',function(){osy.trigger(this,'reload')});
         
         switch(typeof(opt.pos))
         {
@@ -600,10 +654,7 @@ var osy = new (function()
 		var el = $(args.shift());
 		var ev = args.shift();
         el.trigger(ev,args);
-		$.AR(el.data('obs')).each(function(idx,el)
-		{
-			$(el).trigger(ev,args);
-		});
+		return this;
     },
     this.event = function()
     {
@@ -611,10 +662,7 @@ var osy = new (function()
 		var el = $(args.shift());
 		var ev = args.shift();
         el.trigger(ev,args,false);
-		$.AR(el.data('obs')).each(function(idx,el)
-		{
-			$(el).trigger(ev,args,false);
-		});
+		return this;
     },
     this.get_input = function(el,nm)
     {
@@ -630,5 +678,25 @@ var osy = new (function()
 	this.exe = function(el,opt,obs)
 	{
 		this.trigger(el,'exec',opt,obs);
+	},
+	this.box = function(el,opt,obs)
+	{
+        var box_self = $(el.ownerDocument && el.ownerDocument.defaultView && el.ownerDocument.defaultView.box);
+		var pos = box_self.data('iframe').offset();
+		var $el = $(el);
+		var elpos = $el.offset();
+		opt['frm'] = _cp_frm($el.closest('form'),opt);
+		var cover = $('<div></div>').attr('style','width: 100%; height:'+$(document).height()+'; position:absolute; top:0px; left:0px; z-Index:100;').appendTo('body');
+		var box = mk_box(el,opt,obs);
+		cover.bind('click',function()
+		{
+			osy.event(box,'close'); 
+		});
+		var _t = box.trigger;
+		box.bind('close',function(){cover.remove();});
+		box.css('top',pos.top+elpos.top+$el.outerHeight(true));
+		box.css('left',pos.left+elpos.left);
+		box.css('z-index',100);
+		return box;
 	}
 })();

@@ -153,7 +153,7 @@ class mdb_mysqli extends mdb
         $rs = $this->cn->query($cmd);
         $end = env::get_time();
         //if (!$this->fb_disabled) FB::log(array(trim($cmd),$start.' : '.$begin.' : '.$end),'query');
-        if (!$rs) throw new Exception('Query errata '.NL.$cmd);
+        if (!$rs) osy::alert('Query errata '.NL.NL.$cmd.NL);
         return $rs;
     }
     function str($s,$wrap="'")
@@ -407,9 +407,23 @@ class mdb_mysqli extends mdb
         $this->rs2store($this->rs);
         return $cmd;
     }
+	function lrx2store($fld,$delete=0)
+	{
+        $algo = 'sha512';
+		FB::log($fld,$algo);
+
+		if ($delete)
+		{
+			$this->delete('[@loryx]',array('l'=>$fld['l'],'o'=>$fld['o'],'r'=>$fld['r'],'y'=>$fld['y']));
+		}
+		FB::log($algo);
+		$fld['k']=env::sid('',50);
+		$fld['s']=hash($algo,"{$fld['o']}/{$fld['r']}@{$fld['l']}#{$fld['y']}");
+		$this->insert('[@loryx]',$fld);
+		return array($fld['s'],$fld['k']);
+	}
     function rs2store($rs,$opt=array())
     {
-        $algo = 'sha512';
         
         switch($rs->get_prp('loryx.org/store'))
         {
@@ -430,12 +444,10 @@ class mdb_mysqli extends mdb
         if (!$this->fb_disabled) FB::log(array($rs->dump()),'rs2store '.$rs->get_urn());
         $this->fb_disabled = true;
         $has_prp;
-        $urn = $rs->get_urn();
         foreach(array('loryx.org/type'=>$rs->get_styp(),
                       'loryx.org/urn'=>$rs->get_urn()) as $p=>$v)
         {
-            $sha = hash($algo,"{$urn}#{$p}");
-            $this->insert('[@loryx]',array('l'=>$rs->sys,'o'=>$rs->base,'r'=>$rs->name,'y'=>$p,'x'=>$v,'k'=>env::sid('',50),'s'=>$sha));
+            list($sha) = $this->lrx2store(array('l'=>$rs->sys,'o'=>$rs->base,'r'=>$rs->name,'y'=>$p,'x'=>$v));
             // salvataggio traduzioni
             if (is_array($rs->trl[$p])) foreach($rs->trl[$p] as $lng=>$val)
             {
@@ -457,8 +469,7 @@ class mdb_mysqli extends mdb
                 break;
             }
             if ($continue) continue;
-            $sha = hash($algo,"{$urn}#{$p}");
-            $this->insert('[@loryx]',array('l'=>$rs->sys,'o'=>$rs->base,'r'=>$rs->name,'y'=>$p,'x'=>$v,'k'=>env::sid('',50),'s'=>$sha));
+            list($sha) = $this->lrx2store(array('l'=>$rs->sys,'o'=>$rs->base,'r'=>$rs->name,'y'=>$p,'x'=>$v));
             // salvataggio traduzioni
             if (is_array($rs->trl[$p])) foreach($rs->trl[$p] as $lng=>$val)
             {

@@ -92,11 +92,11 @@
     {
         FB::log($rs->value,$rs->get_urn());
         $v = Tag::mk('div',array('osy_typ'=>'combo'));
-        $v->Add(NBSP.$rs->value['dsc']);
+        $v->Add($rs->value['dsc']);
         
         $c = Tag::mk('div',array('class'=>'cmp_combo'))
-                ->Att('onclick',"this.box = osy.box(this,{'osy':{'cmp':'{$rs->name}'}}); this.chs = lrx.childs(this,{'osy_typ':'combo'}); ")
-                ->Att('ev_select',"this.chs[0].value = args[0]; this.chs[1].value = args[1]; this.chs[2].innerHTML = args[1]; lrx.ev_start(this.box,'close'); this.chs[0].onchange()");
+                ->Att('onclick',"this.box = osy.box(this,{'osy':{'cmp':'{$rs->name}'}}); this.chs = W(this).find({'osy_typ':'combo'}); ")
+                ->Att('evn_select',"this.chs[0].value = args[0]; this.chs[1].value = args[1]; this.chs[2].innerHTML = args[1]; osy.event(this.box,'close'); this.chs[0].onchange()");
         $c->Add(new TagInput($rs->name.'[key]',$rs->value['key'],'hidden'))
             ->Att('osy_typ','combo')
             ->Att('onchange',"this.form.mod = true; ".$rs->get_prp('opensymap.org/cmp/onchange'));
@@ -118,7 +118,7 @@
         }
         foreach($rs->get_clds('opensymap.org/option') as $op)
         {
-            $opts[$op->get_prp('opensymap.org/key')] = nvl($op->get_prp('opensymap.org/value'),$op->get_prp('opensymap.org/key'));
+            $opts[$op->get_prp('opensymap.org/key')] = nvl($op->get_prp('opensymap.org/dsc'),$op->get_prp('opensymap.org/key'));
         }
         foreach($rs->get_clds('opensymap.org/db/query') as $q)
         {
@@ -129,7 +129,6 @@
         {
             $db = env::get_var('db');
             //$db->noexe();
-            var_dump($_POST);
             $res = $db->getAll($qry->get_prp('loryx.org/value'),$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
             if (count($res))
             {
@@ -161,9 +160,9 @@
                 }
                 $c->Add(new Tag('div'))
                   ->Att('class',$cls)
-                  ->Att('onmouseover',"lrx.cl_add(this,'option')")
-                  ->Att('onmouseout',"lrx.cl_rm(this,'option')")
-                  ->Att('onclick',"lrx.ev_start(window.frameElement,'select',GET(this,'opt_key'),this.innerHTML)")
+                  ->Att('onmouseover',"W(this).addClass('option')")
+                  ->Att('onmouseout',"W(this).removeClass('option')")
+                  ->Att('onclick',"osy.event(box,'select',W(this).attr('opt_key'),this.innerHTML);")
                   ->Att('opt_key',$k)
                   ->Att('style','white-space:pre')
                   ->Add($v);

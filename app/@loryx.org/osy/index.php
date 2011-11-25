@@ -217,7 +217,7 @@ class osy_event
 {
     function make($rs,$prp,$arg)
     {
-        $ret = env::exe_prp($rs,'loryx.org/code',array('event'=>$rs,'form'=>$rs->get_par()));
+        $ret = env::exe_prp($rs,'loryx.org/code',array('event'=>$rs,'form'=>$rs->get_par(),'db'=>env::get_var('db')));
         if (is_object($ret)) $rs->tag = $ret;
     }
 }

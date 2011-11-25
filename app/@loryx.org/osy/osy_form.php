@@ -266,6 +266,7 @@ class osy_form
                     $wh = array();
                     $fl = array();
                     $pk = array();
+					$pkn = array();
                     foreach($rs->pky as $k=>$ch)
                     {
                         if ($rs->tag_pky[$k])
@@ -277,7 +278,7 @@ class osy_form
                             $val = $ch->value;
                         }
                         $wh[$ch->get_prp('opensymap.org/db/field')]= $val;
-                        $pk[$ch->name] = $val;
+                        $pkn[$ch->name] = $pk[$ch->get_prp('opensymap.org/db/field')] = $val;
                     }
                     foreach($rs->fld as $f=>$ch)
                     {
@@ -304,10 +305,10 @@ class osy_form
                                     //return new TagEvnError("{$ttl} : Chiave non impostata.");
                                 }
                             }
-                            $pk[$ch->name] = $fl[$f];
+                            $pkn[$ch->name] = $pk[$f] = $fl[$f];
                         }
                     }
-                    FB::log(array($fl,$_POST,$wh));
+                    //FB::log(array($fl,$_POST,$wh));
                     //$db->noexe();
                     $db->update('[@'.$rs->get_prp('opensymap.org/db/table').']',$fl,$wh);
                 }
@@ -316,6 +317,7 @@ class osy_form
                     // insert
                     $fl = array();
                     $pk = array();
+					$pkn = array();
                     foreach($rs->fld as $f=>$ch)
                     {
                         if ($ch->get_prp('opensymap.org/db/field/extern')) continue;
@@ -347,7 +349,7 @@ class osy_form
                                     }
                                 }
                             }
-                            $pk[$ch->name] = $fl[$f];
+                            $pkn[$ch->name] = $pk[$f] = $fl[$f];
                         }
                         else
                         {
@@ -365,12 +367,14 @@ class osy_form
                     $db->insert('[@'.$rs->get_prp('opensymap.org/db/table').']',$fl);
                 } // if update or insert
                 $rs->pk = $pk;
+                $rs->pkn = $pkn;
 				$code = $cnt->Add(new Tag('code'));
                 $page->form->Att('osy_type','exe');
-				foreach($pk as $n=>$v)
+				foreach($pkn as $n=>$v)
 				{
 					$code->Att('val_'.$n,$v)
-						 ->Add("osy.get_input(this,'_[pky][{$n}]').val(W(args[0]).attr('val_{$n}'));");
+						 ->Add("osy.get_input(this,'_[pky][{$n}]').val(W(args[0]).attr('val_{$n}'));")
+						 ->Add("osy.get_input(this,'{$n}').val(W(args[0]).attr('val_{$n}'));");
 				}
 				$code->Add("osy.event(this,'ok')");
             }
@@ -390,6 +394,7 @@ class osy_form
         }
         return true;
     }
+	/* TODO : da togliere da qui */ 
     public function delete_cld_lrx($rs)
     {
         $tbl = $rs->get_prp('opensymap.org/db/table');
@@ -407,6 +412,7 @@ class osy_form
                    substr(concat(o,'/'),1,length('<[{$map['o']}]>/<[{$map['r']}]>/'))='<[{$map['o']}]>/<[{$map['r']}]>/')",
                                     $_POST['_']['pky']);
     }
+    /* TODO : da togliere da qui */ 
     public function save_cld_lrx($rs)
     {
         if ($rs->pk!=$_POST['_']['pky'])
@@ -436,16 +442,16 @@ class osy_form
                                         'o'=>$_POST['_']['pky'][$map['o']],
                                         'r'=>$_POST['_']['pky'][$map['r']],
                                         'y'=>'loryx.org/urn'));
-            $db->insert("[@{$tbl}]",array('l'=>$rs->pk[$map['l']],
-                                        'o'=>$rs->pk[$map['o']],
-                                        'r'=>$rs->pk[$map['r']],
+            $db->insert("[@{$tbl}]",array('l'=>$rs->pk['l'],
+                                        'o'=>$rs->pk['o'],
+                                        'r'=>$rs->pk['r'],
                                         'y'=>'loryx.org/urn',
                                         'x'=>$urn));
             $db->query("/* */ update [@{$tbl}] set ".implode(' , ',$fld)." where ".implode(' and ',$whr),
-                                        $rs->pk,
+                                        $rs->pkn,
                                         $_POST['_']['pky']);
             $db->query("/* * */ update [@{$tbl}] set ".implode(' , ',$fldcld)." where ".implode(' and ',$whrcld),
-                                        $rs->pk,
+                                        $rs->pkn,
                                         $_POST['_']['pky']);
         }
     }

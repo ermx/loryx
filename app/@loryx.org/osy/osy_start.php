@@ -6,7 +6,7 @@
  *
  */
 
- class ExCode extends Exception {};
+class ExCode extends Exception {};
 class ExAlert extends Exception {};
 
 class osy
@@ -64,6 +64,7 @@ class osy_start
        //var_dump($rs->get_prp('opensymap.org/menu/title'));
         $page->AddCss($req->base.'/src/lib.main.css');
         //FB::log($req);
+		$scr = $page->AddScript('');
         try{
             switch($oapp->value)
             {
@@ -89,8 +90,8 @@ class osy_start
                 // MENU'
                 // se l'utente non è loggatto allora parte la form di default
                 // .. se la form di default non è impostata ... parte il login standard
-                $scr = $page->AddScript('');
                 $scr->Add('window.dsk = frameElement.dsk; window.box = frameElement.box; window.$ = dsk.$; window.W=dsk.W; window.osy = dsk.osy;');
+				$scr->Add("W(window).bind('show.osy',function(){W('input:text:visible:first',document.body).focus()});");
                 $usr = $this->aut($rs,$oaut->value);
                 if (!$usr['id'])
                 {
@@ -144,7 +145,7 @@ class osy_start
                 {
                     throw new Exception('Accesso negato');
                 }
-                $page->AddScript('')->Add('window.dsk = frameElement.dsk; window.box = frameElement.box; window.$ = dsk.$; window.W=window.$, window.osy = dsk.osy;');
+                $scr->Add('window.dsk = frameElement.dsk; window.box = frameElement.box; window.$ = dsk.$; window.W=window.$, window.osy = dsk.osy;');
                 //$page->form->Att('ev_save',"this.upd?osy.exe(args[0],{'osy':{'evn':'save'},'form':this}):lrx.ev_start(args[0],'ok');");
                 // tramite questa applicazione è possibile modificare l'interfaccia
 				$app = $rs->get_cld('config/app/'.$oapp->value);
@@ -153,7 +154,8 @@ class osy_start
 				
                 if (!$frm) throw new Exception('Form c()non trovata : '.$ofrm->value);
                 env::set_var('form',$frm);
-                $page->addScript('')->Add("osy.trigger(frameElement,'#cmd','init,reload,close')");
+                $scr->Add("osy.trigger(frameElement,'#cmd','init,reload,close');");
+				$scr->Add("W(window).bind('show.osy',function(){W('input:text:visible:first',document.body).focus()});");
                 
                 if (!$ocmp->value)
                 {

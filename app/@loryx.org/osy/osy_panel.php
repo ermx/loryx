@@ -267,7 +267,7 @@ class osy_panel extends osy_cmp
         foreach($els as $ch)
         {
             if (!in_array($inp->value,$eln)) $inp->Att('value',$ch->name);
-            $lb = $ch->get_prp('opensymap.org/label');
+            $lb = $ch->get_prp('opensymap.org/title');
             if (!$lb) $lb = $ch->name;
             $t = $ttl->Add(Tag::mk('span',false,$lb))
                      ->Att('style','border:1px solid silver; border-bottom:0px; padding:5px; cursor:pointer;')
