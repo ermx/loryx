@@ -57,7 +57,7 @@
 
         [ pnl_cnf_mysql opensymap.org/cmp/panel
             loryx.org/parent pnl_db_typ
-            opensymap.org/label mySql
+            opensymap.org/title mySql
             loryx.org/function mk_mysql
         ]
         [ inp_mysql_host opensymap.org/cmp/text
@@ -85,7 +85,7 @@
 
         [ pnl_cnf_pgsql opensymap.org/cmp/panel
             loryx.org/parent pnl_db_typ
-            opensymap.org/label PosgreSQL
+            opensymap.org/title PosgreSQL
             loryx.org/function mk_pgsql
         ]
         [ inp_pgsql_host opensymap.org/cmp/text
@@ -108,7 +108,7 @@
         
         [ pnl_cnf_sqlite opensymap.org/cmp/panel
             loryx.org/parent pnl_db_typ
-            opensymap.org/label SQLite
+            opensymap.org/title SQLite
             loryx.org/function mk_sqlite
         ]
         [ inp_sqlite_fname opensymap.org/cmp/text

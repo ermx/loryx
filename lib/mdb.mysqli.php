@@ -407,19 +407,27 @@ class mdb_mysqli extends mdb
         $this->rs2store($this->rs);
         return $cmd;
     }
-	function lrx2store($fld,$delete=0)
+	function lrx2store($fld,$opt='')
 	{
         $algo = 'sha512';
 		FB::log($fld,$algo);
 
-		if ($delete)
+		switch($opt)
 		{
+		case 'upd':
+			$fld['k']=env::sid('',50);
+			$fld['s']=hash($algo,"{$fld['o']}/{$fld['r']}@{$fld['l']}#{$fld['y']}");
+			$this->update('[@loryx]',$fld,array('l'=>$fld['l'],'o'=>$fld['o'],'r'=>$fld['r'],'y'=>$fld['y']));
+			break;
+		case 'del':
+		case 1:
 			$this->delete('[@loryx]',array('l'=>$fld['l'],'o'=>$fld['o'],'r'=>$fld['r'],'y'=>$fld['y']));
+			// no break;
+		default:
+			$fld['k']=env::sid('',50);
+			$fld['s']=hash($algo,"{$fld['o']}/{$fld['r']}@{$fld['l']}#{$fld['y']}");
+			$this->insert('[@loryx]',$fld);
 		}
-		FB::log($algo);
-		$fld['k']=env::sid('',50);
-		$fld['s']=hash($algo,"{$fld['o']}/{$fld['r']}@{$fld['l']}#{$fld['y']}");
-		$this->insert('[@loryx]',$fld);
 		return array($fld['s'],$fld['k']);
 	}
     function rs2store($rs,$opt=array())
@@ -445,7 +453,7 @@ class mdb_mysqli extends mdb
         $this->fb_disabled = true;
         $has_prp;
         foreach(array('loryx.org/type'=>$rs->get_styp(),
-                      'loryx.org/urn'=>$rs->get_urn()) as $p=>$v)
+                      'loryx.org/urn'=>$rs->get_urn('',false)) as $p=>$v)
         {
             list($sha) = $this->lrx2store(array('l'=>$rs->sys,'o'=>$rs->base,'r'=>$rs->name,'y'=>$p,'x'=>$v));
             // salvataggio traduzioni

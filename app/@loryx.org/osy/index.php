@@ -6,6 +6,27 @@
  *
  */
 
+class ExCode extends Exception {};
+class ExAlert extends Exception {};
+
+class osy
+{
+    static function code($c) {if (!is_string($c)) $c=print_r($c,1); throw new ExCode($c);}
+    static function alert($c) {if (!is_string($c)) $c=print_r($c,1); throw new ExAlert($c);}
+    static function err($c) {if (!is_string($c)) $c=print_r($c,1); throw new Exception($c);}
+	static function loryx($db,$form,$flds)
+	{
+		$fl = $form->pk;
+		FB::log($flds,'loryx');
+		foreach(array_map('trim',explode(',',$flds)) as $fld)
+		{
+			$fl['y'] = $form->get_cld($fld)->get_prp('opensymap.org/loryx/type');
+			$fl['x'] = $form->get_cld($fld)->getValue();
+			$db->lrx2store($fl,1);
+		}
+	}
+}
+
 class Menu extends Tag
 {
     public function __construct($root,$name,$ttl,$app='',$frm='')

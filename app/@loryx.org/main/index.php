@@ -5,8 +5,7 @@
  * See LICENSE for license.
  *
  */
-
- class lrx_mod
+class lrx_mod
 {
     function make($rs,$p,$v)
     {

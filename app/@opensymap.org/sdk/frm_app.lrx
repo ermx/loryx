@@ -63,4 +63,45 @@
                 ...
         ]
     ]
+    [ grd_men opensymap.org/cmp/datagrid
+        opensymap.org/pos 3
+        opensymap.org/form frm_men
+        opensymap.org/title Menù
+        loryx.org/parent pnl_tab
+        [ c1 opensymap.org/column
+            opensymap.org/db/pk 1
+            opensymap.org/title Lib
+            opensymap.org/hide 1
+            opensymap.org/db/var hdn_sys
+            opensymap.org/db/field l
+        ]
+        [ c2 opensymap.org/column
+            opensymap.org/db/var hdn_base
+            opensymap.org/hide 1
+            opensymap.org/title Base
+            opensymap.org/db/field o
+            opensymap.org/db/pk 1
+        ]
+        [ c3 opensymap.org/column
+            opensymap.org/db/var txt_name
+            opensymap.org/title Name
+            opensymap.org/db/pk 1
+            opensymap.org/db/field r
+        ]
+        [ c5 opensymap.org/column
+            opensymap.org/db/var txt_value
+            opensymap.org/title Tipo
+            opensymap.org/db/field x
+        ]
+        [ q1 opensymap.org/db/query
+            loryx.org/value % ...
+                select a.*
+                from [@loryx] a
+                where a.l=[#hdn_sys]
+                and a.o = '<[#hdn_base]>/<[#txt_name]>'
+                and a.y = 'loryx.org/type'
+                and a.x in ('opensymap.org/menu')
+                ...
+        ]
+    ]
 ]

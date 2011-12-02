@@ -134,11 +134,13 @@ if (!window['console'])
         },
 		'observer':function(el,ev)
 		{
+			if (!el) return;
 			ev = nvl(ev,'*');
 			var obs = nvl(this.data('obs.osy'),{});
 			obs[ev] = nvl(obs[ev],[]);
 			function obs_itm(el)
 			{
+				this.el = el;
 				this.remove = function()
 				{
 					obs[ev].remove(this);
@@ -159,6 +161,7 @@ if (!window['console'])
 			var ar = arguments;
             var ret = __trigger.apply(this,ar);
 			var obs = nvl($(this).data('obs.osy'),{}) 	;
+			//console.log('trigger',ev_name,this,obs);
 			$.AR(obs['*']).each(function(idx,el){el.trigger(ar)});
 			$.AR(obs[ev_name]).each(function(idx,el){el.trigger(ar)});
 			return ret;
@@ -221,19 +224,23 @@ var osy = new (function()
     function _cp_frm(f,opt)
     {
         // form che conterrà le variabili da postare
-        var fcp = $(f).clone();
-        var vv = {};
-        // impostazione parametri di sistema
-        fcp.find('input[osy_type="nopost"]').remove();
-        fcp.find('input[ name^="_[" ]')
-         .each(function ()
-        {
-            var lnme = $(this).attr('name').split('[');
-            if (lnme.shift()!='_') return;
-            var ctx = lnme.shift().split(']').shift();
-            var nme = lnme.shift().split(']').shift();
-            if (opt[ctx] && opt[ctx][nme]) $(this).val(opt[ctx][nme]);
-        });
+        var fcp = $('<form></form>');
+		$(f).find('input,select,textarea').each(function()
+		{
+			var $this = $(this);
+			if ($this.attr('osy_type')=='nopost') return;
+			var $these = $this.clone();
+			if ($this.attr('name').substr(0,2)='_[')
+			{
+				var lnme = $this.attr('name').split('[');
+				if (lnme.shift()!='_') return;
+				var ctx = lnme.shift().split(']').shift();
+				var nme = lnme.shift().split(']').shift();
+				if (opt[ctx] && opt[ctx][nme]) $this.val(opt[ctx][nme]);
+
+			}
+			else $these.val($this.val()).appendTo(fcp);
+		});
         // modifica parametro osy
         $.each(opt['vars'],function(a,b)
         {
@@ -374,14 +381,22 @@ var osy = new (function()
             if (lnme.shift()!='_') return;
             var ctx = lnme.shift().split(']').shift();
             var nme = lnme.shift().split(']').shift();
-            switch(ctx)
-            {
-            case 'pky': ctx='prt'; // nobreak;
-            case 'osy':
-                if (!opt[ctx]) opt[ctx] = {};
-                if (!opt[ctx][nme]) opt[ctx][nme] = $(this).val();
-                break;
-            }
+			if(opt.cposy)
+			{
+				if (!opt[ctx]) opt[ctx] = {};
+				if (!opt[ctx][nme]) opt[ctx][nme] = $(this).val();
+			}
+			else
+			{
+				switch(ctx)
+				{
+				case 'pky': ctx='prt'; // nobreak;
+				case 'osy':
+					if (!opt[ctx]) opt[ctx] = {};
+					if (!opt[ctx][nme]) opt[ctx][nme] = $(this).val();
+					break;
+				}
+			}
         });
         $(['osy','prt','pky']).each(function(idx,ctx)
         {
@@ -501,7 +516,6 @@ var osy = new (function()
             box.data('iform')
                .bind('exec',function(evn,data,obs)
             {
-				console.log(obs);
                 data['osy']['sta'] = 'form';
                 var frm = _cp_frm(this,data);
                 // richiesta ajax
@@ -512,7 +526,6 @@ var osy = new (function()
                     'data':frm.serializeArray(),
                     'complete':function(xhr)
                     {
-                        ;
                         var frm = this.html(xhr.responseText).find('form:first');
                         if (!frm.length) 
                         {
@@ -556,17 +569,18 @@ var osy = new (function()
                             {
 								var h = [];
 								var tg = $(evn.target);
-								h.push(tg.observer(box));
-								$.AR(obs).each(function(i,o){h.push(tg.observer(o))});
-								console.log(h);
+								h.push(tg.observer(obs));
                                 (new Function('args',$(this).html())).apply(evn.target,[$(this),frm]);
-								h.each(function(idx,el){console.log(el);el.remove()});
+								h.each(function(idx,el){console.log('remove',el);el.remove()});
                             });
                             break;
                         default : // copia
                             box.data('iform').html(frm.html());
                             init_input(box.data('iform'));
                         }
+						var frm = box.data('iform');
+						if (!frm) return;
+						osy.event(box,'set_dim',frm);
                     }
                 });
             });
@@ -617,7 +631,7 @@ var osy = new (function()
         var box_self = $(el.ownerDocument && el.ownerDocument.defaultView && el.ownerDocument.defaultView.box);
         
         box.bind('#init',function(evn,win,ifr){box.data('title').text(win.document.title)})
-           .bind('close',function(){focus(box_self); osy.event(box_self.data('iwin'),'closechild')})
+           .bind('close',function(){focus(box_self); osy.event(box_self,'closechild')})
 		   .bind('closechild',function(){osy.trigger(this,'reload')});
         
         switch(typeof(opt.pos))
@@ -626,7 +640,6 @@ var osy = new (function()
             switch(opt.pos)
             {
             case 'right':
-                console.log(box_self.css('left'),box_self.width());
                 box.css('top',box_self.css('top'));
                 box.css('left',parseInt(box_self.css('left'))+parseInt(box_self.width())+10);
                 break;
@@ -687,6 +700,7 @@ var osy = new (function()
 		var elpos = $el.offset();
 		opt['frm'] = _cp_frm($el.closest('form'),opt);
 		var cover = $('<div></div>').attr('style','width: 100%; height:'+$(document).height()+'; position:absolute; top:0px; left:0px; z-Index:100;').appendTo('body');
+		opt['cposy'] = 1;
 		var box = mk_box(el,opt,obs);
 		cover.bind('click',function()
 		{
@@ -698,5 +712,13 @@ var osy = new (function()
 		box.css('left',pos.left+elpos.left);
 		box.css('z-index',100);
 		return box;
+	},
+	this.msg = function(msg,b,tt)
+	{
+		b = nvl(b,document.body);
+		var m = $('<div class="msg" style="margin:0px; widht:200px; height:100px; display:none; padding:10px; border:2px solid green; background-color:#fdecba;"></div>').appendTo(b);
+		m.html(msg);
+		m.show('slow');
+	setTimeout(function(){$(m).hide().remove()},3000);
 	}
 })();

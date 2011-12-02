@@ -6,15 +6,76 @@
 [ sdk/tmpl_frm@opensymap.org opensymap.org/form
     opensymap.org/db/table loryx
     opensymap.org/title Template
+	loryx.org/serialize/clean parent
     [ ev_delete opensymap.org/event
         opensymap.org/type after
         loryx.org/name delete
-        loryx.org/code $form->delete_cld_lrx();
+        loryx.org/code % ...
+        $tbl = $form->get_prp('opensymap.org/db/table');
+        $whr = array();
+        foreach($form->pky as $k=>$ch)
+        {
+            $f = $ch->get_prp('opensymap.org/db/field');
+            if ($f=='y') continue;
+            $map[$f] = $k;
+        }
+        $db->query("delete from [@{$tbl}] 
+            where l=[{$map['l']}] 
+              and ((o = [{$map['o']}] and r=[{$map['r']}]) or
+                   substr(concat(o,'/'),1,length('<[{$map['o']}]>/<[{$map['r']}]>/'))='<[{$map['o']}]>/<[{$map['r']}]>/')",
+                                    $_POST['_']['pky']);
+		...
     ]
     [ ev_save opensymap.org/event
         loryx.org/name save
-        loryx.org/code $form->save_cld_lrx();
         opensymap.org/type after
+        loryx.org/code % ...
+		
+		if (!$form->pkstr)
+		{
+			// inserimento
+			$pk = $form->pk;
+			$db->lrx2store($pk,'upd');
+			$pk['y'] = 'loryx.org/urn';
+			$pk['x'] = "{$pk['o']}/{$pk['r']}@{$pk['l']}";
+			$db->lrx2store($pk);
+		}
+		else if ($form->pkn!=$_POST['_']['pky'])
+        {
+			// se è stata modificata la chiave
+			$tbl = $form->get_prp('opensymap.org/db/table');
+            $fld = array();
+            $whr = array();
+            $fldcld = array();
+            $whrcld = array();
+            foreach($form->pky as $k=>$ch)
+            {
+                $f = $ch->get_prp('opensymap.org/db/field');
+                if ($f=='y') continue;
+                $fld[] = "{$f} = [{$k}]";
+                $whr[] = "{$f} = [#{$k}]";
+                $map[$f] = $k;
+            }
+            $fldcld[] = "l = [{$map['l']}]"; 
+            $fldcld[] = "o = concat('<[{$map['o']}]>/<[{$map['r']}]>',substr(o,length('<[#{$map['o']}]>/<[#{$map['r']}]>/')))"; 
+            
+            $whrcld[] = "l = [#{$map['l']}]"; 
+            $whrcld[] = "substr(concat(o,'/'),1,length('<[#{$map['o']}]>/<[#{$map['r']}]>/'))='<[#{$map['o']}]>/<[#{$map['r']}]>/'"; 
+            //-----------------//
+            $db->query("/* */ update [@{$tbl}] set ".implode(' , ',$fld)." where ".implode(' and ',$whr),
+                                        $form->pkn,
+                                        $_POST['_']['pky']);
+			$whr[] = " y = 'loryx.org/urn'";
+            $db->query("/* */ update [@{$tbl}] set x = concat(o,'/',r,'@',l) where ".implode(' and ',$whr), array(), $form->pkn);
+            //-----------------//
+            $db->query("/* * */ update [@{$tbl}] set ".implode(' , ',$fldcld)." where ".implode(' and ',$whrcld),
+                                        $form->pkn,
+                                        $_POST['_']['pky']);
+			$whrcld[] = " y = 'loryx.org/urn'";
+            $db->query("/* */ update [@{$tbl}] set x = concat(o,'/',r,'@',l) where ".implode(' and ',$whrcld), array(), $form->pkn);
+            //-----------------//
+        }
+		...
     ]
     
     # PANNELLI PRINCIPALI
@@ -28,7 +89,7 @@
     ]
     
     # COMPONENTI DATI
-    
+
     [ hdn_base opensymap.org/cmp/text
         opensymap.org/type/readonly 1
         opensymap.org/pos 1,1
@@ -74,7 +135,7 @@
     # COMPONENTI GRID
     
     [ grd_prp opensymap.org/cmp/datagrid
-        opensymap.org/pos 3
+        opensymap.org/pos 10
         opensymap.org/form frm_prp
         opensymap.org/title Propietà
         loryx.org/parent pnl_tab
@@ -149,7 +210,7 @@
         ]
     ]
     [ grd_cld opensymap.org/cmp/datagrid
-        opensymap.org/pos 4
+        opensymap.org/pos 11
         opensymap.org/form frm_cld
         opensymap.org/title Figli
         loryx.org/parent pnl_tab

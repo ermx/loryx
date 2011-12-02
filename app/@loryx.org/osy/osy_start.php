@@ -6,16 +6,6 @@
  *
  */
 
-class ExCode extends Exception {};
-class ExAlert extends Exception {};
-
-class osy
-{
-    static function code($c) {if (!is_string($c)) $c=print_r($c,1); throw new ExCode($c);}
-    static function alert($c) {if (!is_string($c)) $c=print_r($c,1); throw new ExAlert($c);}
-    static function err($c) {if (!is_string($c)) $c=print_r($c,1); throw new Exception($c);}
-}
-
 class osy_start
 {
     private function decript(&$ar,$nm)
@@ -130,6 +120,7 @@ class osy_start
 						foreach($app->get_clds('opensymap.org/menu') as $m)
 						{
 							$b = $m->get_prp('opensymap.org/form');
+							//var_dump( $m->get_prp('opensymap.org/form'));
 							$page->form->Add(new Tag('div'))
 									   ->Att('style','margin:3px 3px 0px 15px; padding:3px; cursor:pointer;')
 									   ->Att('onclick',"osy.win(this,{'osy':{'app':'{$a}','frm':'{$b}'},'pos':'right'})")
@@ -152,7 +143,7 @@ class osy_start
 				
 				$frm = $app->get_cld($ofrm->value);
 				
-                if (!$frm) throw new Exception('Form c()non trovata : '.$ofrm->value);
+                if (!$frm) throw new Exception('Form non trovata : '.$ofrm->value);
                 env::set_var('form',$frm);
                 $scr->Add("osy.trigger(frameElement,'#cmd','init,reload,close');");
 				$scr->Add("W(window).bind('show.osy',function(){W('input:text:visible:first',document.body).focus()});");

@@ -75,11 +75,10 @@ class env
         $this->dbs = array();
         $this->vrs = array();
         $this->time = new c_timer();
-        
-        $this->app_root = './app/';
-        $this->apx_root = sys_get_temp_dir().'/org.loryx.www/apx/';
+        $this->sep = DIRECTORY_SEPARATOR;
+        $this->app_root = implode($this->sep,array('.','app',''));
+        $this->apx_root = rtrim(sys_get_temp_dir(),$this->sep).implode($this->sep,array('','org.loryx.www','apx',''));
 		if (!is_dir($this->apx_root)) mkdir($this->apx_root,0777,true);
-        
         $this->mtime = 1?filemtime(__FILE__):0;
         $this->lng = 'it';
         $this->root = getcwd();
@@ -215,9 +214,12 @@ class env
         $rsa = array();
         foreach($rss as $rs) 
         {
+			FB::log('serialize',$rs->get_urn());
             $dname = self::$ctx->apx_root.$rs->get_path();
+			// occorre cancellare il docice oggetto del parent (e quindi di tutti i fratelli)?
+			//if ($rs->get_prp('loryx.org/serialize/clean',1)=='parent') $dname = dirname($dname);
             if (is_dir($dname)) 
-            {
+            { 
                 rrmdir($dname);
             }
             if ($rs->get_prp('loryx.org/serialize')!='no')
@@ -231,11 +233,12 @@ class env
             $dir = dirname($fname);
             if (!is_dir($dir)) mkdir($dir,0777,true);
             $fp = @fopen($fname,'w');
+			FB::log(array($fname,$fp),'open');
         }
         if ($fp)
         {
             $srs = _cry(serialize($rsa));
-            FB::log($fname,'serialize');
+            FB::log(array($fname,$rs->get_urn()),'serialize');
             fwrite($fp,$srs);  
             fclose($fp);
             return true;
@@ -276,7 +279,7 @@ class env
         if ($rs->get_urn()=='') throw new TraceEx($rs->dump());
         // reimpostazione della root 
         $curr_root = self::chdir();
-        foreach(array($rs->get_path(),$rs->get_path()."/index") as $f)
+        foreach(array($rs->get_path(),$rs->get_path().DIRECTORY_SEPARATOR."index") as $f)
         {
             $lrx = self::$ctx->app_root.$f.'.lrx';
             $lro = self::$ctx->apx_root.$f.'.lro';
@@ -304,8 +307,10 @@ class env
             $rss = array();
             if ($fs_rs['xtime']>$fs_rs['otime'])
             { 
+				FB::log($fs_rs,'xtime '.$rs->get_urn());
                 require_once('./lib/cls.prs.php');
                 $rss = I(new prs())->parse(file_get_contents($fs_rs['lrx']));
+				
                 $fs_rs['oupdate'] = env::serialize_rs($rss,$fs_rs['lro']);
             }
             else 

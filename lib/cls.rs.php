@@ -37,15 +37,17 @@ class rs
     {
         return nvl($this->prp['loryx.org/type'],'');
     }
-    function get_urn($nmchild='')
+    function get_urn($nmchild='',$compact=true)
     {
         if ($nmchild) $nmchild = "/{$nmchild}";
-        return trim(trim("{$this->base}/{$this->name}{$nmchild}@{$this->sys}",'/'),'@');
+		$urn = "{$this->base}/{$this->name}{$nmchild}@{$this->sys}";
+		if ($compact) return trim(trim($urn,'/'),'@');
+		 return $urn;
     }
     function get_path()
     {
         if ($this->base) $base = '/'.trim($this->base,'/');
-        return "@{$this->sys}{$base}/{$this->name}";
+        return str_replace('/', DIRECTORY_SEPARATOR,"@{$this->sys}{$base}/{$this->name}");
     }
     function get_root()
     {

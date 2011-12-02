@@ -56,10 +56,13 @@ class osy_form
         $rs->tag_prt = array();
         $rs->tag_pky = array();
         $rs->tag = new Tag('div');
+		
+        $this->init_cmp($rs);
         $this->tree($rs);
-        
+
         if(!$this->mk_evn($rs,$prp)) return;
         if ($rs->evn->stop) return;
+		
         $pnl = new osy_panel();
         $pnl->make($rs);
         $custom = ($rs->get_prp('opensymap.org/type')=='custom' ||
@@ -70,7 +73,7 @@ class osy_form
             $cmd = $rs->tag->Add(new Tag('div'))
                            ->Add(new Table)
                            ->Att('cellspacing','2px');
-            if (strlen($rs->lpky))
+            if (strlen($rs->pkstr))
             {
                 $cmd->Cell(new TagButton('elimina',"osy.exe(this,{'osy':{'evn':'delete'},'form':this.form})"))
                     ->Last->Att('class','bt_frm_del')
@@ -89,7 +92,7 @@ class osy_form
             }
             $cmd->Cell(new TagButton('conferma',"osy.event(this.form,'save',this)"))
                 ->Last->Att('class','bt_frm_cnf')
-                      ->Att('evn_ok',"osy.event(box,'close')");
+                      ->Att('evn_ok',"osy.msg('operazione effettuata',document.body)");
             $cmd->Cell(new TagButton('chiudi',"osy.event(box,'close')"))
                 ->Last->Att('class','bt_frm_cls');
         }
@@ -111,20 +114,10 @@ class osy_form
         {
             $rs->tag_prt[$k] = $__prt->Add(new TagInput("_[prt][{$k}]",$v))->Att('osy_name',$k);
         }
-        // l'elemento in form ha una chiave non vuota?
-        $rs->lpky = '';
-        foreach($rs->tag_pky as $o) $rs->lpky.= trim($o->value);
-        /*
-        if (!$rs->lpky)
-        {
-            env::get_var('page')
-                ->form
-                ->Att('ev_save',"osy.exe(args[0],{'osy':{'evn':'save'},'form':this});");
-        }
-        env::get_var('page')
-            ->form
-            ->Att('ev__open',"osy.win(this,{'osy':{'frm':'frm_cmp','evn':'load'},'pky':{'hdn_sys':'opensymap.org','hdn_base':'/sdk/frm_app','txt_name':args[0]}})");
-        */
+        // chiave compatta elemento corrente
+        $rs->pkstr = '';
+        foreach($rs->tag_pky as $o) $rs->pkstr.= trim($o->value);
+		
         $db = env::get_var('db');
         $event = $rs->evn->value;
         $arg   = $rs->evn->arg;
@@ -260,7 +253,7 @@ class osy_form
                 $ev_found++;
                 $wh = array();
                 
-                if (strlen($rs->lpky))
+                if (strlen($rs->pkstr))
                 {
                     // update
                     $wh = array();
@@ -394,70 +387,12 @@ class osy_form
         }
         return true;
     }
-	/* TODO : da togliere da qui */ 
-    public function delete_cld_lrx($rs)
-    {
-        $tbl = $rs->get_prp('opensymap.org/db/table');
-        $whr = array();
-        foreach($rs->pky as $k=>$ch)
-        {
-            $f = $ch->get_prp('opensymap.org/db/field');
-            if ($f=='y') continue;
-            $map[$f] = $k;
-        }
-        $db = env::get_var('db');
-        $db->query("delete from [@{$tbl}] 
-            where l=[{$map['l']}] 
-              and ((o = [{$map['o']}] and r=[{$map['r']}]) or
-                   substr(concat(o,'/'),1,length('<[{$map['o']}]>/<[{$map['r']}]>/'))='<[{$map['o']}]>/<[{$map['r']}]>/')",
-                                    $_POST['_']['pky']);
-    }
-    /* TODO : da togliere da qui */ 
-    public function save_cld_lrx($rs)
-    {
-        if ($rs->pk!=$_POST['_']['pky'])
-        {
-            $tbl = $rs->get_prp('opensymap.org/db/table');
-            $fld = array();
-            $whr = array();
-            $fldcld = array();
-            $whrcld = array();
-            foreach($rs->pky as $k=>$ch)
-            {
-                $f = $ch->get_prp('opensymap.org/db/field');
-                if ($f=='y') continue;
-                $fld[] = "{$f} = [{$k}]";
-                $whr[] = "{$f} = [#{$k}]";
-                $map[$f] = $k;
-            }
-            $fldcld[] = "l = [{$map['l']}]"; 
-            $fldcld[] = "o = concat('<[{$map['o']}]>/<[{$map['r']}]>',substr(o,length('<[#{$map['o']}]>/<[#{$map['r']}]>/')))"; 
-            
-            $whrcld[] = "l = [#{$map['l']}]"; 
-            $whrcld[] = "substr(concat(o,'/'),1,length('<[#{$map['o']}]>/<[#{$map['r']}]>/'))='<[#{$map['o']}]>/<[#{$map['r']}]>/'"; 
-            
-            $db = env::get_var('db');
-            $urn = trim(trim($rs->pk[$map['o']].'/'.$rs->pk[$map['r']],'/').'@'.$rs->pk[$map['l']],'@');
-            $db->delete("[@{$tbl}]",array('l'=>$_POST['_']['pky'][$map['l']],
-                                        'o'=>$_POST['_']['pky'][$map['o']],
-                                        'r'=>$_POST['_']['pky'][$map['r']],
-                                        'y'=>'loryx.org/urn'));
-            $db->insert("[@{$tbl}]",array('l'=>$rs->pk['l'],
-                                        'o'=>$rs->pk['o'],
-                                        'r'=>$rs->pk['r'],
-                                        'y'=>'loryx.org/urn',
-                                        'x'=>$urn));
-            $db->query("/* */ update [@{$tbl}] set ".implode(' , ',$fld)." where ".implode(' and ',$whr),
-                                        $rs->pkn,
-                                        $_POST['_']['pky']);
-            $db->query("/* * */ update [@{$tbl}] set ".implode(' , ',$fldcld)." where ".implode(' and ',$whrcld),
-                                        $rs->pkn,
-                                        $_POST['_']['pky']);
-        }
-    }
 
     public function init_cmp($rs)
     {
+        //FB::log('tree','osy_form');
+        // lista dei figli del pannello corrente
+        $rs->pnl = array('childs'=>array());
         foreach($rs->get_clds() as $k=>$ch)
         {
             $cmd = $ch->get_prp('opensymap.org/test');
@@ -485,10 +420,6 @@ class osy_form
     }
     private function tree($rs)
     {
-        //FB::log('tree','osy_form');
-        // lista dei figli del pannello corrente
-        $rs->pnl = array('childs'=>array());
-        $this->init_cmp($rs);
 		//var_dump($rs->dump());
         foreach($rs->cmp as $ch)
         {

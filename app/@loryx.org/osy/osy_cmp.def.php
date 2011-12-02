@@ -41,11 +41,11 @@ class osy_cmp_text extends osy_cmp
     public function make($rs, $prp=null, $arg=null)
     {
         parent::make($rs);
-        if ($rs->get_prp('opensymap.org/line')>1)
+        if ($rs->get_prp('opensymap.org/text/line')>1)
         {
             $inp = new Tag('textarea');
             $inp->Att('name',$rs->name)
-                ->Att('rows',$rs->get_prp('opensymap.org/line'))
+                ->Att('rows',$rs->get_prp('opensymap.org/text/line'))
                 ->Att('style','width:100%')
                 ->Add(htmlspecialchars($rs->value));
         }
