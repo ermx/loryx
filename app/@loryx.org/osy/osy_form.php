@@ -90,7 +90,7 @@ class osy_form
             {
                 $dcmd->Cell($bt->exe()->tag);
             }
-            $cmd->Cell(new TagButton('conferma',"osy.event(this.form,'save',this)"))
+            $cmd->Cell(new TagButton('salva',"osy.event(this.form,'save',this)"))
                 ->Last->Att('class','bt_frm_cnf')
                       ->Att('evn_ok',"osy.msg('operazione effettuata',document.body)");
             $cmd->Cell(new TagButton('chiudi',"osy.event(box,'close')"))
@@ -121,6 +121,43 @@ class osy_form
         $db = env::get_var('db');
         $event = $rs->evn->value;
         $arg   = $rs->evn->arg;
+
+		// lettura volori sul DB
+		$wh = array();
+		foreach($rs->pky as $k=>$ch)
+		{
+			if ($rs->tag_pky[$k])
+			{
+				$val = $rs->tag_pky[$k]->value;
+			}
+			else
+			{
+				$val = $ch->get_prp('loryx.org/value');
+			}
+			$wh[] = $ch->get_prp('opensymap.org/db/field').'='.$db->str($val);
+		}
+		$qry = array_shift($rs->get_clds('opensymap.org/db/query'));
+		
+		if ($qry)
+		{
+			$rs->data = $db->getFirst("select x.* from (".$qry->get_prp('loryx.org/value').
+								 ") x where ".implode(' and ',$wh),$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
+		}
+		else if ($tbl = $rs->get_prp('opensymap.org/db/table'))
+		{
+			$cmd = "select * from [@".$tbl."] where ".implode(' and ',$wh);
+			$rs->data = $db->getFirst($cmd);
+		}
+        // verifica del valore dei componenti
+        foreach($rs->cmp as $ch)
+        {
+			if (!isset($_POST[$ch->name])) 
+			{
+				$ch->setValue($rs->data[nvl($ch->get_prp('opensymap.org/db/field/load'),$ch->get_prp('opensymap.org/db/field'))],$rs->data);
+			}
+            else $ch->check($rs,$event);
+        }
+
         if (!$event) return true;
         $ev_before = array();
         $ev_start  = array();
@@ -154,11 +191,7 @@ class osy_form
         }
         
         $cnt = $rs->tag->add(new Tag(''));
-        // verifica del valore dei componenti
-        foreach($rs->cmp as $ch)
-        {
-            $ch->check($rs,$event);
-        }
+		
         // exec before
         foreach($ev_before as $e)
         {
@@ -185,35 +218,9 @@ class osy_form
                 $rs->evn->Att('value','');
                 $ev_found++;
                 $rs->evn->stop = false;
-                $wh = array();
-                foreach($rs->pky as $k=>$ch)
-                {
-                    if ($rs->tag_pky[$k])
-                    {
-                        $val = $rs->tag_pky[$k]->value;
-                    }
-                    else
-                    {
-                        $val = $ch->get_prp('loryx.org/value');
-                    }
-                    $wh[] = $ch->get_prp('opensymap.org/db/field').'='.$db->str($val);
-                }
-                $qry = array_shift($rs->get_clds('opensymap.org/db/query'));
-                
-                if ($qry)
-                {
-                    $rec = $db->getFirst("select x.* from (".$qry->get_prp('loryx.org/value').
-                                         ") x where ".implode(' and ',$wh),$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
-                }
-                else if ($tbl = $rs->get_prp('opensymap.org/db/table'))
-                {
-                    $cmd = "select * from [@".$tbl."] where ".implode(' and ',$wh);
-                    $rec = $db->getFirst($cmd);
-                }
-                
                 foreach($rs->cmp as $k=>$ch)
                 {
-                    $ch->setValue($rec[nvl($ch->get_prp('opensymap.org/db/field'),$ch->get_prp('opensymap.org/db/field/load'))],$rec);
+                    $ch->setValue($rs->data[nvl($ch->get_prp('opensymap.org/db/field/load'),$ch->get_prp('opensymap.org/db/field'))],$rs->data);
                 }
                 break;
             case 'insert':
@@ -292,7 +299,7 @@ class osy_form
                                     if (empty($fl[$f]))
                                     {
                                         $ttl = $ch->get_prp('opensymap.org/label');
-                                        return new TagEvnError("{$ttl} : Chiave non impostata. ".$ch);
+                                        return osy::err("{$ttl} : Chiave non impostata. ".$ch);
                                     }
                                     //$ttl = nvl($ch->get_prp('opensymap.org/label'),$ch->get_urn());
                                     //return new TagEvnError("{$ttl} : Chiave non impostata.");
