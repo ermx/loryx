@@ -30,8 +30,9 @@ class osy_cmp_check extends osy_cmp
     public function make($rs, $prp=null, $arg=null)
     {
         parent::make($rs);
-        $inp = $rs->tag->Add(new TagInput($rs->get_prp('loryx.org/name'),'1','checkbox'));
-        $inp->Att('onchange','this.form.upd = true;');
+        $inp = $rs->tag->Add(new TagInputPost($rs->name,'checkbox'));
+        $inp->Att('onchange','this.form.upd = true;')
+			->Att('style','width:20px;');
         if ($rs->value) $inp->Prp('checked');
     }
 }

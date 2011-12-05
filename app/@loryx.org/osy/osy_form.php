@@ -44,7 +44,7 @@ class osy_form
     }
     public function make($rs, $prp=null, $arg=null)
     {
-        $page = env::get_var('page');
+	    $page = env::get_var('page');
         $page->setTitle($rs->get_prp('opensymap.org/title'));
         $page->form->Att('evn_save',"osy.event(this,'exec',{'osy':{'evn':'save'}},args[0]);");
         $rs->cmp = array();
@@ -417,6 +417,7 @@ class osy_form
                 }
                 else
                 {
+					$b = $_POST[$ch->name];
                     $val = nvl($_POST[$ch->name],nvl($ch->get_prp('loryx.org/value'),$ch->value));
                 }
                 $val = $ch->setValue($val);

@@ -71,6 +71,7 @@
                 }
             }
         }
+		return $rs->value;
     }
     public function getValue($rs)
     {

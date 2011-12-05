@@ -26,7 +26,6 @@ class osy
 		}
 	}
 }
-
 class Menu extends Tag
 {
     public function __construct($root,$name,$ttl,$app='',$frm='')
