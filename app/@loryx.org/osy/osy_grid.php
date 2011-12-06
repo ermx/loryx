@@ -94,6 +94,9 @@
                 break;
             }
         }
+		$qcol = $rs->qry->get_clds('opensymap.org/column');
+		// se la query ha uno schema colonne ... viene utilizzato al posto di quello di default
+		if (count($qcol)) $this->mk_cols($rs,$qcol);
         // pagina corrente
         //FB::log(array($rs->dump()));
         $pg_inp = new TagInputPost($pg_name);
@@ -303,15 +306,11 @@
             }
         }
     }
-    public function evn_init($rs,$event)
-    {
-        if ($rs->_evn) return;
-        
-        $rs->pky = array();
-        $rs->itm = $rs->value['itm'];
-        $rs->cols = array();
-        $rs->fld = array();
-        foreach($rs->get_clds('opensymap.org/column') as $nm => $ch)
+	private function mk_cols($rs,$cols)
+	{
+		$rs->fld = array();
+		$rs->cols = array();
+        foreach($cols as $nm => $ch)
         {
             if ($f=$ch->get_prp('opensymap.org/db/field'))
             {
@@ -323,6 +322,15 @@
             }
             $rs->cols[$nm] = $ch;
         }
+	}
+    public function evn_init($rs,$event)
+    {
+        if ($rs->_evn) return;
+        
+        $rs->pky = array();
+        $rs->itm = $rs->value['itm'];
+		
+		$this->mk_cols($rs,$rs->get_clds('opensymap.org/column'));
         
         $rs->_evn = new stdClass;
         $rs->_evn->before = array();
