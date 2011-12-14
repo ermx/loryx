@@ -26,6 +26,14 @@
         opensymap.org/pos 2
         opensymap.org/form frm_frm
         opensymap.org/title Form
+        opensymap.org/db/query % ...
+            select a.*
+            from [@loryx] a
+            where a.l=[#hdn_sys]
+            and a.o = '<[#hdn_base]>/<[#txt_name]>'
+            and a.y = 'loryx.org/type'
+            and a.x in ('opensymap.org/form','opensymap.org/view')
+        ...
         loryx.org/parent pnl_tab
         [ c1 opensymap.org/column
             opensymap.org/db/pk 1
@@ -51,16 +59,6 @@
             opensymap.org/db/var txt_value
             opensymap.org/title Tipo
             opensymap.org/db/field x
-        ]
-        [ q1 opensymap.org/db/query
-            loryx.org/value % ...
-                select a.*
-                from [@loryx] a
-                where a.l=[#hdn_sys]
-                and a.o = '<[#hdn_base]>/<[#txt_name]>'
-                and a.y = 'loryx.org/type'
-                and a.x in ('opensymap.org/form','opensymap.org/view')
-                ...
         ]
     ]
     [ grd_men opensymap.org/cmp/datagrid
@@ -68,6 +66,14 @@
         opensymap.org/form frm_men
         opensymap.org/title Menù
         loryx.org/parent pnl_tab
+        opensymap.org/db/query % ...
+            select a.*
+            from [@loryx] a
+            where a.l=[#hdn_sys]
+            and a.o = '<[#hdn_base]>/<[#txt_name]>'
+            and a.y = 'loryx.org/type'
+            and a.x in ('opensymap.org/menu')
+        ...
         [ c1 opensymap.org/column
             opensymap.org/db/pk 1
             opensymap.org/title Lib
@@ -92,16 +98,6 @@
             opensymap.org/db/var txt_value
             opensymap.org/title Tipo
             opensymap.org/db/field x
-        ]
-        [ q1 opensymap.org/db/query
-            loryx.org/value % ...
-                select a.*
-                from [@loryx] a
-                where a.l=[#hdn_sys]
-                and a.o = '<[#hdn_base]>/<[#txt_name]>'
-                and a.y = 'loryx.org/type'
-                and a.x in ('opensymap.org/menu')
-                ...
         ]
     ]
 ]

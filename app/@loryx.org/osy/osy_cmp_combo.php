@@ -10,7 +10,7 @@
 {
     public function setValue($rs,$val,$rec=false)
     {
-        $rs->empty_label = nvl($rs->get_prp('opensymap.org/option/empty/label'),'- select -');
+         $rs->empty_label = nvl($rs->get_prp('opensymap.org/option/empty/label'),'- select -');
         if (is_array($val))
         {
             $rs->value = $val;
@@ -34,18 +34,33 @@
                 {
                     $opts[$op->get_prp('opensymap.org/key')] = nvl($op->get_prp('opensymap.org/dsc'),$op->get_prp('opensymap.org/key'));
                 }
-                foreach($rs->get_clds('opensymap.org/db/query') as $q)
+                $db = env::get_var('db');
+                if ($cmd = $rs->get_prp('opensymap.org/db/query'))
                 {
-                    if ($qry) break;
-                    $qry = $q;
+					if ($pk = $rs->get_prp('opensymap.org/db/pk')) $cmd = "select * from({$cmd}) where {$pk}=".$db->str($rs->getValue());
                 }
-                if ($qry and $rs->value['key'])
+                else
                 {
-                    $db = env::get_var('db');
-                    $res = $db->getAll($qry->get_prp('loryx.org/value'),$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
+                    foreach($rs->get_clds('opensymap.org/db/query') as $q)
+                    {
+                        if ($qry) break;
+                        $qry = $q;
+                    }
+                    if ($qry and $rs->value['key'])
+                    {
+                        //$db->noexe();
+                        $cmd = $qry->get_prp('loryx.org/value');
+                        if ($pk = $qry->get_prp('opensymap.org/db/pk')) $cmd = "select * from({$cmd}) where {$pk}=".$db->str($rs->getValue());
+                    }
+                }
+
+                if ($cmd)
+                {
+                    $res = $db->getAll($cmd,$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
                     if (count($res))
                     {
                         $kres = array_keys($res[0]);
+						// se il risultato ha meno di due colonne ... allora come seconda colonna si prende la prima
                         if (count($kres)<2) $kres[] = $kres[0];
                         foreach($res as $r)
                         {
@@ -53,6 +68,11 @@
                             $opts[$r[$kres[0]]] = $r[$kres[1]];
                         }
                     }
+                if ($rs->get_prp('loryx.org/debug'))
+                {
+                   // var_dump($opts);
+                   // osy::err(3);
+                }
                 }
                 if ($rs->get_prp('opensymap.org/make/label')=='key')
                 {
@@ -92,10 +112,10 @@
     private function make_label($rs)
     {
         FB::log($rs->value,$rs->get_urn());
-        $v = Tag::mk('div',array('osy_typ'=>'combo'));
+        $v = Tag::mk('div',array('osy_typ'=>'combo','style'=>'min-height: 14px;'));
         $v->Add($rs->value['dsc']);
         
-        $c = Tag::mk('div',array('class'=>'cmp_combo'))
+        $c = Tag::mk('div',array('class'=>'combo'))
                 ->Att('onclick',"this.box = osy.box(this,{'osy':{'cmp':'{$rs->name}'}}); this.chs = W(this).find({'osy_typ':'combo'}); ")
                 ->Att('evn_select',"this.chs[0].value = args[0]; this.chs[1].value = args[1]; this.chs[2].innerHTML = args[1]; osy.event(this.box,'close'); this.chs[0].onchange()");
         $c->Add(new TagInput($rs->name.'[key]',$rs->value['key'],'hidden'))
@@ -121,16 +141,27 @@
         {
             $opts[$op->get_prp('opensymap.org/key')] = nvl($op->get_prp('opensymap.org/dsc'),$op->get_prp('opensymap.org/key'));
         }
-        foreach($rs->get_clds('opensymap.org/db/query') as $q)
+        if ($cmd = $rs->get_prp('opensymap.org/db/query'))
         {
-            if ($qry) break;
-            $qry = $q;
+            if ($pk = $rs->get_prp('opensymap.org/db/pk')) $cmd = "select * from({$cmd}) where {$pk}=".$db->str($rs->getValue());
         }
-        if ($qry)
+        else
+        {
+            foreach($rs->get_clds('opensymap.org/db/query') as $q)
+            {
+                if ($qry) break;
+                $qry = $q;
+            }
+            if ($qry)
+            {
+                //$db->noexe();
+                $cmd = $qry->get_prp('loryx.org/value');
+            }
+        }
+        if ($cmd)
         {
             $db = env::get_var('db');
-            //$db->noexe();
-            $res = $db->getAll($qry->get_prp('loryx.org/value'),$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
+            $res = $db->getAll($cmd,$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
             if (count($res))
             {
                 $kres = array_keys($res[0]);

@@ -324,6 +324,10 @@ class TagScript extends Tag{
     {
         return $this->value;
     }
+    public function setValue($v)
+    {
+        return $this->Att('value',$v);
+    }
     public function Get($d=0)
     {
         $this->Att('value',$this->getValue());

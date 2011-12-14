@@ -26,13 +26,19 @@
     {
         return $rs->value;
     }
+    public function disable($rs)
+    {
+        $rs->opt['disable'] = true;
+    }
     public function disabled($rs)
     {
+        if ($rs->opt['disable']) return true;
         if (!($cmd = $rs->get_prp('opensymap.org/test'))) return false;
         foreach($rs->get_par()->get_clds() as $nm => $ch) $$nm = $ch;
         if(eval($cmd)) return false;
         return true;
     }
+    /*
     public function save_prp_lrx($rs)
     {
         $cmp = $rs;
@@ -76,6 +82,7 @@
               and y = [#y]";
         $cmp->setValue($db->getVal($cmd,$_POST['_']['pky'],array('y'=>$prp)));
     }
+    */
 }
 
 ?>

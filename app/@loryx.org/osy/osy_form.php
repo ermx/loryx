@@ -38,15 +38,26 @@ class osy_form
     public function disabled($rs)
     {
         if (!($cmd = $rs->get_prp('opensymap.org/test'))) return false;
+		return env::exe_prp($rs,'opensymap.org/test',$rs->get_par()->get_clds());
+		/*
         foreach($rs->get_par()->get_clds() as $nm => $ch) $$nm = $ch;
         if(eval($cmd)) return false;
         return true;
+		*/
     }
     public function make($rs, $prp=null, $arg=null)
     {
 	    $page = env::get_var('page');
         $page->setTitle($rs->get_prp('opensymap.org/title'));
-        $page->form->Att('evn_save',"osy.event(this,'exec',{'osy':{'evn':'save'}},args[0]);");
+        // occorre effettuare qualche salvataggio implicito dei dati?
+        if ($rs->get_prp('opensymap.org/db/table'))
+        {
+            $page->form->Att('evn_save',"osy.event(this,'exec',{'osy':{'evn':'save'}},args[0]);");
+        }
+        else
+        {
+            $page->form->Att('evn_save',"osy.event(args[0],'ok');");
+        }
         $rs->cmp = array();
         $rs->prt = array();
         $rs->pky = array();
@@ -56,17 +67,25 @@ class osy_form
         $rs->tag_prt = array();
         $rs->tag_pky = array();
         $rs->tag = new Tag('div');
-		
         $this->init_cmp($rs);
         $this->tree($rs);
-
+        
         if(!$this->mk_evn($rs,$prp)) return;
+
         if ($rs->evn->stop) return;
+        
+		env::exe_prp($rs,'opensymap.org/form/init',$rs->get_clds());
+        if ($rs->get_prp('opensymap.org/form/make'))
+        {
+            $rs->tag->Add(env::exe_prp($rs,'opensymap.org/form/make'));
+            return;
+        }
 		
         $pnl = new osy_panel();
         $pnl->make($rs);
         $custom = ($rs->get_prp('opensymap.org/type')=='custom' ||
-                  $rs->get_prp('opensymap.org/type')=='wizard');
+                  $rs->get_prp('opensymap.org/type')=='wizard'  ||
+                  !$rs->get_prp('opensymap.org/db/table'));
         //FB::log($custom,'custom');
         if (!$custom)
         {
@@ -96,7 +115,6 @@ class osy_form
             $cmd->Cell(new TagButton('chiudi',"osy.event(box,'close')"))
                 ->Last->Att('class','bt_frm_cls');
         }
-
         // FB::log('end form');
         return ;
     }
@@ -136,24 +154,33 @@ class osy_form
 			}
 			$wh[] = $ch->get_prp('opensymap.org/db/field').'='.$db->str($val);
 		}
-		$qry = array_shift($rs->get_clds('opensymap.org/db/query'));
+        if (!$cmd = $rs->get_prp('opensymap.org/db/query'))
+        {
+            $qry = array_shift($rs->get_clds('opensymap.org/db/query'));
 		
-		if ($qry)
-		{
-			$rs->data = $db->getFirst("select x.* from (".$qry->get_prp('loryx.org/value').
-								 ") x where ".implode(' and ',$wh),$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
-		}
-		else if ($tbl = $rs->get_prp('opensymap.org/db/table'))
-		{
-			$cmd = "select * from [@".$tbl."] where ".implode(' and ',$wh);
-			$rs->data = $db->getFirst($cmd);
-		}
+            if ($qry)
+            {
+                $cmd = "select x.* from (".$qry->get_prp('loryx.org/value').
+                       ") x where ".implode(' and ',$wh);
+            }
+            else if ($tbl = trim($rs->get_prp('opensymap.org/db/table')))
+            {
+                if ($tbl{0}!='!') $tbl = "[@{$tbl}]";
+                else $tbl = substr($tbl,1);
+                
+                $cmd = "select * from {$tbl} where ".implode(' and ',$wh);
+            }
+        }
+        if ($cmd)
+        {
+            $rs->data = $db->getFirst($cmd,$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
+        }
         // verifica del valore dei componenti
         foreach($rs->cmp as $ch)
         {
 			if (!isset($_POST[$ch->name])) 
 			{
-				$ch->setValue($rs->data[nvl($ch->get_prp('opensymap.org/db/field/load'),$ch->get_prp('opensymap.org/db/field'))],$rs->data);
+				if ($event!='save') $ch->setValue($rs->data[nvl($ch->get_prp('opensymap.org/db/field/load'),$ch->get_prp('opensymap.org/db/field'))],$rs->data);
 			}
             else $ch->check($rs,$event);
         }
@@ -249,7 +276,11 @@ class osy_form
                 }
                 //return new TagEvnError($wh);
                 //$db->noexe();
-                $db->delete('[@'.$rs->get_prp('opensymap.org/db/table').']',$wh);
+                $tbl = trim($rs->get_prp('opensymap.org/db/table'));
+                if ($tbl{0}!='!') $tbl = "[@{$tbl}]";
+                else $tbl = substr($tbl,1);
+                
+                $db->delete($tbl,$wh);
 				$code = $cnt->Add(new Tag('code'));
                 $page->form->Att('osy_type','exe');
 				$code->Add("osy.event(this,'ok')");
@@ -310,7 +341,10 @@ class osy_form
                     }
                     //FB::log(array($fl,$_POST,$wh));
                     //$db->noexe();
-                    $db->update('[@'.$rs->get_prp('opensymap.org/db/table').']',$fl,$wh);
+                    $tbl = trim($rs->get_prp('opensymap.org/db/table'));
+                    if ($tbl{0}!='!') $tbl = "[@{$tbl}]";
+                    else $tbl = substr($tbl,1);
+                    $db->update($tbl,$fl,$wh);
                 }
                 else
                 {
@@ -364,7 +398,10 @@ class osy_form
                         }
                     }
                     //$db->noexe();
-                    $db->insert('[@'.$rs->get_prp('opensymap.org/db/table').']',$fl);
+                    $tbl = trim($rs->get_prp('opensymap.org/db/table'));
+                    if ($tbl{0}!='!') $tbl = "[@{$tbl}]";
+                    else $tbl = substr($tbl,1);
+                    $db->insert($tbl,$fl);
                 } // if update or insert
                 $rs->pk = $pk;
                 $rs->pkn = $pkn;
@@ -407,7 +444,7 @@ class osy_form
             if (!$ch->get_prp('opensymap.org/type/is_cmp')) continue;
             if (false)//$ch->is('opensymap.org/const'))
             {
-                $ch->value = $ch->get_prp('loryx.org/value');
+                $ch->setValue($ch->get_prp('loryx.org/value'));
             }
             else
             {
@@ -418,9 +455,10 @@ class osy_form
                 else
                 {
 					$b = $_POST[$ch->name];
-                    $val = nvl($_POST[$ch->name],nvl($ch->get_prp('loryx.org/value'),$ch->value));
+                    $val = nvl($_POST[$ch->name],nvl($ch->get_prp('loryx.org/value'),$ch->getValue()));
                 }
-                $val = $ch->setValue($val);
+                //var_dump($val);
+                if ($val) $ch->setValue($val);
             }
             $_POST[$ch->name] = $val;
             $rs->cmp[$ch->name] = $ch;

@@ -29,7 +29,6 @@ class osy_start
         $page = env::get_var('page',new osyPage());
         $req = env::get_var('request');
         env::if_read_file_exit($req->path);
-        
         $page->form = $page->addBody(new Tag('form'))
                            ->Att('method','post')
                            ->Att('style','float:left');
@@ -140,7 +139,8 @@ class osy_start
                 //$page->form->Att('ev_save',"this.upd?osy.exe(args[0],{'osy':{'evn':'save'},'form':this}):lrx.ev_start(args[0],'ok');");
                 // tramite questa applicazione è possibile modificare l'interfaccia
 				$app = $rs->get_cld('config/app/'.$oapp->value);
-				
+                // esecuzione eventuale codice di inizializzazione
+				$app->exe();
 				$frm = $app->get_cld($ofrm->value);
 				
                 if (!$frm) throw new Exception('Form non trovata : '.$ofrm->value);

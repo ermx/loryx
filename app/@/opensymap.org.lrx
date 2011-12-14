@@ -5,8 +5,7 @@
 
 [ opensymap.org loryx.org/ns
     loryx.org/store/data 1
-    loryx.org/store serialize
-    # loryx.org/debug 1
+    loryx.org/store DBX
     [ app
         loryx.org/sync copychild
     ]

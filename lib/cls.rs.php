@@ -58,6 +58,47 @@ class rs
     {
         return $this->typ;
     }
+	function exe_prp($prp,$env=array(),$path_root='')
+	{
+        $str = $this->get_prp($prp);
+        $len = strlen(trim($str));
+        if (!$len) return;
+        FB::log(array($prp,$str),$this->get_urn());
+        foreach($env as $n=>$v) $$n = $v;
+		if (!empty($path_root))
+		{
+			$fname = $path_root.
+						$this->get_path().'.'.
+						base64_encode($prp).'.php';
+			
+			
+			$dname = dirname($fname);
+			if (!is_dir($dname)) mkdir($dname,0777,true);
+			
+            if ($this->get_prp('loryx.org/exe/rewrite'))
+            {
+                $fp = @fopen($fname, "w");
+            }
+            else
+            {
+                $fp = @fopen($fname, "x");
+            }
+			if ($fp)
+			{
+				fwrite($fp,"<?php ".NL.$str.NL." ?>");
+				fclose($fp);
+			}
+            else
+            {
+                return eval($str);
+            }
+			return include($fname);
+		}
+		else
+		{
+			return eval($str);
+		}
+	}
     function sync($resync = 0)
     {
         //if ($this->synked) return $this;
@@ -387,8 +428,17 @@ class rs
                 env::exe_prp($rs,$s);
                 break;
             case 'loryx.org/builder':
-                $bld = env::get_bld($rs->get_prp($s));
-                if ($bld) $bld->make($rs,$prp,$arg);
+                if ($this->get_prp('loryx.org/builder/make')) 
+                {
+                    env::exe_prp($this,'loryx.org/builder/make');
+                    break;
+                }
+                else
+                {
+                    $bld = env::get_bld($rs->get_prp($s));
+                    if ($bld) $bld->make($rs,$prp,$arg);
+                }
+                env::exe_prp($this,'loryx.org/builder/finish');
                 break;
             }
         }

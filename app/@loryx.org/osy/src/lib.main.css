@@ -27,7 +27,24 @@ form {
 .box .title{cursor:move; text-align:left;}
 .box .cmd td{cursor:pointer; padding: 0px 3px 0px 3px; border-left:2px solid silver;}
 
-input, textarea, select {
+.TagTab ul {
+list-style: none;
+padding: 4px 4px 0px 4px;
+margin: 0;
+}
+.TagTab ul li{
+float: left;
+margin: 0px 2px 0px 0px;
+padding: 2px 5px;
+border:1px solid silver;
+border-bottom:0px;
+border-radius:6px 6px 0px 0px;
+cursor:pointer;
+}
+.TagTab ul li.selected{
+ background-color:#eeeeee;
+}
+input, textarea, select, .input, .combo{
     font-family:verdana;
     font-size:12px;
     border:0px;
@@ -35,18 +52,10 @@ input, textarea, select {
     color:black;
     padding:3px 0px 3px 0px;
     width:100%;
+    border-radius : 6px;
 }
-.cmp_combo{
-    font-family:verdana;
-    font-size:12px;
-    border:0px;
-    border:1px solid silver;
-    color:black;
-    padding:3px 0px 3px 0px;
-	cursor:pointer;
-}
-.cmp_combo > div {
-	padding-left:5px;
+.combo {
+    cursor:pointer;
 }
 td, th {
     vertical-align:top;

@@ -18,10 +18,14 @@ class osy
 	{
 		$fl = $form->pk;
 		FB::log($flds,'loryx');
+        //osy::err($flds);
 		foreach(array_map('trim',explode(',',$flds)) as $fld)
 		{
-			$fl['y'] = $form->get_cld($fld)->get_prp('opensymap.org/loryx/type');
-			$fl['x'] = $form->get_cld($fld)->getValue();
+            $cmp = $form->get_cld($fld);
+            if (!$cmp) osy::alert('componente non trovato : '.$fld);
+			$fl['y'] = $cmp->get_prp('opensymap.org/loryx/type');
+			$fl['x'] = $cmp->getValue();
+			
 			$db->lrx2store($fl,1);
 		}
 	}

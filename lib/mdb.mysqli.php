@@ -63,7 +63,6 @@ abstract class mdb
                     $cmd = str_replace('[['.$pre.$pc.']]',$this->str($pp,''),$cmd);
                     $cmd = str_replace('['.$pre.$pc.']',$this->str($pp),$cmd);
                 }
-                $pre .= '#';
             }
             else
             {
@@ -71,6 +70,7 @@ abstract class mdb
                 $cmd = str_replace('[['.$c.']]',$this->str($p,''),$cmd);
                 $cmd = str_replace('['.$c.']',$this->str($p),$cmd);
             }
+			$pre .= '#';
         }
         $this->rs->cmd = $cmd;
         //var_dump($cmd);

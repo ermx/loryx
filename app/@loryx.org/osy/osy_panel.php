@@ -1,5 +1,53 @@
 <?php
 
+class TagTab extends Tag
+{
+    function __construct($nm)
+    {
+        parent::__construct('div');
+        $this->Att('osy_type','TagTab')
+             ->Att('class','TagTab')
+             ->Att('evn_select',"W('input:first',this).val(args[0]); osy.par(this,'form').submit()");
+        $this->inp = parent::Add(new TagInputPost($nm,'hidden'));
+        $this->tab = parent::Add(new Tag('div'));
+        parent::Add(new Tag('div'))->Att('style','clear:both;border-top:1px solid silver;');
+        $this->grp = array();
+        $this->kks = array();
+    }
+    function Add($el,$opt=array())
+    {
+        $grp = '_'.$opt['grp'];
+        if (!$this->grp[$grp]) 
+        {
+            // la prima volta che si crea il gruppo si imposta l'allineamento
+            $this->grp[$grp] = $this->tab->Add(new Tag('ul'));
+            $this->grp[$grp]->Att('style','float:'.nvl($opt['align'],'left'));
+        }
+        $li = $this->grp[$grp]->Add(new Tag('li'));
+        $li->Att('osy_key',nvl($opt['key'],$el))
+           ->Att('onclick',"osy.event(osy.par(this,{'osy_type':'TagTab'}),'select',W(this).attr('osy_key'))")
+           ->Add($el);
+        $this->kks[$li->osy_key] = $li;
+        return $this;
+    }
+    function getValue()
+    {
+        if (!$this->kks) return '';
+        $kks = array_keys($this->kks);
+        if (!in_array($this->inp->value,$kks)) $this->setValue($kks[0]);
+        return $this->inp->getValue();
+    }
+    function setValue($v)
+    {
+        $this->inp->setValue($v);
+        return $this;
+    }
+    function Get($depth=0)
+    {
+        if($li = $this->kks[$this->getValue()]) $li->Att('class','selected');
+        return parent::Get($depth);
+    }
+}
 /*
  * (c) 2011 by Loryx project members.
  * See LICENSE for license.
@@ -237,9 +285,7 @@ class osy_panel extends osy_cmp
     }
     private function mk_tab($rs,$cnt)
     {
-        $inp = $cnt->Add(new TagInputPost($rs->name,'hidden'));
-        $ttl = $cnt->Add(new Tag('div'))
-                   ->Att('style','padding:5px; margin-bottom:5px; border-bottom:1px solid silver;');
+        $ttl = $cnt->Add(new TagTab($rs->name));
         $cc = 0;
         $els = array();
         $eln = array();
@@ -251,38 +297,33 @@ class osy_panel extends osy_cmp
             {
                 if ($ch->disabled()) continue;
                 $pos = $ch->get_prp('opensymap.org/pos');
+                $nm_el[$ch->name] = $ch;
                 if (strlen($pos))
                 {
                     $pos = intval($pos);
-                    if ($els[$pos]) $nopos[] = $ch;
-                    else $els[$pos] = $ch;
+                    if ($els[$ch->get_prp('opensymap.org/pos/align')][$pos]) $nopos[$ch->get_prp('opensymap.org/pos/align')][] = $ch;
+                    else $els[$ch->get_prp('opensymap.org/pos/align')][$pos] = $ch;
                 }
-                else $nopos[] = $ch;
+                else $nopos[$ch->get_prp('opensymap.org/pos/align')][] = $ch;
+                
                 $eln[] = $ch->name;
             }
-            foreach($nopos as $np) $els[] = $np;
+            foreach($nopos as $a=>$np) foreach($np as $n) $els[$a][] = $n;
         }
-        ksort($els);
-        // se non è indicato l'elemento che ha il focus ... allora è il primo
-        foreach($els as $ch)
+        // ordinamento elementi
+        foreach($els as $a=>$v) 
         {
-            if (!in_array($inp->value,$eln)) $inp->Att('value',$ch->name);
-            $lb = $ch->get_prp('opensymap.org/title');
-            if (!$lb) $lb = $ch->name;
-            $t = $ttl->Add(Tag::mk('span',false,$lb))
-                     ->Att('style','border:1px solid silver; border-bottom:0px; padding:5px; cursor:pointer;')
-                     ->Att('onclick',"osy.get_input(this,'{$rs->name}').attr('value','$ch->name'); box.trigger('reload');");
-            if ($inp->value==$ch->name)
-            {
-                $t->AttAp('style','background-color:#bfbfbf;');
-                $c= $cnt->Add(new Tag('div'))
-                        ->Add($ch->exe()->tag)
-                        ->Par;
-            }
-            else
-            {
-                //$c->Att('style','display:none;');
-            }
+            ksort($els[$a]);
+        }
+        foreach($els as $a=>$chs) foreach($chs as $ch)
+        {
+            $ttl->Add(nvl($ch->get_prp('opensymap.org/title'),$ch->name),
+                      array('key'=>$ch->name, 'align'=>$a, 'grp'=>$a));
+        }
+        if ($ch = $nm_el[$ttl->getValue()])
+        {
+            $cnt->Add(new Tag('div'))
+                ->Add($ch->exe()->tag);
         }
         return;
     }    

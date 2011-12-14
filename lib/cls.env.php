@@ -63,7 +63,7 @@ class ENV
     get_bld : richiesta dell'oggetto builder associato al nome di classe passato per parametro.
     
     get_rs  : richiesta dell'oggetto risorsa associato alla uri passata come parametro.
-*/
+*/ 
 class env
 {
     // contesto ambiente
@@ -86,9 +86,9 @@ class env
         $this->exe_in_file = 0;
     }
     public static function path_app($fname)
-    {
+    { 
         return self::$ctx->app_root.$fname;
-    }
+    } 
     public static function init()
     {
         if (self::$ctx) return; 
@@ -105,25 +105,7 @@ class env
     }
     public static function exe_prp($rs,$prp,$env=array())
     {
-        $str = $rs->get_prp($prp);
-        $len = strlen(trim($str));
-        if (!$len) return;
-        foreach($env as $n=>$v) $$n = $v;
-        $fname = self::$ctx->apx_root.
-                    $rs->get_path().'.'.
-                    base64_encode($prp).'.php';
-        
-        
-        $dname = dirname($fname);
-        if (!is_dir($dname)) mkdir($dname,0777,true);
-        
-        $fp = @fopen($fname, "x");
-        if ($fp)
-        {
-            fwrite($fp,"<?php ".NL.$str.NL." ?>");
-            fclose($fp);
-        }
-        return include($fname);
+        return $rs->exe_prp($prp,$env,self::$ctx->apx_root);
     }
     public static function if_read_file_exit($fname,$path=array('.'))
     {
@@ -217,7 +199,7 @@ class env
         {
 			FB::log('serialize',$rs->get_urn());
             $dname = self::$ctx->apx_root.$rs->get_path();
-			// occorre cancellare il docice oggetto del parent (e quindi di tutti i fratelli)?
+			// occorre cancellare il codice oggetto del parent (e quindi di tutti i fratelli)?
 			//if ($rs->get_prp('loryx.org/serialize/clean',1)=='parent') $dname = dirname($dname);
             if (is_dir($dname)) 
             { 
@@ -228,6 +210,10 @@ class env
                 $rs->serialized = true;
                 $rsa[] = $rs;
             }
+			if ($rs->get_prp('loryx.org/store')=='DBX')
+			{
+				env::get_var('dbx')->rs2store($rs);
+			}
         }
         if(count($rsa))
         {

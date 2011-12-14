@@ -6,11 +6,7 @@
 [ sdk@opensymap.org opensymap.org/app
     opensymap.org/title Opensymap SDK
     [ men_app opensymap.org/menu
-        opensymap.org/form vw_app
+        opensymap.org/form frm_sdk
         opensymap.org/title Open SDK
-    ]
-    [ men_lrx opensymap.org/menu
-        opensymap.org/form vw_lrx
-        opensymap.org/title LoryX
     ]
 ]

@@ -268,7 +268,7 @@ var osy = new (function()
         {
             if (typeof(b)=='object')
             {
-                $(b).clone().appendTo($fcp);
+                $(b).clone().val($(b).val()).appendTo($fcp);
             }
             else
             {
@@ -288,6 +288,7 @@ var osy = new (function()
         var cov = $('<div style="position:absolute; background-color:red; top:0px; left:0px;"/>')
                     .css('height',$el.height())
                     .css('width',$el.width())
+                    .css({ opacity: 0.2 })
                     .bind('mouseup',function(){$(document).trigger('movestop.osy')})
                     .appendTo(el);
         $(document).bind('mousemove.osy',function(evm)
@@ -339,7 +340,7 @@ var osy = new (function()
            .find(':last')
            .each(function()
            {
-                $(this).attr('style','position:absolute; top:0px; left:0px; width:100%; background-color:yellow;');
+                $(this).attr('style','position:absolute; top:0px; left:0px; width:100%; background-color:yellow;').css({ opacity: 0.2 });;
                 box.data('cover',$(this));
             });
         box.bind('unfocus',function()
@@ -406,7 +407,12 @@ var osy = new (function()
             if (lnme.shift()!='_') return;
             var ctx = lnme.shift().split(']').shift();
             var nme = lnme.shift().split(']').shift();
-            switch(ctx)
+			if (opt.osycp)
+			{
+                if (!opt[ctx]) opt[ctx] = {};
+                if (!opt[ctx][nme]) opt[ctx][nme] = $(this).val();
+			}
+            else switch(ctx)
             {
             case 'pky': ctx='prt'; // nobreak;
             case 'osy':
@@ -473,7 +479,6 @@ var osy = new (function()
 				alert(b.text());
 				return;
 			}
-			console.log('event_proc',f,ev,el);
 		}
         box.bind('#init',function(evn,win,ifr)
         {
@@ -483,12 +488,11 @@ var osy = new (function()
             box.data('idata',doc && doc.body && $(doc.body).find(':last'));
             function init_input(sel)
             {
-				console.log(sel);
                 sel.find('input,textarea')
                    .each(function()
                    {
                         var $this = $(this);
-                        $this.data('osy_value',this.value);
+                        $this.data('osy_value',$this.val());
 						if ($this.data('input_inited')) return;
 						$this.data('input_inited',1);
                         if ($this.is('input')) $this.keyup(function(ev)
@@ -506,7 +510,7 @@ var osy = new (function()
                         }
                         $this.bind('blur',function(ev)
                         { 
-                            if (this.value==$this.data('osy_value')) $this.trigger('nomodified');
+                            if ($this.val()==$this.data('osy_value')) $this.trigger('nomodified');
                             else $this.trigger('modified');
                         });
 						$this.bind('focus',function(ev)
@@ -533,7 +537,7 @@ var osy = new (function()
             box.data('iform')
                .bind('exec',function(evn,data,obs)
             {
-				console.log(obs);
+
                 data['osy']['sta'] = 'form';
                 var frm = _cp_frm(this,data);
                 // richiesta ajax
@@ -588,14 +592,13 @@ var osy = new (function()
                             {
 								var h = [];
 								var tg = $(evn.target);
-								h.push(tg.observer(el));
+								//h.push(tg.observer(el));
 								$.AR(obs).each(function(i,o)
 								{
 									h.push(tg.observer(o));
 								});
-								console.log(h);
                                 (new Function('args',$(this).html())).apply(evn.target,[$(this),frm]);
-								h.each(function(idx,el){console.log(idx,el); if (el) el.remove()});
+								h.each(function(idx,el){if (el) el.remove()});
                             });
                             break;
                         default : // copia
@@ -660,7 +663,6 @@ var osy = new (function()
             switch(opt.pos)
             {
             case 'right':
-                console.log(box_self.css('left'),box_self.width());
                 box.css('top',box_self.css('top'));
                 box.css('left',parseInt(box_self.css('left'))+parseInt(box_self.width())+10);
                 break;
@@ -681,6 +683,13 @@ var osy = new (function()
                 box.css('left',pos.left+20);
             }
         }
+    }
+    this.par = function()
+    {
+        var args = $.AR(arguments);
+		var el = $(args.shift());
+		var cnd = args.shift();
+        return el.closest(cnd);
     }
     this.trigger = function()
     {
@@ -719,6 +728,7 @@ var osy = new (function()
 		var pos = box_self.data('iframe').offset();
 		var $el = $(el);
 		var elpos = $el.offset();
+		opt.osycp = 1;
 		opt['frm'] = _cp_frm($el.closest('form'),opt);
 		var cover = $('<div></div>').attr('style','width: 100%; height:'+$(document).height()+'; position:absolute; top:0px; left:0px; z-Index:100;').appendTo('body');
 		var box = mk_box(el,opt,obs);

@@ -116,7 +116,6 @@
         opensymap.org/label @
         opensymap.org/db/field l
         opensymap.org/db/pk 1
-        loryx.org/eval if(!empty($_POST['_']['prt']['txt_name'])) $rs->set_prp('loryx.org/builder','osy_cmp_view');
     ]
     [ cst_typ opensymap.org/cmp/const
         opensymap.org/db/empty 1
@@ -136,6 +135,7 @@
     
     [ grd_prp opensymap.org/cmp/datagrid
         opensymap.org/pos 10
+        opensymap.org/pos/align right
         opensymap.org/form frm_prp
         opensymap.org/title Propietà
         loryx.org/parent pnl_tab
@@ -143,6 +143,13 @@
         opensymap.org/event/delete 1
         opensymap.org/db/table loryx
         opensymap.org/event/delete/msg La proprietà verrà cancellata. Continuare?
+        opensymap.org/db/query % ...
+            select a.*
+            from [@loryx] a
+            where a.l=[#hdn_sys]
+            and a.o = [#hdn_base]
+            and a.r = [#txt_name]
+        ... 
         [ c1 opensymap.org/column
             opensymap.org/hide 1
             opensymap.org/db/var hdn_sys
@@ -176,13 +183,14 @@
         [ ? opensymap.org/column
             opensymap.org/title Valore
             opensymap.org/db/var txt_value
+            opensymap.org/text/line 4
             opensymap.org/db/field x
         ]
         [ ? opensymap.org/column
             opensymap.org/hide 1
             opensymap.org/db/field k
-            opensymap.org/event/code if ($event=='insert') $rs->value = env::sid('',50);
-         ]
+            opensymap.org/event/code if ($event=='insert') $this->value = env::sid('',50);
+        ]
         [ ? opensymap.org/column
             opensymap.org/hide 1
             opensymap.org/db/field s
@@ -190,8 +198,8 @@
                 switch($event)
                 {
                 case 'insert':
-                    $par = $rs->get_par(); 
-                    $rs->value = hash('sha512',$par->get_cld('c2')->value.'/'.
+                    $par = $this->get_par(); 
+                    $this->value = hash('sha512',$par->get_cld('c2')->value.'/'.
                                                $par->get_cld('c3')->value.'@'.
                                                $par->get_cld('c1')->value.'#'.
                                                $par->get_cld('c4')->value);
@@ -199,21 +207,20 @@
                 }
                ...
         ]
-        [ q1 opensymap.org/db/query
-            loryx.org/value % ...
-                select a.*
-                from [@loryx] a
-                where a.l=[#hdn_sys]
-                and a.o = [#hdn_base]
-                and a.r = [#txt_name]
-            ... 
-        ]
     ]
     [ grd_cld opensymap.org/cmp/datagrid
         opensymap.org/pos 11
+        opensymap.org/pos/align right
         opensymap.org/form frm_cld
         opensymap.org/title Figli
         loryx.org/parent pnl_tab
+        opensymap.org/db/query % ...
+            select a.*
+            from [@loryx] a
+            where a.l=[#hdn_sys]
+            and a.o = '<[#hdn_base]>/<[#txt_name]>'
+            and a.y = 'loryx.org/type'
+        ...
         [ c1 opensymap.org/column
             opensymap.org/db/pk 1
             opensymap.org/title Lib
@@ -238,15 +245,6 @@
             opensymap.org/db/var txt_value
             opensymap.org/title Tipo
             opensymap.org/db/field x
-        ]
-        [ q1 opensymap.org/db/query
-            loryx.org/value % ...
-                select a.*
-                from [@loryx] a
-                where a.l=[#hdn_sys]
-                and a.o = '<[#hdn_base]>/<[#txt_name]>'
-                and a.y = 'loryx.org/type'
-                ...
         ]
     ]
 ]

@@ -19,7 +19,9 @@
             return $ret;
         }
         if ($prp) env::get_var('page')->form->Att('osy_type','map');
+
         // come vengono modificati i dati?
+		$rs->save = $rs->get_prp('opensymap.org/event/save');
         $rs->frm = $rs->get_prp('opensymap.org/form');
         $rs->upd = $rs->get_prp('opensymap.org/event/update');
         $rs->del = $rs->get_prp('opensymap.org/event/delete');
@@ -30,7 +32,7 @@
             ->Att('osy_type','datagrid')
             ->Att('osy_map',$rs->name)
             ->Add($grid);
-        switch($rs->get_prp('opensymap.org/event/save'))
+        switch($rs->save)
         {
         case 'no':
             // se è richiesto esplicitamente di non salvare i valori del form principale ...
@@ -56,6 +58,7 @@
         if ($rs->upd)
         {
             $rs->tag->Att('evn_save_itm',"var tr = W(args[0]), frm = W(this).closest('form'); osy.event(frm,'save',{'evn_ok':function(){osy.event(frm,'exec',{'osy':{'cmp':'{$rs->name}','evn':'save'},'vars':tr.find({'osy_type':'nopost'})})}})");
+            //$rs->tag->Att('evn_save_itm',"var tr = W(args[0]), frm = W(this).closest('form'); osy.event(frm,'save',{'evn_ok':function(){console.log('{$rs->name}')}})");
         }
         // gestione ordinamento colonne
         $col_name = $rs->name.'[col]';
@@ -68,35 +71,17 @@
         
         // gestione paginazione
         $pg_name = $rs->name.'[pg]';
-        $cmd = $grid->Add(new Tag('div'))
+        $tcmd = $grid->Add(new Tag('div'))
                     ->Att('align','center')
+                    ->Att('style','position:relative')
                     ->Add(new Table)
                     ->Att('width','')
                     ->Att('style','font-size:10px;')
                     ->Att('cellspacing','5px;');
         
-        $cmd->Att('evn_set_page',"var el = lrx.search(this.parentNode,'input')[0]; el.value=args[0]; el.form.submit();");
+        $tcmd->Att('evn_set_page',"var el = W('input:first',this.parentNode).val(args[0]).closest('form').submit();");
         
         //if (is_array($_POST['_']['pky']) and strlen(implode('',$_POST['_']['pky'])))
-        foreach($rs->get_clds('opensymap.org/db/query') as $qry)
-        {
-            if ($test = $qry->get_prp('opensymap.org/test'))
-            {
-                if(eval($test))
-                {
-                    $rs->qry = $qry;
-                    break;
-                }
-            }
-            else
-            {
-                $rs->qry = $qry;
-                break;
-            }
-        }
-		$qcol = $rs->qry->get_clds('opensymap.org/column');
-		// se la query ha uno schema colonne ... viene utilizzato al posto di quello di default
-		if (count($qcol)) $this->mk_cols($rs,$qcol);
         // pagina corrente
         //FB::log(array($rs->dump()));
         $pg_inp = new TagInputPost($pg_name);
@@ -108,36 +93,34 @@
         
         // caricamento dati da visualizzare
         $db = env::get_var('db');
-        if ($rs->qry)
-        {
-            list($data,$par) = $db->getPage(array($rs->qry->get_prp('loryx.org/value'),$els_max,$pg_inp->value),
-                                                         $_POST,
-                                                         $_POST['_']['pky'],
-                                                         $_POST['_']['prt']);
-        }
+        if ($cmd = $rs->get_prp('opensymap.org/db/query'))
+            list($data,$par) = $db->getPage(array($cmd,$els_max,$pg_inp->value),
+                                                     $_POST,
+                                                     $_POST['_']['pky'],
+                                                     $_POST['_']['prt']);
         
         $pprec = max($par->page['cur']-1,1);
         $psuc = min($par->page['cur']+1,$par->page['max']);
-        $cmd->Cell('&laquo;')
+        $tcmd->Cell('&laquo;')
             ->Att('style','font-size:10px; padding:2px 5px 2px 5px;')
             ->Att('class','link')
-            ->Att('onclick',"lrx.ev_start(lrx.par(this,'table'),'set_page','1')");
-        $cmd->Cell('&lt;')
+            ->Att('onclick',"osy.event(osy.par(this,'table'),'set_page','1')");
+        $tcmd->Cell('&lt;')
             ->Att('style','font-size:10px; padding:2px 5px 2px 5px;')
             ->Att('class','link')
-            ->Att('onclick',"lrx.ev_start(lrx.par(this,'table'),'set_page','{$pprec}')");
-        $cmd->Head($pg_inp)
+            ->Att('onclick',"osy.event(osy.par(this,'table'),'set_page','{$pprec}')");
+        $tcmd->Head($pg_inp)
             ->Prp('nowrap')
             ->Add(Tag::mk('span',false,' / '.nvl($par->page['max'],1)));
-        $cmd->Cell('&gt;')
+        $tcmd->Cell('&gt;')
             ->Att('style','font-size:10px; padding:2px 5px 2px 5px;')
             ->Att('class','link')
-            ->Att('onclick',"lrx.ev_start(lrx.par(this,'table'),'set_page','{$psuc}')");
-        $cmd->Cell('&raquo;')
+            ->Att('onclick',"osy.event(osy.par(this,'table'),'set_page','{$psuc}')");
+        $tcmd->Cell('&raquo;')
             ->Att('style','font-size:10px; padding:2px 5px 2px 5px;')
             ->Att('class','link')
-            ->Att('onclick',"lrx.ev_start(lrx.par(this,'table'),'set_page','{$par->page['max']}')");
- 
+            ->Att('onclick',"osy.event(osy.par(this,'table'),'set_page','{$par->page['max']}')");
+        $tcmd->Par->Add(Tag::mk('div',array('style'=>'position:absolute; right:3px; font-size:8px; padding:2px;'),'# '.$par->group['elems']),1);
         $pg_inp->Att('value',max(intval($pg_inp->value),1));
         
         if (!$rs->upd)
@@ -164,12 +147,20 @@
             }
         }
         // costruzione testata
+        if (!count($rs->cols)) $rs->cols = $data[0];
         foreach($rs->cols as $k=>$ch)
         {
-            if ($ch->get_prp('opensymap.org/hide')) continue;
-            if (!($v=$ch->get_prp('opensymap.org/title'))) $v = $k;
-            $th = $tbl->Head(new Tag('div'),1)->Add(NBSP.$v);
-            if ($w = $ch->get_prp('opensymap.org/size/width')) $th->Att('style',"width:{$w};");
+            if (is_object($ch))
+            {
+                if ($ch->get_prp('opensymap.org/hide')) continue;
+                if (!($v=$ch->get_prp('opensymap.org/title'))) $v = $k;
+                $th = $tbl->Head(new Tag('div'),1)->Add(NBSP.$v);
+                if ($w = $ch->get_prp('opensymap.org/size/width')) $th->Att('style',"width:{$w};");
+            }
+            else
+            {
+                $th = $tbl->Head(new Tag('div'),1)->Add(NBSP.$k);
+            }
         }
         // l'elemento viene modificato in loco?
         if (count($rs->pky) and $rs->mod)
@@ -199,12 +190,12 @@
         if ($rs->upd)
         {
             // modifica inline degli elementi
-            $tr->Att('evn_modified',"console.log(args); this.vvupd = true; osy.event(this,'focusout')")
-               ->Att('evn_nomodified',"console.log(args); osy.event(this,'focusout')")
+            $tr->Att('evn_modified',"this.vvupd = true; osy.event(this,'focusout')")
+               ->Att('evn_nomodified',"osy.event(this,'focusout')")
                ->Att('evn_focused',"clearTimeout(this.ttupd)")
-               ->Att('evn_focusout',"if (!this.vvupd) return; ".
+               ->Att('evn_focusout',"if (!this.vvupd) return; this.vvupd=false; ".
                                     "this.ttupd = setTimeout(function(tr){".
-                                            "tr = W(tr); osy.event(tr.closest({'osy_type':'datagrid'}),'save_itm',tr);".
+                                            "osy.event((tr = W(tr)).closest({'osy_type':'datagrid'}),'save_itm',tr);".
                                     "}, 100, this);");
         }
         else
@@ -239,36 +230,46 @@
         }
         foreach($rs->cols as $k=>$ch)
         {
-            if ($ch->get_prp('opensymap.org/hide')) continue;
-            if (is_array($itm))
+            if (is_object($ch))
             {
-                if (!($p = $ch->get_prp('opensymap.org/db/field'))) $p = $k;
-                if(count($rs->pky) and $rs->upd)
+                if ($ch->get_prp('opensymap.org/hide')) continue;
+                if (is_array($itm))
                 {
-                    $name = "{$rs->name}[itm][{$row}][{$ch->name}]";
-                    if ($ch->get_prp('opensymap.org/text/cols')>1)
+                    if (!($p = $ch->get_prp('opensymap.org/db/field'))) $p = $k;
+                    if(count($rs->pky) and $rs->upd)
                     {
-                        $val = new Tag('textarea');
-                        $val->Att('name',$name)
-                            ->Att('class','mini')
-                            ->Att('style','position:absolute;')
-                            ->Add($itm[$p]);
+                        $name = "{$rs->name}[itm][{$row}][{$ch->name}]";
+                        if (($ll = $ch->get_prp('opensymap.org/text/line'))>1)
+                        {
+                            $h1 = 22;
+                            $h2 = $h1*$ll;
+                            $val = new Tag('textarea');
+                            $val->Att('name',$name)
+                                ->Att('style',"xposition:absolute; height:{$h1}px;")
+                                ->Att('onfocus',"W(this).css({'width':W(this).width()+'px','height':'{$h2}px','position':'absolute','z-Index':'10'})")
+                                ->Att('onblur',"W(this).css({'height':'{$h1}px','z-Index':'1'})")
+                                ->Add($itm[$p]);
+                        }
+                        else
+                        {
+                            $val = new TagInput($name,$itm[$p],'text');
+                        }
+                        $val->Att('osy_type','nopost');
+
                     }
                     else
                     {
-                        $val = new TagInput($name,$itm[$p],'text');
+                        $val = NBSP.$itm[$p];
                     }
-                    $val->Att('osy_type','nopost');
-
                 }
                 else
                 {
-                    $val = NBSP.$itm[$p];
+                    $val = NBSP.'';
                 }
             }
             else
             {
-                $val = NBSP.'';
+                $val = NBSP.$itm[$k];
             }
             $tbl->Cell(Tag::mk('div',false,$val));
         }
@@ -387,7 +388,10 @@
                 {
                     $wh[$ch->get_prp('opensymap.org/db/field')] = $pky[$k];
                 }
-                $db->delete('[@'.$rs->get_prp('opensymap.org/db/table').']',$wh);
+                $tbl = $rs->get_prp('opensymap.org/db/table');
+                if ($tbl{0}=='!') $tbl = substr($tbl,1);
+                else $tbl = '[@'.$tbl.']';
+                $db->delete($tbl,$wh);
             }
             break;
         case 'save':
@@ -421,7 +425,10 @@
                         }
                         if (isset($ch->value)) $fl[$ch->get_prp('opensymap.org/db/field')] = $ch->value;
                     }
-                    $db->update('[@'.$rs->get_prp('opensymap.org/db/table').']',$fl,$wh);
+                    $tbl = $rs->get_prp('opensymap.org/db/table');
+                    if ($tbl{0}=='!') $tbl = substr($tbl,1);
+                    else $tbl = '[@'.$tbl.']';
+                    $db->update($tbl,$fl,$wh);
                 }
                 else
                 {
@@ -446,7 +453,11 @@
                         }
                         $fl[$f] = $ch->value;
                     }
-                    $db->insert('[@'.$rs->get_prp('opensymap.org/db/table').']',$fl);
+                    $tbl = $rs->get_prp('opensymap.org/db/table');
+                    if ($tbl{0}=='!') $tbl = substr($tbl,1);
+                    else $tbl = '[@'.$tbl.']';
+                    //osy::alert(array($tbl,$fl));
+                    $db->insert($tbl,$fl);
                 }
             }
             break;
