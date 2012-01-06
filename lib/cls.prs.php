@@ -39,7 +39,7 @@ class prs
             // inizion elemento
                 $tb = array();
                 // se non ha nome ... allora ne assegno uno     
-                if ($d[1]=='?') $d[1] = env::sid('low');
+                if ($d[1]=='?') $d[1] = env::sid('tbl',7);
                 $tb[0] = array('B',$d[1]);
                 if ($d[2]!=']')
                 {

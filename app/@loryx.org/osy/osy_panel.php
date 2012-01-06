@@ -63,6 +63,7 @@ class osy_panel extends osy_cmp
         if ($rs->disabled()) return;
         parent::make($rs);
         $w = $rs->get_prp('opensymap.org/size/width');
+        //var_dump(array($rs->dump()));
         $h = $rs->get_prp('opensymap.org/size/height');
         $root = $rs->tag;
         //FB::log($w,'width');

@@ -19,7 +19,8 @@ class osy
 		$fl = $form->pk;
 		FB::log($flds,'loryx');
         //osy::err($flds);
-		foreach(array_map('trim',explode(',',$flds)) as $fld)
+        if (!is_array($flds)) $flds = array_map('trim',explode(',',$flds));
+		foreach($flds as $fld)
 		{
             $cmp = $form->get_cld($fld);
             if (!$cmp) osy::alert('componente non trovato : '.$fld);
@@ -29,6 +30,34 @@ class osy
 			$db->lrx2store($fl,1);
 		}
 	}
+    static function get_var($v)
+    {
+        return env::get_var('db')->merge("[{$v}]",$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
+    }
+    function get_osy($k)
+    {
+        return $_POST['_']['osy'][$k];
+    }
+    function set_osy($k,$v)
+    {
+        $_POST['_']['osy'][$k]=$v;
+    }
+    function get_pky($k)
+    {
+        return $_POST['_']['pky'][$k];
+    }
+    function set_pky($k,$v)
+    {
+        $_POST['_']['pky'][$k] = $v;
+    }
+    function get_prt($k)
+    {
+        return $_POST['_']['prt'][$k];
+    }
+    function set_prt($k,$v)
+    {
+        $_POST['_']['prt'][$k] = $v;
+    }
 }
 class Menu extends Tag
 {

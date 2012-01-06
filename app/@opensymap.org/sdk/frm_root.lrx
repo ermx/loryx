@@ -9,10 +9,10 @@
     [ hdn_sys opensymap.org/cmp/text
         opensymap.org/type/readonly 0
         loryx.org/parent pnl_dat 
-        opensymap.org/db/insert
+        [ ev_ins opensymap.org/event ]
     ]    
 	[ hdn_base opensymap.org/cmp/const
-        opensymap.org/db/insert 
+        [ ev_ins opensymap.org/event ]
     ]    
     [ txt_name opensymap.org/cmp/text
         opensymap.org/label Nome

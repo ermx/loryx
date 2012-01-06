@@ -22,13 +22,21 @@
     [ txt_name opensymap.org/cmp/text
         opensymap.org/label Nome
     ] 
+    [ txt_ttl opensymap.org/cmp/text
+        opensymap.org/label Titolo
+        opensymap.org/loryx/type opensymap.org/title
+        opensymap.org/pos 2
+        loryx.org/parent pnl_dat
+        opensymap.org/colspan 2
+    ] 
     [ grd_frm opensymap.org/cmp/datagrid
         opensymap.org/pos 2
         opensymap.org/form frm_frm
         opensymap.org/title Form
         opensymap.org/db/query % ...
-            select a.*
+            select a.*, t.x as ttl
             from [@loryx] a
+            left join [@loryx] t on (a.l=t.l and a.o=t.o and a.r=t.r and t.y='opensymap.org/title')
             where a.l=[#hdn_sys]
             and a.o = '<[#hdn_base]>/<[#txt_name]>'
             and a.y = 'loryx.org/type'
@@ -56,9 +64,8 @@
             opensymap.org/db/field r
         ]
         [ c5 opensymap.org/column
-            opensymap.org/db/var txt_value
-            opensymap.org/title Tipo
-            opensymap.org/db/field x
+            opensymap.org/title Titolo
+            opensymap.org/db/field ttl
         ]
     ]
     [ grd_men opensymap.org/cmp/datagrid

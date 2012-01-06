@@ -44,10 +44,12 @@ class rs
 		if ($compact) return trim(trim($urn,'/'),'@');
 		 return $urn;
     }
-    function get_path()
+    function get_path($sub='')
     {
         if ($this->base) $base = '/'.trim($this->base,'/');
-        return str_replace('/', DIRECTORY_SEPARATOR,"@{$this->sys}{$base}/{$this->name}");
+        $path = "@{$this->sys}{$base}/{$this->name}";
+        if ($sub) $path .= '/'.$sub;
+        return str_replace('/', DIRECTORY_SEPARATOR,$path);
     }
     function get_root()
     {
@@ -63,14 +65,19 @@ class rs
         $str = $this->get_prp($prp);
         $len = strlen(trim($str));
         if (!$len) return;
-        FB::log(array($prp,$str),$this->get_urn());
         foreach($env as $n=>$v) $$n = $v;
+        if (!$dbx) $dbx = env::get_var('dbx');
+        // per evitare esplicitamente il merge ...
+        if ($this->get_prp('loryx.org/db/merge')!='no') $str = $dbx->merge($str,nvl($_POST,array()),
+                                                                                nvl($_POST['_']['pky'],array()),
+                                                                                nvl($_POST['_']['prt'],array()));
 		if (!empty($path_root))
 		{
 			$fname = $path_root.
-						$this->get_path().'.'.
+						$this->get_path('prp').'.'.
 						base64_encode($prp).'.php';
 			
+            FB::log($fname, 'exe '.$prp);
 			
 			$dname = dirname($fname);
 			if (!is_dir($dname)) mkdir($dname,0777,true);
@@ -90,6 +97,7 @@ class rs
 			}
             else
             {
+                //FB::log(array($str));
                 return eval($str);
             }
 			return include($fname);
@@ -404,11 +412,24 @@ class rs
             if ($chdir and $this->get_prp('loryx.org/include/chdir',1)!='no')
             {
                 //var_dump(getcwd(),dirname($fname),basename($fname),$this->dump());
-                //FB::log(array(dirname($fname),basename($fname),getcwd()),$fname);
-                chdir(dirname($fname));
+                FB::log(array(dirname($fname),basename($fname),getcwd()),$fname);
+                $dname = dirname($fname);
                 $fname = basename($fname);
+                if (!is_dir($dname))
+                {
+                    // non è presente nella dir corrente quindi viene considerato la dir di base
+                    // questo significa che occorrerà rimettere il path corrente alla fine.
+                    $__olddir = env::chdir();
+                    if (!is_dir($dname))
+                    {
+                        // non è presente
+                        return;
+                    }
+                }
+                chdir($dname);
             }
             require_once($fname);
+            if ($__olddir) env::chdir($__olddir);
         }
         return $this;
     }
@@ -428,9 +449,9 @@ class rs
                 env::exe_prp($rs,$s);
                 break;
             case 'loryx.org/builder':
-                if ($this->get_prp('loryx.org/builder/make')) 
+                if ($rs->get_prp('loryx.org/builder/make')) 
                 {
-                    env::exe_prp($this,'loryx.org/builder/make');
+                    env::exe_prp($rs,'loryx.org/builder/make');
                     break;
                 }
                 else
@@ -438,7 +459,7 @@ class rs
                     $bld = env::get_bld($rs->get_prp($s));
                     if ($bld) $bld->make($rs,$prp,$arg);
                 }
-                env::exe_prp($this,'loryx.org/builder/finish');
+                env::exe_prp($rs,'loryx.org/builder/finish');
                 break;
             }
         }

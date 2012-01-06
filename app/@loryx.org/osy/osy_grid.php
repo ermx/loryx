@@ -32,6 +32,8 @@
             ->Att('osy_type','datagrid')
             ->Att('osy_map',$rs->name)
             ->Add($grid);
+        $dbg = I(new Tag('div'))->Att('class','debug')->Add(new Tag('pre'));
+        if ($rs->get_prp('loryx.org/debug')) $grid->Add($dbg);
         switch($rs->save)
         {
         case 'no':
@@ -93,11 +95,19 @@
         
         // caricamento dati da visualizzare
         $db = env::get_var('db');
-        if ($cmd = $rs->get_prp('opensymap.org/db/query'))
-            list($data,$par) = $db->getPage(array($cmd,$els_max,$pg_inp->value),
+        try
+        {
+            if ($cmd = $rs->get_prp('opensymap.org/db/query'))
+                list($data,$par) = $db->getPage(array($cmd,$els_max,$pg_inp->value),
                                                      $_POST,
                                                      $_POST['_']['pky'],
                                                      $_POST['_']['prt']);
+        }
+        catch(Exception $e)
+        {
+            $grid->Add($e->getMessage());
+        }
+        $dbg->Add($db->last_sql());
         
         $pprec = max($par->page['cur']-1,1);
         $psuc = min($par->page['cur']+1,$par->page['max']);
@@ -148,6 +158,11 @@
         }
         // costruzione testata
         if (!count($rs->cols)) $rs->cols = $data[0];
+        if (!count($rs->cols)) 
+        {
+            $data = array(array('Errore'=>'<span style="color:silver;">Nessun dato trovato</span>'));
+            $rs->cols = $data[0];
+        }
         foreach($rs->cols as $k=>$ch)
         {
             if (is_object($ch))

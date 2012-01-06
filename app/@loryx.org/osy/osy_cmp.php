@@ -38,6 +38,10 @@
         if(eval($cmd)) return false;
         return true;
     }
+    public function setted($rs)
+    {
+        return isset($_POST[$rs->name]);
+    }
     /*
     public function save_prp_lrx($rs)
     {

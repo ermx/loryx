@@ -7,6 +7,54 @@
     opensymap.org/db/table loryx
     opensymap.org/title Template
 	loryx.org/serialize/clean parent
+    opensymap.org/event/init % ...
+        switch($event)
+        {
+        case 'load':
+        case '':
+            break;
+        default:
+            return;
+        }
+        $form = $this;
+        $lrx = array();
+        foreach($form->cmp as $k=>$cmp)
+        {
+            // per ogni componente esterno per il quale non sia indicato il campo di lettura
+            // viene effettuata una query
+            if ($ty_lrx = $cmp->get_prp('opensymap.org/loryx/type') and
+                !$cmp->get_prp('opensymap.org/db/field')) $lrx[$k] = $ty_lrx;
+        }
+        if (!count($lrx)) return;
+        // lettura valori
+        $sel = array();
+        $tbl = array('[@loryx] lrx ');
+        $whr = array();
+        $cc=0;
+        foreach($lrx as $nm=>$ty)
+        {
+            $tbl_nm = 'l_'.$cc++;
+            $sel[] = $tbl_nm.'.x as '.$nm;
+            $arg = array();
+            foreach(array('l','o','r') as $k) $arg[] = "lrx.{$k} = {$tbl_nm}.{$k}";
+            $arg[] = "{$tbl_nm}.y = ".$db->str($ty);
+            $tbl[] = "[@loryx] {$tbl_nm} on (".implode(' and ',$arg).")";
+        }
+        foreach($form->pk as $n=>$v) $whr[] = "lrx.{$n} = ".$db->str($v);
+        $sql  = 'select '.implode(', ',$sel).NL;
+        $sql .= 'from '.implode(NL.'left join ',$tbl).NL;
+        $sql .= 'where '.implode(' and ',$whr);
+        $req = $db->getFirst($sql);
+        //var_dump($req);
+        foreach($lrx as $k=>$ty)
+        {
+            if (!$form->cmp[$k]->setted()) 
+            {
+                $form->cmp[$k]->setValue($req[$k]);
+            }
+        }
+    ...
+
     [ ev_delete opensymap.org/event
         opensymap.org/type after
         loryx.org/name delete
@@ -30,7 +78,6 @@
         loryx.org/name save
         opensymap.org/type after
         loryx.org/code % ...
-		
 		if (!$form->pkstr)
 		{
 			// inserimento
@@ -75,6 +122,15 @@
             $db->query("/* */ update [@{$tbl}] set x = concat(o,'/',r,'@',l) where ".implode(' and ',$whrcld), array(), $form->pkn);
             //-----------------//
         }
+        
+		// elementi loryx esterni
+        $lrx = array();
+        foreach($form->cmp as $k=>$cmp)
+        {
+            if ($cmp->get_prp('opensymap.org/loryx/type') and 
+                $cmp->get_prp('opensymap.org/loryx/autosave')!='no') $lrx[] = $k;
+        }
+        osy::loryx($db,$form,$lrx);
 		...
     ]
     
@@ -95,10 +151,16 @@
         opensymap.org/pos 1,1
         opensymap.org/db/empty 1
         loryx.org/parent pnl_dat
-        opensymap.org/db/insert <[##hdn_base]>/<[##txt_name]>
         opensymap.org/db/field o
         opensymap.org/label Nome
         opensymap.org/db/pk 1
+        [ev_ins opensymap.org/event
+            loryx.org/name insert
+            opensymap.org/type before
+            loryx.org/code % ...
+                $this->get_par()->setValue(osy::get_prt('hdn_base').'/'.osy::get_prt('txt_name'));
+            ...
+        ]
     ]
     [ txt_name opensymap.org/cmp/text
         loryx.org/parent pnl_dat
@@ -112,10 +174,16 @@
         loryx.org/parent pnl_dat
         opensymap.org/pos 1,3
         opensymap.org/db/empty 1
-        opensymap.org/db/insert <[##hdn_sys]>
         opensymap.org/label @
         opensymap.org/db/field l
         opensymap.org/db/pk 1
+        [ev_ins opensymap.org/event
+            loryx.org/name insert
+            opensymap.org/type before
+            loryx.org/code % ...
+                $this->get_par()->setValue(osy::get_prt('hdn_sys'));
+            ...
+        ]
     ]
     [ cst_typ opensymap.org/cmp/const
         opensymap.org/db/empty 1
@@ -189,7 +257,7 @@
         [ ? opensymap.org/column
             opensymap.org/hide 1
             opensymap.org/db/field k
-            opensymap.org/event/code if ($event=='insert') $this->value = env::sid('',50);
+            opensymap.org/event/code if ($event=='insert') $this->value = env::sid('',20);
         ]
         [ ? opensymap.org/column
             opensymap.org/hide 1

@@ -529,7 +529,7 @@ var osy = new (function()
 				box.css('top',max(($(document.body).height()-box.height())/2,0));
 				box.data('center',0);
 			}
-            box.css('visibility','');
+            if (!opt.novisible) box.css('visibility','');
 			
 			box.data('iwin').trigger('show.osy');
             init_input(box.data('iform'));

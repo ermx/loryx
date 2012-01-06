@@ -61,6 +61,7 @@ class osy_form
         $rs->cmp = array();
         $rs->prt = array();
         $rs->pky = array();
+        $rs->pk = array();
         $rs->fld = array();
         
         $rs->tag_cmp = array();
@@ -153,6 +154,7 @@ class osy_form
 				$val = $ch->get_prp('loryx.org/value');
 			}
 			$wh[] = $ch->get_prp('opensymap.org/db/field').'='.$db->str($val);
+            $rs->pk[$ch->get_prp('opensymap.org/db/field')] = $val;
 		}
         if (!$cmd = $rs->get_prp('opensymap.org/db/query'))
         {
@@ -175,7 +177,9 @@ class osy_form
         {
             $rs->data = $db->getFirst($cmd,$_POST,$_POST['_']['pky'],$_POST['_']['prt']);
         }
+        
         // verifica del valore dei componenti
+        
         foreach($rs->cmp as $ch)
         {
 			if (!isset($_POST[$ch->name])) 
@@ -184,7 +188,9 @@ class osy_form
 			}
             else $ch->check($rs,$event);
         }
-
+        
+        env::exe_prp($rs,'opensymap.org/event/init',array('event'=>$event,'db'=>$db));
+        
         if (!$event) return true;
         $ev_before = array();
         $ev_start  = array();
@@ -242,29 +248,11 @@ class osy_form
             switch($event)
             {
             case 'load':
-                $rs->evn->Att('value','');
-                $ev_found++;
-                $rs->evn->stop = false;
-                foreach($rs->cmp as $k=>$ch)
-                {
-                    $ch->setValue($rs->data[nvl($ch->get_prp('opensymap.org/db/field/load'),$ch->get_prp('opensymap.org/db/field'))],$rs->data);
-                }
-                break;
             case 'insert':
                 $rs->evn->Att('value','');
                 $ev_found++;
                 $rs->evn->stop = false;
-                foreach($rs->cmp as $k=>$ch)
-                {
-                    if ($val = $ch->get_prp('opensymap.org/db/insert'))
-					{
-						$ch->setValue($db->merge ($val,
-												$_POST,
-												$_POST['_']['pky'],
-												$_POST['_']['prt']));
-					}
-                }
-					FB::log($val,$ch->get_urn());
+                FB::log($val,$ch->get_urn());
                 break;
             case 'delete':
                 $rs->evn->stop = true;

@@ -5,7 +5,16 @@
  * See LICENSE for license.
  *
  */
-
+function q($a,$srv=array())
+{
+    //return $a;
+    if (!is_array($srv)) $srv = explode(',',$srv);
+    foreach($srv as $s)
+    {
+        $a[$s] = $_SERVER[$s];
+    }
+    return http_build_query($a);
+}
 class osy_start
 {
     private function decript(&$ar,$nm)
@@ -23,7 +32,19 @@ class osy_start
             $ar = osy_decript($ar);
         }
     }
-    
+    private function qry_osy($rs)
+    {
+        $context = stream_context_create(array( 
+            'http' => array( 
+              'method'  => 'POST', 
+              'header'  => "Content-type: application/x-www-form-urlencoded\r\n", 
+              'content' => q(Array('OSY_NAME'=>$rs->get_prp('loryx.org/id')),'SERVER_ADDR,SERVER_NAME'), 
+              'timeout' => 5, 
+            ), 
+          )); 
+        echo file_get_contents('http://www.opensymap.org/osy.php', false, $context);
+        return;
+    }
     public function make($rs, $prp=null, $arg=null)
     {
         $page = env::get_var('page',new osyPage());
@@ -68,13 +89,16 @@ class osy_start
                 //$page->AddScript($req->base.'/src/jquery-ui-1.8.14.custom.min.js');
                 $page->AddScript($req->base.'/src/jqscript.js');
                 $page->part('HTML')->Att('class',"dsk");
-                $page->part('BODY')->Att('onload',"osy.win(window,{'osy':{'app':'@'}});");
+                $scr = $page->AddScript();
+                $scr->Add("W(function(){osy.win(window,{'osy':{'app':'@'}})})");
                 if ($rs->config and ($sty = $rs->config->get_prp('opensymap.org/style')))
                 {
                     $page->Part('HEAD')->Add(new Tag('style'))
                                        ->Add(".dsk, .dsk body {{$sty}");
                 }
                 break;
+            case '?':
+                return $this->qry_osy($rs);
             case '@':
                 // MENU'
                 // se l'utente non è loggatto allora parte la form di default
@@ -107,6 +131,7 @@ class osy_start
                 else
                 {
                     $scr->Add("osy.trigger(frameElement,'#cmd','position,everyfocus',{'x':10,'y':10});");
+                    $scr->Add("W(function(){osy.frm(dsk,{'osy':{'app':'?'}})})");
                     $page->setTitle($rs->get_prp('opensymap.org/menu/title'));
 					$apx = $rs->get_cld('config/app');
 					
@@ -139,8 +164,8 @@ class osy_start
                 //$page->form->Att('ev_save',"this.upd?osy.exe(args[0],{'osy':{'evn':'save'},'form':this}):lrx.ev_start(args[0],'ok');");
                 // tramite questa applicazione è possibile modificare l'interfaccia
 				$app = $rs->get_cld('config/app/'.$oapp->value);
-                // esecuzione eventuale codice di inizializzazione
-				$app->exe();
+                // esecuzionermannoe eventuale codice di inizializzazione
+				$page->Add($app->exe()->tag,1);
 				$frm = $app->get_cld($ofrm->value);
 				
                 if (!$frm) throw new Exception('Form non trovata : '.$ofrm->value);

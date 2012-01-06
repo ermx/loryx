@@ -78,8 +78,13 @@ class env
         $this->time = new c_timer();
         $this->sep = DIRECTORY_SEPARATOR;
         $this->app_root = implode($this->sep,array('.','app',''));
-        $this->apx_root = rtrim(sys_get_temp_dir(),$this->sep).implode($this->sep,array('','org.loryx.www','apx',''));
-		if (!is_dir($this->apx_root)) mkdir($this->apx_root,0777,true);
+        $this->apx_root = implode($this->sep,array('.','apx',''));
+		if (!is_dir($this->apx_root)) @mkdir($this->apx_root,0777,true);
+        if (!is_writable($this->apx_root)) 
+        {
+            $this->apx_root = rtrim(sys_get_temp_dir(),$this->sep).implode($this->sep,array('','org.loryx.www','apx',''));
+            if (!is_dir($this->apx_root)) mkdir($this->apx_root,0777,true);
+        }
         $this->mtime = 1?filemtime(__FILE__):0;
         $this->lng = 'it';
         $this->root = getcwd();
@@ -185,7 +190,7 @@ class env
         
         if (!self::$ctx->bld[$name])
         {
-            if (!class_exists($name)) throw new Exception($name);
+            if (!class_exists($name)) throw new Exception('builder non trovato : '.$name);
             self::$ctx->bld[$name] = new $name;
         }
         return self::$ctx->bld[$name];
@@ -197,7 +202,6 @@ class env
         $rsa = array();
         foreach($rss as $rs) 
         {
-			FB::log('serialize',$rs->get_urn());
             $dname = self::$ctx->apx_root.$rs->get_path();
 			// occorre cancellare il codice oggetto del parent (e quindi di tutti i fratelli)?
 			//if ($rs->get_prp('loryx.org/serialize/clean',1)=='parent') $dname = dirname($dname);
@@ -207,6 +211,7 @@ class env
             }
             if ($rs->get_prp('loryx.org/serialize')!='no')
             {
+                FB::log('serialize',$rs->get_urn());
                 $rs->serialized = true;
                 $rsa[] = $rs;
             }
@@ -606,6 +611,13 @@ class env
             else
             {
                 $chs = 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm0123456789';
+                // compattazione della data ... inizia con z
+                $nsid = 'z';
+                for($i=0;$i<strlen($sid);$i+=2)
+                {
+                    $nsid .= $chs{intval(substr($sid,$i,2))};
+                }
+                $sid = $nsid;
             }
             for($i=strlen($sid); $i<$t[1] ; $i++)
             {

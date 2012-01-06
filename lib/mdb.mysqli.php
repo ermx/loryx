@@ -52,6 +52,7 @@ abstract class mdb
         }
         
         $pre = '';
+            //FB::log($args,'merge');
         foreach($args as $c=>$p)
         {
             if (is_array($p))
@@ -64,7 +65,7 @@ abstract class mdb
                     $cmd = str_replace('['.$pre.$pc.']',$this->str($pp),$cmd);
                 }
             }
-            else
+            else 
             {
                 $cmd = str_replace('<['.$c.']>',$p,$cmd);
                 $cmd = str_replace('[['.$c.']]',$this->str($p,''),$cmd);
@@ -154,7 +155,12 @@ class mdb_mysqli extends mdb
         $end = env::get_time();
         //if (!$this->fb_disabled) FB::log(array(trim($cmd),$start.' : '.$begin.' : '.$end),'query');
         if (!$rs) osy::alert('Query errata '.NL.NL.$cmd.NL);
+        $this->cmd = $cmd;
         return $rs;
+    }
+    function last_sql()
+    {
+        return $this->cmd;
     }
     function str($s,$wrap="'")
     {
@@ -410,12 +416,11 @@ class mdb_mysqli extends mdb
 	function lrx2store($fld,$opt='')
 	{
         $algo = 'sha512';
-		FB::log($fld,$algo);
 
 		switch($opt)
 		{
 		case 'upd':
-			$fld['k']=env::sid('',50);
+			if(empty($fld['k'])) $fld['k']=env::sid('',40);
 			$fld['s']=hash($algo,"{$fld['o']}/{$fld['r']}@{$fld['l']}#{$fld['y']}");
 			$this->update('[@loryx]',$fld,array('l'=>$fld['l'],'o'=>$fld['o'],'r'=>$fld['r'],'y'=>$fld['y']));
 			break;
@@ -428,6 +433,7 @@ class mdb_mysqli extends mdb
 			$fld['s']=hash($algo,"{$fld['o']}/{$fld['r']}@{$fld['l']}#{$fld['y']}");
 			$this->insert('[@loryx]',$fld);
 		}
+		//FB::log($fld,$algo);
 		return array($fld['s'],$fld['k']);
 	}
     function rs2store($rs,$opt=array())

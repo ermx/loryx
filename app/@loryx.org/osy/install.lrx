@@ -79,6 +79,8 @@
 
                 // Prime configurazioni
                 $aosy->set_prp('loryx.org/path',$form->get_cld('inp_path_osy')->value);
+                // token "identità" dell'installazione
+                $aosy->set_prp('loryx.org/id',env::sid('',50));
                 $cnf = $aosy->get_cld('config',3)
                              ->set_prp('opensymap.org/style','background-color:#ceddef;');
                 // impostazione database
