@@ -1,0 +1,78 @@
+[ sdk/frm_sdk@opensymap.org opensymap.org/form
+    opensymap.org/title Opensymap.org SDK
+    opensymap.org/size/width 500
+	[ pnl_tab opensymap.org/cmp/panel 
+        opensymap.org/type tab
+    ]
+    [ grd_app opensymap.org/cmp/datagrid
+		opensymap.org/form frm_app
+        opensymap.org/pos   1
+        loryx.org/parent pnl_tab
+        opensymap.org/title Applicazioni
+        opensymap.org/db/query % ...
+            select * 
+            from [@loryx] l
+            where l.y = 'loryx.org/type'
+              and l.x = 'opensymap.org/app'
+            order by l,o,r
+        ...
+		[ c1 opensymap.org/column
+			opensymap.org/db/var hdn_sys
+			opensymap.org/title Lib
+			opensymap.org/db/pk 1
+			opensymap.org/db/field l
+		]
+		[ c2 opensymap.org/column
+			opensymap.org/db/var hdn_base
+			opensymap.org/hide 1
+			opensymap.org/title Base
+			opensymap.org/db/field o
+			opensymap.org/db/pk 1
+		]
+		[ c3 opensymap.org/column
+			opensymap.org/db/var txt_name
+			opensymap.org/title Name
+			opensymap.org/db/pk 1
+			opensymap.org/db/field r
+		]
+    ]
+    [ grd_lrx opensymap.org/cmp/datagrid
+		opensymap.org/form frm_root
+        opensymap.org/pos   2
+        loryx.org/parent pnl_tab
+        opensymap.org/title LoryX
+		opensymap.org/db/query % ...
+            select *
+            from [@loryx]
+            where y='loryx.org/type'
+            and o = ''
+            order by l,r
+        ...
+		[ c3 opensymap.org/column
+			loryx.org/ord 1
+			opensymap.org/db/field r
+			opensymap.org/db/pk 1
+			opensymap.org/title Name
+			opensymap.org/db/var txt_name
+		]
+		[ c1 opensymap.org/column
+			opensymap.org/db/pk 1
+			opensymap.org/title Lib
+			opensymap.org/db/var hdn_sys
+			loryx.org/ord 2
+			opensymap.org/db/field l
+		]
+		[ c2 opensymap.org/column
+			opensymap.org/title Tipo
+			loryx.org/ord 3
+			opensymap.org/db/field x
+		]
+		[ c4 opensymap.org/column
+			opensymap.org/db/var hdn_base
+			opensymap.org/hide 1
+			opensymap.org/title Base
+			opensymap.org/db/field o
+			opensymap.org/db/pk 1
+		]
+    ]
+]

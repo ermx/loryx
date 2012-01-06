@@ -1,0 +1,121 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ sdk/frm_qry@opensymap.org sdk/tmpl_frm@opensymap.org
+    opensymap.org/size/width 500
+    opensymap.org/title Query
+	
+    [ txt_typ opensymap.org/cmp/const
+		loryx.org/value opensymap.org/db/query
+    ]
+	[pnl_info opensymap.org/cmp/panel
+		loryx.org/parent pnl_tab
+		opensymap.org/title Info
+		opensymap.org/pos 1
+	]
+	[txt_qry opensymap.org/cmp/text
+		opensymap.org/pos 2
+		opensymap.org/label Query
+		loryx.org/parent pnl_info
+		opensymap.org/colspan 2
+		opensymap.org/db/field/extern 1
+		opensymap.org/db/field ttl
+		opensymap.org/loryx/type loryx.org/value
+		opensymap.org/text/line 10
+	]
+	[txt_rol opensymap.org/cmp/text
+		opensymap.org/pos 1,1
+		opensymap.org/label Ruolo
+		loryx.org/parent pnl_info
+		opensymap.org/db/field/extern 1
+		opensymap.org/db/field rol
+		opensymap.org/loryx/type opensymap.org/usr/rol
+	]
+	[cmb_frm opensymap.org/cmp/combo
+		opensymap.org/pos 1,2
+		opensymap.org/label Form
+		loryx.org/parent pnl_info
+		opensymap.org/db/field/extern 1
+		opensymap.org/db/field frm
+		opensymap.org/loryx/type opensymap.org/form
+		[ ? opensymap.org/db/query
+			opensymap.org/db/pk r
+			loryx.org/value % ...
+				select f.r
+				from [@loryx] r
+				inner join [@loryx] f on (f.l=r.l and f.o=r.o and f.y='loryx.org/type' and f.x='opensymap.org/form')
+				where r.y = 'loryx.org/urn'
+				  and r.x = '<[#hdn_base]>@<[#hdn_sys]>'
+			...
+		]
+	]
+    [ ? opensymap.org/event
+        loryx.org/name save
+        loryx.org/code % END
+		switch($form->get_cld('pnl_tab')->getValue())
+		{
+		case 'pnl_info':
+			osy::loryx($db,$form,'txt_qry,txt_rol,cmb_frm');
+		}
+		END
+        opensymap.org/type after
+    ]
+	[ q1 opensymap.org/db/query
+		loryx.org/value % ...
+			select a.*, t.x as ttl, r.x as rol, f.x frm
+			from [@loryx] a
+			left join [@loryx] t on (a.l=t.l and a.o=t.o and a.r=t.r and t.y = 'loryx.org/value')
+			left join [@loryx] r on (a.l=r.l and a.o=r.o and a.r=r.r and r.y = 'opensymap.org/usr/rol')
+			left join [@loryx] f on (a.l=f.l and a.o=f.o and a.r=f.r and f.y = 'opensymap.org/form')
+			where a.l=[#hdn_sys]
+			and a.o = [#hdn_base]
+			and a.r = [#txt_name]
+			and a.y = 'loryx.org/type'
+			...
+	]
+	
+    [ grd_col opensymap.org/cmp/datagrid
+        opensymap.org/pos 3
+        opensymap.org/form frm_qry_col
+        opensymap.org/title Colonne
+        loryx.org/parent pnl_tab
+		loryx.org/ord 3
+        [ c1 opensymap.org/column
+            opensymap.org/db/pk 1
+            opensymap.org/title Lib
+            opensymap.org/hide 1
+            opensymap.org/db/var hdn_sys
+            opensymap.org/db/field l
+        ]
+        [ c2 opensymap.org/column
+            opensymap.org/db/var hdn_base
+            opensymap.org/hide 1
+            opensymap.org/title Base
+            opensymap.org/db/field o
+            opensymap.org/db/pk 1
+        ]
+        [ c3 opensymap.org/column
+            opensymap.org/db/var txt_name
+            opensymap.org/title Name
+            opensymap.org/db/pk 1
+            opensymap.org/db/field r
+        ]
+        [ c5 opensymap.org/column
+            opensymap.org/db/var txt_value
+            opensymap.org/title Tipo
+            opensymap.org/db/field x
+        ]
+        [ q1 opensymap.org/db/query
+            loryx.org/value % ...
+                select a.*
+                from [@loryx] a
+                where a.l=[#hdn_sys]
+                and a.o = '<[#hdn_base]>/<[#txt_name]>'
+                and a.y = 'loryx.org/type'
+                and a.x in ('opensymap.org/column')
+                ...
+        ]
+	]
+]

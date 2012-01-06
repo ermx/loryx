@@ -1,0 +1,94 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ sdk/frm_men@opensymap.org sdk/tmpl_frm@opensymap.org
+    opensymap.org/size/width 500
+    opensymap.org/title Menù
+    [ txt_typ opensymap.org/cmp/const
+		loryx.org/value opensymap.org/menu
+    ]
+	[txt_ttl opensymap.org/cmp/text
+		opensymap.org/pos 2,1
+		opensymap.org/colspan 2
+		opensymap.org/label Titolo
+		loryx.org/parent pnl_dat
+        opensymap.org/loryx/type opensymap.org/title
+	]
+	[cmb_frm opensymap.org/cmp/combo
+		opensymap.org/pos 2,1
+		opensymap.org/colspan 2
+		opensymap.org/label Form
+		loryx.org/parent pnl_dat
+        opensymap.org/loryx/type opensymap.org/form
+		[ ? opensymap.org/db/query
+			loryx.org/value % ...
+				select f.r, f.r
+				from [@loryx] f
+				where f.l=[##hdn_sys]
+				  and f.o='<[##hdn_base]>/<[##txt_name]>'
+				  and f.y='loryx.org/type'
+				  and f.x in ('opensymap.org/form','opensymap.org/view')
+			...
+		]
+	]
+    [ ? opensymap.org/event
+        loryx.org/name save
+        loryx.org/code % END
+		
+		$fl = $form->pk;
+		$fl['y'] = 'opensymap.org/form';
+		$fl['x'] = $form->get_cld('cmb_frm')->getValue();
+		//osy::alert($fl);
+		$db->lrx2store($fl,1);
+		$fl['y'] = 'opensymap.org/title';
+		$fl['x'] = $form->get_cld('txt_ttl')->getValue();
+		$db->lrx2store($fl,1);
+		
+		END
+        opensymap.org/type after
+    ]
+
+    [ grd_men opensymap.org/cmp/datagrid
+        opensymap.org/pos 3
+        opensymap.org/form frm_men
+        opensymap.org/title Menù
+        loryx.org/parent pnl_tab
+        [ c1 opensymap.org/column
+            opensymap.org/db/pk 1
+            opensymap.org/title Lib
+            opensymap.org/hide 1
+            opensymap.org/db/var hdn_sys
+            opensymap.org/db/field l
+        ]
+        [ c2 opensymap.org/column
+            opensymap.org/db/var hdn_base
+            opensymap.org/hide 1
+            opensymap.org/title Base
+            opensymap.org/db/field o
+            opensymap.org/db/pk 1
+        ]
+        [ c3 opensymap.org/column
+            opensymap.org/db/var txt_name
+            opensymap.org/title Name
+            opensymap.org/db/pk 1
+            opensymap.org/db/field r
+        ]
+        [ c5 opensymap.org/column
+            opensymap.org/db/var txt_value
+            opensymap.org/title Tipo
+            opensymap.org/db/field x
+        ]
+        [ q1 opensymap.org/db/query
+            loryx.org/value % ...
+                select a.*
+                from [@loryx] a
+                where a.l=[#hdn_sys]
+                and a.o = '<[#hdn_base]>/<[#txt_name]>'
+                and a.y = 'loryx.org/type'
+                and a.x in ('opensymap.org/menu')
+                ...
+        ]
+    ]
+]

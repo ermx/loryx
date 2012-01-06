@@ -1,0 +1,53 @@
+#
+# (c) 2011 by Loryx project members.
+# See LICENSE for license.
+#
+
+[ sdk/frm_evn@opensymap.org sdk/tmpl_frm@opensymap.org
+    opensymap.org/size/width 500
+    opensymap.org/title Eventi
+    [ txt_typ opensymap.org/cmp/const
+        loryx.org/value opensymap.org/event
+    ]
+    [ cmb_otyp opensymap.org/cmp/combo
+		opensymap.org/label Trigger
+		loryx.org/parent pnl_dat
+		opensymap.org/loryx/type opensymap.org/type
+        opensymap.org/pos 2
+        [? opensymap.org/option
+            opensymap.org/key before
+        ]
+        [? opensymap.org/option
+            opensymap.org/key after
+        ]
+    ]
+    [ txt_evn opensymap.org/cmp/text
+		opensymap.org/label ::
+		loryx.org/parent pnl_dat
+		opensymap.org/loryx/type loryx.org/name
+        opensymap.org/pos 2,2
+    ]
+    [pnl_qry opensymap.org/cmp/panel
+        loryx.org/parent pnl_tab
+        opensymap.org/pos 3
+		opensymap.org/title Query
+    ]
+    [ txt_qry opensymap.org/cmp/text
+        opensymap.org/panel/label no
+		opensymap.org/text/line 18
+		opensymap.org/loryx/type opensymap.org/db/query
+        loryx.org/parent pnl_qry
+        opensymap.org/loryx/autosave no
+    ]
+    [ ? opensymap.org/event
+        loryx.org/name save
+        loryx.org/code % END
+		switch($form->get_cld('pnl_tab')->getValue())
+		{
+		case 'pnl_qry':
+			osy::loryx($db,$form,'txt_qry');
+		}
+		END
+        opensymap.org/type after
+    ]
+]
