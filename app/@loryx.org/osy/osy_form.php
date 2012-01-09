@@ -116,6 +116,16 @@ class osy_form
             $cmd->Cell(new TagButton('chiudi',"osy.event(box,'close')"))
                 ->Last->Att('class','bt_frm_cls');
         }
+        else
+        {
+            $dcmd = $rs->tag->Add(new Tag('div'))
+                           ->Add(new Table)
+                           ->Att('cellspacing','2px');
+            foreach($rs->get_clds('opensymap.org/command') as $bt)
+            {
+                $dcmd->Cell($bt->exe()->tag);
+            }
+        }
         // FB::log('end form');
         return ;
     }
@@ -182,9 +192,10 @@ class osy_form
         
         foreach($rs->cmp as $ch)
         {
-			if (!isset($_POST[$ch->name])) 
+			if (!isset($_POST[$ch->name]) or $event=='load') 
 			{
-				if ($event!='save') $ch->setValue($rs->data[nvl($ch->get_prp('opensymap.org/db/field/load'),$ch->get_prp('opensymap.org/db/field'))],$rs->data);
+                $ch->setValue($rs->data[nvl($ch->get_prp('opensymap.org/db/field/load'),$ch->get_prp('opensymap.org/db/field'))],$rs->data);
+                $_POST[$ch->name] = $ch->value;
 			}
             else $ch->check($rs,$event);
         }
@@ -311,7 +322,11 @@ class osy_form
                                 if (!$ch->get_prp('opensymap.org/db/empty'))
                                 {
                                     // se esiste un comando per il calcolo della chiave
-                                    if ($cmd = $ch->get_prp('opensymap.org/db/sid'))
+                                    if ($ch->get_prp('opensymap.org/db/sid/auto'))
+                                    {
+                                        $fl[$f] = env::sid('',20);
+                                    } 
+                                    else if ($cmd = $ch->get_prp('opensymap.org/db/sid'))
                                     {
                                         $fl[$f] = env::sid(explode(',',$cmd));
                                     }
@@ -360,7 +375,11 @@ class osy_form
                                 if (!$ch->get_prp('opensymap.org/db/empty'))
                                 {
                                     // se esiste un comando per il calcolo della chiave
-                                    if ($cmd = $ch->get_prp('opensymap.org/db/sid'))
+                                    if ($ch->get_prp('opensymap.org/db/sid/auto'))
+                                    {
+                                        $fl[$f] = env::sid('',20);
+                                    } 
+                                    else if ($cmd = $ch->get_prp('opensymap.org/db/sid'))
                                     {
                                         $fl[$f] = env::sid(explode(',',$cmd));
                                     }

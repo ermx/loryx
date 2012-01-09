@@ -447,6 +447,7 @@ var osy = new (function()
 			  .each(function ()
         {
 			if ($(this).attr('name').substr(0,2)=='_[') return;
+            if (lower(this.type)=='file') box.data('form').attr('enctype','multipart/form-data');
 			$(this).clone().appendTo(box.data('form'));
         });
 

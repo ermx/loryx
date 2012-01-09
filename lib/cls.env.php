@@ -271,7 +271,11 @@ class env
         if ($rs->get_urn()=='') throw new TraceEx($rs->dump());
         // reimpostazione della root 
         $curr_root = self::chdir();
-        foreach(array($rs->get_path(),$rs->get_path().DIRECTORY_SEPARATOR."index") as $f)
+        $list_path = array();
+        if (!$rs->get_par()) $list_path[] = $rs->get_urn();
+        $list_path[] = $rs->get_path();
+        $list_path[] = $rs->get_path().DIRECTORY_SEPARATOR."index";
+        foreach($list_path as $f)
         {
             $lrx = self::$ctx->app_root.$f.'.lrx';
             $lro = self::$ctx->apx_root.$f.'.lro';

@@ -29,6 +29,18 @@
         loryx.org/parent pnl_dat
         opensymap.org/colspan 2
     ] 
+    [ cmd_make opensymap.org/command
+        opensymap.org/label Make
+        opensymap.org/event make
+        opensymap.org/event/type frame
+    ]
+    [ ev_make opensymap.org/event
+        loryx.org/name make
+        loryx.org/code % ...
+        $root = env::get_rs("{$form->pk['o']}/{$form->pk['r']}@{$form->pk['l']}");
+        env::store_rs($root,$root->get_urn(),array('upload'=>1,'mode'=>'lrx'));
+        ...
+    ]
     [ grd_frm opensymap.org/cmp/datagrid
         opensymap.org/pos 2
         opensymap.org/form frm_frm

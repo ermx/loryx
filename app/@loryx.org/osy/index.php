@@ -155,8 +155,17 @@ class osy_cmp_button extends osy_cmp
         // un pulsante non è di submit se non espressamente richiesto
         $form  = $rs->get_prp('opensymap.org/form');
         $event = $rs->get_prp('opensymap.org/event');
-        $arg = array('type'=>'button', 'osy_type'=>$rs->get_prp('opensymap.org/type'),
-                     'onclick'=>"osy.trigger(this,'exec',{'osy':{'frm':'{$form}','evn':'{$event}'}})");
+        $evnty = $rs->get_prp('opensymap.org/event/type');
+        switch($evnty)
+        {
+        case 'frame':
+            $arg = array('type'=>'button', 'osy_type'=>$rs->get_prp('opensymap.org/type'),
+                         'onclick'=>"osy.frm(this,{'osy':{'frm':'{$form}','evn':'{$event}'},'osycp':1,'frm':this.form},window)");
+            break;
+        default:
+            $arg = array('type'=>'button', 'osy_type'=>$rs->get_prp('opensymap.org/type'),
+                         'onclick'=>"osy.trigger(this,'exec',{'osy':{'frm':'{$form}','evn':'{$event}'}})");
+        }
         //$arg[$click] = ;
         $rs->tag->Add(Tag::mk('button',$arg,nvl($rs->get_prp('opensymap.org/label'),'[ opensymap.org/label ]')));
         return; 

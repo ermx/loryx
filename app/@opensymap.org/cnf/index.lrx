@@ -4,5 +4,61 @@
 #
 
 [ cnf@opensymap.org opensymap.org/app
-    opensymap.org/title Config
+    opensymap.org/title Configuratore sistema
+    [ frm_uld_app opensymap.org/form
+        opensymap.org/db/table 
+        opensymap.org/title Uploader Application
+        [ cmd_sub opensymap.org/command
+            opensymap.org/event upload
+            opensymap.org/event/type frame
+            opensymap.org/label upload
+            opensymap.org/type submit
+        ]
+        [ evn_upload opensymap.org/event
+            loryx.org/code % zXDWPBMBrLMhfzbret4k
+$fname = $_FILES['txt_nme']['tmp_name'];
+require_once(env::get_ctx()->root.'/lib/cls.prs.php');
+foreach(I(new prs())->parse(file_get_contents($fname)) as $rs)
+{
+    $db->rs2store($rs);
+}
+unlink($fname);
+$inst = env::get_var('inst')->get_cld('config/app');
+$sdk = array_shift($inst->get_clds('sdk@opensymap.org'));
+switch($rs->get_styp())
+{
+case 'opensymap.org/app':
+    $frm = 'frm_app';
+    break;
+default:
+    $frm = 'frm_root';
+    break;
+}
+$script = "osy.win(dsk,{'osy':{'app':'{$sdk->name}', 'frm':'{$frm}'}, 'pky':{'hdn_sys':'{$rs->sys}','txt_name':'{$rs->name}','hdn_base':''}});";
+$this->stop = false;
+return I(new TagScript())->Add($script);
+zXDWPBMBrLMhfzbret4k
+            loryx.org/name upload
+            opensymap.org/type 
+        ]
+        [ txt_nme opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label File
+            opensymap.org/pos 1
+            opensymap.org/title 
+            opensymap.org/type file
+        ]
+    ]
+    [ men_upl_app opensymap.org/menu
+        opensymap.org/form frm_uld_app
+        opensymap.org/title App Upload
+    ]
 ]

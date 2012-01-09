@@ -48,7 +48,7 @@
         //var_dump($req);
         foreach($lrx as $k=>$ty)
         {
-            if (!$form->cmp[$k]->setted()) 
+            if (!$form->cmp[$k]->setted() or $event=='load') 
             {
                 $form->cmp[$k]->setValue($req[$k]);
             }

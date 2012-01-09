@@ -370,11 +370,11 @@ class stl_start
         env::set_var('trl_tbl',nvl($this->_dat['trl_tbl'],'stl_trl_det'));
         if (stl::get_cookie('__v'))
         {
-            $this->root = $this->id.'.'.stl::get_cookie('__v');
+            $this->root = nvl($this->home,$this->id).'.'.stl::get_cookie('__v');
         }
         else
         {
-            $this->root = $this->id;
+            $this->root = nvl($this->home,$this->id);
         }
         
         $req = env::get_var('request');

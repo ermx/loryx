@@ -35,7 +35,7 @@
     [ txt_qry opensymap.org/cmp/text
         opensymap.org/panel/label no
 		opensymap.org/text/line 18
-		opensymap.org/loryx/type opensymap.org/db/query
+		opensymap.org/loryx/type loryx.org/code
         loryx.org/parent pnl_qry
         opensymap.org/loryx/autosave no
     ]

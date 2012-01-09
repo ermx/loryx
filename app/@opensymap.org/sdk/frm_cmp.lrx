@@ -24,13 +24,13 @@
             $dsbl = 'cmb_frm,txt_qry,txt_evn';
             break;
         case 'opensymap.org/cmp/button':
-            $dsbl = 'txt_fld,cmb_frm,txt_qry,chk_pky,chk_ext';
+            $dsbl = 'txt_fld,cmb_frm,txt_qry,chk_pky,chk_ext,chk_sidauto';
             break;
         case 'opensymap.org/cmp/panel':
-            $dsbl = 'txt_fld,cmb_frm,txt_qry,txt_evn,chk_pky,chk_ext';
+            $dsbl = 'txt_fld,cmb_frm,txt_qry,txt_evn,chk_pky,chk_ext,chk_sidauto';
             break;
         case 'opensymap.org/cmp/datagrid':
-            $dsbl = 'txt_fld,txt_evn,chk_pky,chk_ext';
+            $dsbl = 'txt_fld,txt_evn,chk_pky,chk_ext,chk_sidauto';
             break;
         default :
             $pnl_info->set_prp('loryx.org/builder/make',$this->get_prp('loryx.org/value'));
@@ -94,6 +94,13 @@
 		loryx.org/parent pnl_info
 		opensymap.org/loryx/autosave no
 		opensymap.org/loryx/type opensymap.org/db/field/extern
+	]
+	[chk_sidauto opensymap.org/cmp/check
+		opensymap.org/label AutoInc
+		opensymap.org/pos   3,5
+		loryx.org/parent pnl_info
+		opensymap.org/loryx/autosave no
+		opensymap.org/loryx/type opensymap.org/db/sid/auto
 	]
 	[chk_pky opensymap.org/cmp/check
 		opensymap.org/label pkey
@@ -163,7 +170,7 @@
         switch($form->get_cld('pnl_tab')->getValue())
         {
         case 'pnl_info':
-            osy::loryx($db,$form,'txt_ttl,cmb_par,txt_pos,cmb_frm,txt_fld,chk_pky,chk_ext,txt_qry,txt_evn,txt_cspan');
+            osy::loryx($db,$form,'txt_ttl,cmb_par,txt_pos,cmb_frm,txt_fld,chk_pky,chk_ext,txt_qry,txt_evn,txt_cspan,chk_sidauto');
         }
         ...
         opensymap.org/type after

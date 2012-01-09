@@ -337,7 +337,7 @@ class rs
         $str = str_repeat(TAB,$depth)."[ {$name} {$ty}\n";
         foreach($this->prp as $k=>$vv)
         {
-            if ($k=='loryx.org/type') continue;
+            if (in_array($k,array('loryx.org/type','loryx.org/include'))) continue;
             if (in_array($k,array('loryx.org/urn','loryx.org/store/data/time')) and $opt=='purge') continue;
             $v = $vv;
             if (strpos($v,"\n")!==false)
