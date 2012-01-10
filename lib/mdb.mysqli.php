@@ -154,7 +154,7 @@ class mdb_mysqli extends mdb
         $rs = $this->cn->query($cmd);
         $end = env::get_time();
         //if (!$this->fb_disabled) FB::log(array(trim($cmd),$start.' : '.$begin.' : '.$end),'query');
-        if (!$rs) osy::alert('Query errata '.NL.NL.$cmd.NL);
+        if (!$rs) throw new Exception('Query errata '.NL.NL.$cmd.NL);
         $this->cmd = $cmd;
         return $rs;
     }
