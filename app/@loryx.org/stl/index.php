@@ -25,7 +25,7 @@ class stl_db_init
         $db->insert('[@stl]',$stl);
         
         $db->insert('[@stl_lng]',array('id'=>env::sid(),
-                                             'id_stl'=>$stl['id'],
+                                             'id_stl'=>'',
                                              'lng'=>'it',
                                              'ttl'=>'Italiano',
                                              'ord'=>'1'));
@@ -65,7 +65,37 @@ class stl_db_init
         }
     }
 }
-
+class stl_menu
+{
+    public function __construct($lng, $id_stl, $id_par='')
+    {
+        $db  = env::get_var('dbx');
+        $tbl = env::get_var('trl_tbl');
+        $cmd = "
+            select s.id, s.lvl,
+                   ifnull(t1.val,s.url) as url,
+                   ifnull(t2.val,s.ttl) as ttl,
+                   ifnull(t3.val,s.lbl) as lbl,
+                   s.cls
+            from [@stl_sec] s
+            left join [@{$tbl}] t1 on (s.id_trl = t1.id_trl and t1.lng = [0] and t1.nme='url')
+            left join [@{$tbl}] t2 on (s.id_trl = t2.id_trl and t2.lng = [0] and t2.nme='ttl')
+            left join [@{$tbl}] t3 on (s.id_trl = t3.id_trl and t3.lng = [0] and t3.nme='lbl')
+            where s.id_stl=[1] 
+              and ifnull(s.id_par,'') = [2]
+            order by s.ord";
+        $this->menu = array();
+        foreach($db->getAll($cmd,$lng,$id_stl,$id_par) as $m)
+        {
+            $this->menu[$m['lvl']][] = $m;
+        }
+        //var_dump($db->last_sql());
+    }
+    function get($lvl)
+    {
+        return nvl($this->menu[$lvl],array());
+    }
+}
 class stl_start
 {
 	var $usr;
@@ -180,11 +210,11 @@ class stl_start
              
             if (!$this->usr['id']) stl::set_cookie('__sit_log','');
         }
-        if (isset($_GET['_v'])) stl::set_cookie('__v',$_GET['_v']);
+        if (isset($_GET['_v'])) stl::set_cookie('__sit_ver',$_GET['_v']);
         // individuazione idioma
         $path = $this->path;
         $a = array_shift($path);
-        $this->lngs = $this->db->getList("select lng, ttl, concat('/',lng,'/') url, trl_tbl from [@stl_lng] where id_stl = [0] order by ord",$this->_dat['id']);
+        $this->lngs = $this->db->getList("select lng, ttl, concat('/',lng,'/') url, trl_tbl from [@stl_lng] where ifnull(id_stl,'') in ('',[0]) order by ord",$this->_dat['id']);
         $this->lng = $this->lngs[$a]['lng'];
         $base = array('');
         if ($this->lng) 
@@ -199,10 +229,10 @@ class stl_start
             $this->lng = $this->lng_def;  
             $ppath = array_filter(explode('/',$this->uri->request),'strlen');
         }
-        $this->trl_tbl = nvl($this->lngs[$this->lng]['trl_tbl'],'stl_trl_det');        
+        $this->trl_tbl = nvl($this->lngs[$this->lng]['trl_tbl'],'stl_trl_det');
+        env::set_var('trl_tbl',$this->trl_tbl);
         $id_par = '';
-        
-        $burl = array('.','stl',$this->root,'app');
+        $burl = array('.','bld');
         do
         {
             // individuazione sezione nel DB
@@ -277,9 +307,9 @@ class stl_start
                 if (is_file($fbld.'.php')) $xbld = $fbld.'.php';
                 if (is_file($fbld.'/index.php')) $xbld = $fbld.'/index.php';
                 if ($a) $base [] = $a;
-                $fbld = "./home/{$this->root}/app/".$sec['bld'];
-                if (!is_file($fbld)) $fbld = "./app/".$sec['bld'];
-                $bld = $sec['bld']?$fbld:$bld;
+                $fbld = "./bld/".$sec['bld'];
+                $bld = is_file($fbld)?$fbld:$xbld;
+                
                 $id_par = $sec['id'];
                 if ($sec['id_prp'])
                 {
@@ -303,12 +333,10 @@ class stl_start
             }
         } while($sec['id'] and $a =  array_shift($path));
         if ($a) array_unshift($path,$a);
-        
-        if (!$bld and is_file($xbld)) $bld = $xbld;
         if (!$bld)
         {
             // il builder viene cercato nel file system
-            $pp = array('home',$this->root,'app');
+            $pp = array('.','pub');
             $pb = array('app');
             while($a = array_shift($ppath))
             {
@@ -355,7 +383,7 @@ class stl_start
     }
     function lay_info()
     {
-        $this->lay = nvl($this->_dat['lay_inf'],'lay_inf.php');
+        $this->lay = nvl($this->_dat['lay_inf'],'info.php');
     }
 	function make($rs)
 	{
@@ -365,74 +393,49 @@ class stl_start
         {
             //$this->_dat = $this->db->getFirst("select * from [@stl] order by id",$this->uri->server);
 			env::set_ctype('text/html');
-            return include('std_bad.php');
+            return include('error.php');
         }
-        env::set_var('trl_tbl',nvl($this->_dat['trl_tbl'],'stl_trl_det'));
-        if (stl::get_cookie('__v'))
+        //env::set_var('trl_tbl',nvl($this->_dat['trl_tbl'],'stl_trl_det'));
+        
+        // determinazione root del sito
+        if (!$this->home) $this->home = 'default';
+        $root = "./home/{$this->home}";
+        if (stl::get_cookie('__sit_ver'))
         {
-            $this->root = nvl($this->home,$this->id).'.'.stl::get_cookie('__v');
+            $mroot = $root.'.'.stl::get_cookie('__sit_ver');
+            if (is_dir($mroot)) $root = $mroot;
         }
-        else
-        {
-            $this->root = nvl($this->home,$this->id);
-        }
+        if (!is_dir($root)) $root = './home/default';
+        chdir($root);   
         
         $req = env::get_var('request');
-        env::if_read_file_exit($req->path,array("./home/{$this->root}","."));
         
-        // file pseudo raggiungibile
-        /*foreach(array("./home/{$this->root}",".") as $b)
+        env::if_read_file_exit($req->path);
+        
+        $this->lay = nvl($this->_dat['lay_std'],'index.php');
+        if (!count($this->path))
         {
-            $fname = $b.$this->uri->request;
-            $bname = explode('.',$fname);
-            $ext = array_pop($bname);
-            $bname = implode('.',$bname);
-            if (!empty($fname) and (is_file($fname) or is_file("{$bname}.php")) and ($fname!='./index.html' ))
+            $fname = nvl($this->_dat['lay_spl'],'splash.php');
+            if (is_file($fname))
             {
-                $lread = 'readfile';
-                if (!is_file($fname)) 
-                {
-                    $fname = "{$bname}.php";
-                    $ext = 'php';
-                }
-                switch($ext)
-                {
-                case 'css':
-                    env::set_ctype('text/css');
-                    break;
-                case 'js' :
-                    env::set_ctype('text/javascript');
-                    break;
-                case 'jpg':
-                    $ext = 'jpeg';
-                case 'png':
-                case 'gif':
-                    env::set_ctype('image/'.$ext);
-                    break;
-                case 'php':
-                    $lread = 'include';
-                    break;
-                }
-                $lread($fname);
-                exit;
+                env::set_ctype('text/html');
+                return include($fname);
             }
-        }*/
-        $this->lay = $this->_dat['lay_std']?"./home/{$this->root}/{$this->_dat['lay_std']}":'lay_std.php';
-        if (!count($this->path) && $this->lay_spl)
-        {
-			env::set_ctype('text/html');
-            return include($this->lay_spl);
         }
 
         if ($_POST['cmd']) 
         {
-            $this->lay = "./stl/{$this->root}/{$this->_dat['lay_cmd']}";
-            if (!is_file($this->lay)) $this->lay = 'lay_cmd.php';
+            $this->lay = nvl($this->_dat['lay_cmd'],'cmd.php');
         } 
         // ricerca builder
         $this->init();
+        
+        // dizionario generico
         $this->lbl = I(new cTrlDic('LABEL','lng',$this->lng))->load();
+        
+        // wrapper
         $this->content = I(new Tag('div'));
+        
 		// esecuzione
         $bld = $this->uri->bld;
 		if (!is_file($bld)) 
@@ -455,25 +458,28 @@ class stl_start
                 $this->content = I(new TagForm)->Cnt($this->content);
             }
         }
-        
+        // generazione menù di primo livello
+        /*
         $cmd = "
-            select s.id,
+            select s.id, s.lvl,
                    ifnull(t1.val,s.url) as url,
                    ifnull(t2.val,s.ttl) as ttl,
                    ifnull(t3.val,s.lbl) as lbl,
                    s.cls
             from [@stl_sec] s
-            left join [@".env::get_var('trl_tbl')."] t1 on (s.id_trl = t1.id_trl and t1.lng = [0] and t1.nme='url')
-            left join [@".env::get_var('trl_tbl')."] t2 on (s.id_trl = t2.id_trl and t2.lng = [0] and t2.nme='ttl')
-            left join [@".env::get_var('trl_tbl')."] t3 on (s.id_trl = t3.id_trl and t3.lng = [0] and t3.nme='lbl')
+            left join [@{$this->trl_tbl}] t1 on (s.id_trl = t1.id_trl and t1.lng = [0] and t1.nme='url')
+            left join [@{$this->trl_tbl}] t2 on (s.id_trl = t2.id_trl and t2.lng = [0] and t2.nme='ttl')
+            left join [@{$this->trl_tbl}] t3 on (s.id_trl = t3.id_trl and t3.lng = [0] and t3.nme='lbl')
             where s.id_stl=[1] 
-              and s.lvl=[2] 
+              and ifnull(s.id_par,'') = ''
             order by s.ord";
             $this->db->fb = 1;
         $this->menu = array();
-        $trl_tbl = '[@'.$this->trl_tbl.']';
-        $this->menu['bar'] = $this->db->getAll($cmd,$this->lng,$this->id, 'bar');
-        $this->menu['top'] = $this->db->getAll($cmd,$this->lng,$this->id, 'top');
+        $this->menu = array();
+        foreach($this->db->getAll($cmd,$this->lng,$this->id) as $m)
+        {
+            $this->menu[$m['lvl']][] = $m;
+        }
         $cmd = "
             select s.id,
                    ifnull(t1.val,s.url) as url,
@@ -481,10 +487,10 @@ class stl_start
                    ifnull(t3.val,s.lbl) as lbl,
                    s.cls
             from [@stl_sec] sm
-            inner join [@stl_sec] s on (s.id_par = sm.id and sm.id_stl=[1]) 
-            left join [@".env::get_var('trl_tbl')."] t1 on (s.id_trl = t1.id_trl and t1.lng = [0] and t1.nme='url')
-            left join [@".env::get_var('trl_tbl')."] t2 on (s.id_trl = t2.id_trl and t2.lng = [0] and t2.nme='ttl')
-            left join [@".env::get_var('trl_tbl')."] t3 on (s.id_trl = t3.id_trl and t3.lng = [0] and t3.nme='lbl')
+            inner join [@stl_sec] s on (s.id_par = sm.id and sm.id_stl=s.id) 
+            left join [@{$this->trl_tbl}] t1 on (s.id_trl = t1.id_trl and t1.lng = [0] and t1.nme='url')
+            left join [@{$this->trl_tbl}] t2 on (s.id_trl = t2.id_trl and t2.lng = [0] and t2.nme='ttl')
+            left join [@{$this->trl_tbl}] t3 on (s.id_trl = t3.id_trl and t3.lng = [0] and t3.nme='lbl')
             where s.id_stl=[1] 
               and sm.id = [2]
             order by s.ord";
@@ -492,7 +498,9 @@ class stl_start
         $this->menu['sub'] = $this->db->getAll($cmd, $this->lng, $this->id, $this->uri->sec['id']);
         env::set_ctype('text/html');
 		// scrittura del layout
-		include($this->lay);
+        */
+        env::set_ctype('text/html');
+		$this->incfile($this->lay);
 	}
     function new_trl($nme,$rid,$typ='TABLE')
     {
@@ -519,32 +527,28 @@ class stl_start
         //if ($encode) $cnt = utf8_encode($cnt);
         return $cnt;
     }
+    function incfile($fname,$env=array())
+    {
+        foreach($env as $n=>$o) $$n = $o; 
+        return include($fname);
+    }
 	function exe($bld,$ch=0)
 	{
-        $__exevar = array();
-        $__exevar['dir'] = dirname($bld);
-        $__exevar['fle'] = basename($bld);
-        $__exevar['cwd'] = getcwd();
-        $__exevar['w'] = new Tag('');
-        if ($__exevar['dir'] and $__exevar['dir']!='/') chdir($__exevar['dir']);
-        try
-        {
-            $ret = include(basename($bld));
+        $odir = env::chdir(dirname($bld));
+        try{
+            $ret = $this->incfile(basename($bld));
             $str = $this->ob_get();
         }
         catch(Exception $e)
         {
-            chdir($__exevar['cwd']);
+            env::chdir($odir);
             throw $e;
         }
-        chdir($__exevar['cwd']);
-        
-        //var_dump($bld,$stop);exit;
-       // var_dump($bld,$str,basename($bld));exit;
-        //FB::log(array(strlen($str),print_r($str,1)));
-        if (!empty($str))      $__exevar['w']->Add($str);
-        if (is_object($ret))   $__exevar['w']->Add($ret);
-        return $__exevar['w'];
+        env::chdir($odir);
+        $cnt = new Tag('');
+        if (!empty($str)) $cnt->Add($str);
+        if (is_object($ret)) $cnt->Add($ret);
+        return $cnt;
 	} 
     function protect_page()
     {
