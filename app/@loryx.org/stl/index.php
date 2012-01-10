@@ -376,7 +376,7 @@ class stl_start
             $path = $ppath;
         }
         $this->uri->lng = $this->uri->host.'/'.$this->lng.'/';
-        $this->uri->base = trim($this->uri->lng,'/').implode('/',$base).'/';
+        $this->uri->base = $this->uri->host.implode('/',$base).'/';
         $this->uri->bld = $bld;
         $this->uri->arg = array();
         foreach($path as $p) $this->uri->arg[] = $p;
