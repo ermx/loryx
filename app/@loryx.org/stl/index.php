@@ -67,7 +67,7 @@ class stl_db_init
 }
 class stl_menu
 {
-    public function __construct($lng, $id_stl, $id_par='')
+    public function __construct($lng, $id_stl, $id_par='',$dbg=0)
     {
         $db  = env::get_var('dbx');
         $tbl = env::get_var('trl_tbl');
@@ -89,7 +89,7 @@ class stl_menu
         {
             $this->menu[$m['lvl']][] = $m;
         }
-        //var_dump($db->last_sql());
+        if ($dbg) var_dump("<pre>".$db->last_sql()."</pre>");
     }
     function get($lvl)
     {
