@@ -20,24 +20,32 @@
 		opensymap.org/label Titolo
 		loryx.org/parent pnl_info
         opensymap.org/loryx/autosave no
+        opensymap.org/colspan 2
 		opensymap.org/loryx/type opensymap.org/title
 	]
 	[txt_fld opensymap.org/cmp/text
-		opensymap.org/pos 2
+		opensymap.org/pos 2,1
 		opensymap.org/label Field
 		loryx.org/parent pnl_info
         opensymap.org/loryx/autosave no
 		opensymap.org/loryx/type opensymap.org/db/field
 	]
+	[txt_pos opensymap.org/cmp/text
+		opensymap.org/pos 2,2
+		opensymap.org/label Pos
+		loryx.org/parent pnl_info
+        opensymap.org/loryx/autosave no
+		opensymap.org/loryx/type loryx.org/ord
+	]
 	[txt_var opensymap.org/cmp/text
-		opensymap.org/pos 3
+		opensymap.org/pos 3,1
 		opensymap.org/label Var
 		loryx.org/parent pnl_info
         opensymap.org/loryx/autosave no
 		opensymap.org/loryx/type opensymap.org/db/var
 	]
 	[txt_par opensymap.org/cmp/text
-		opensymap.org/pos 4
+		opensymap.org/pos 3,2
 		opensymap.org/label Par
 		loryx.org/parent pnl_info
         opensymap.org/loryx/autosave no
@@ -55,7 +63,7 @@
 		opensymap.org/loryx/type opensymap.org/db/pk
 	]
 	[ck_hide opensymap.org/cmp/check
-		opensymap.org/pos 1,1
+		opensymap.org/pos 1,2
 		opensymap.org/label Nascosto
 		loryx.org/parent pnl_ck
         opensymap.org/loryx/autosave no
@@ -67,7 +75,7 @@
 		switch($form->get_cld('pnl_tab')->getValue())
 		{
 		case 'pnl_info':
-			osy::loryx($db,$form,'txt_ttl,txt_fld,txt_var,txt_par,ck_pk,ck_hide');
+			osy::loryx($db,$form,'txt_ttl,txt_fld,txt_var,txt_par,ck_pk,ck_hide,txt_pos');
 		}
 		END
         opensymap.org/type after

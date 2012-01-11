@@ -245,11 +245,13 @@
         }
         foreach($rs->cols as $k=>$ch)
         {
+            $ttl = '';
             if (is_object($ch))
             {
                 if ($ch->get_prp('opensymap.org/hide')) continue;
                 if (is_array($itm))
                 {
+                    if ($fld = $ch->get_prp('opensymap.org/db/field/title')) $ttl = $itm[$fld];
                     if (!($p = $ch->get_prp('opensymap.org/db/field'))) $p = $k;
                     if(count($rs->pky) and $rs->upd)
                     {
@@ -286,7 +288,7 @@
             {
                 $val = NBSP.$itm[$k];
             }
-            $tbl->Cell(Tag::mk('div',false,$val));
+            $tbl->Cell(Tag::mk('div',false,$val))->Att('title',$ttl);
         }
         if (count($rs->pky) and $rs->mod)
         {

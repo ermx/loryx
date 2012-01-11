@@ -45,7 +45,6 @@ foreach($menu->get('bar') as $m)
        ->Add($m['lbl']);
     if ($this->uri->sec['id'] == $m['id']) $li->Att('class','cur');
 } 
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -54,7 +53,7 @@ foreach($menu->get('bar') as $m)
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <script type="text/javascript" src="<?php echo $this->uri->host?>/lib/jquery.1.6.4.js"></script>
     <script type="text/javascript" src="<?php echo $this->uri->host?>/lib/jqscript.js"></script>
-    <title><?php $this->title?></title>
+    <title><?php echo $this->title.' :: '.$this->sec['ttl']?></title>
     <?php echo $this->head?>
     <style>
 html,body {

@@ -34,7 +34,6 @@ function _uncry($s)
     return base64_decode($s);
 }
 function rrmdir($dir) {
-    FB::log($dir,'rm_dir');
    if (is_dir($dir)) {
      $objects = scandir($dir);
      foreach ($objects as $object) {
@@ -211,7 +210,6 @@ class env
             }
             if ($rs->get_prp('loryx.org/serialize')!='no')
             {
-                FB::log('serialize',$rs->get_urn());
                 $rs->serialized = true;
                 $rsa[] = $rs;
             }
@@ -225,12 +223,10 @@ class env
             $dir = dirname($fname);
             if (!is_dir($dir)) mkdir($dir,0777,true);
             $fp = @fopen($fname,'w');
-			FB::log(array($fname,$fp),'open');
         }
         if ($fp)
         {
             $srs = _cry(serialize($rsa));
-            FB::log(array($fname,$rs->get_urn()),'serialize');
             fwrite($fp,$srs);  
             fclose($fp);
             return true;
@@ -242,7 +238,6 @@ class env
         if (!is_file($fname)) return false;
         $rrs = unserialize(_uncry(file_get_contents($fname)));
         foreach($rrs as $rs) $rs->serialized = false;
-        //FB::log(array($fname,$rrs[0]->dump()),'unserialize');
         return $rrs;
     }
     public static function chdir($path='')
@@ -303,7 +298,6 @@ class env
             $rss = array();
             if ($fs_rs['xtime']>$fs_rs['otime'])
             { 
-				FB::log($fs_rs,'xtime '.$rs->get_urn());
                 require_once('./lib/cls.prs.php');
                 $rss = I(new prs())->parse(file_get_contents($fs_rs['lrx']));
 				
@@ -419,7 +413,8 @@ class env
                          ((p.o=[1] and p.r=[2]) or 
                           (p.o='<[1]>/<[2]>' and p.r='{$cld}') or
                           (substr(concat(p.o,'/'),1,length('<[1]>/<[2]>/{$cld}/'))='<[1]>/<[2]>/{$cld}/')) 
-                    order by p.o,ifnull(o.x+0,1000), p.r, ifnull(y.o+0,1000)
+                    /*order by p.o,ifnull(o.x+0,1000), p.r, ifnull(y.o+0,1000)*/
+                    order by p.o,ifnull(o.x,0), p.r, ifnull(y.o,0)
                     ";
                     break;
             default:
@@ -442,7 +437,8 @@ class env
                             /* SELF + CHILDS* */
                          ((p.o=[1] and p.r=[2]) or 
                           (substr(concat(p.o,'/'),1,length('<[1]>/<[2]>/'))='<[1]>/<[2]>/')) 
-                    order by p.o,ifnull(o.x+0,1000), p.r,ifnull(y.o+0,1000)
+                    /*order by p.o,ifnull(o.x+0,1000), p.r,ifnull(y.o+0,1000)*/
+                    order by p.o,ifnull(o.x,0), p.r, ifnull(y.o,0)
                     ";
             }
             $data = $db->getAll($cmd,$rs->sys,$rs->base,$rs->name);
@@ -568,7 +564,6 @@ class env
             if (!$handle)
             {
 				$fname = basename($fname);
-				FB::log($fname,'upload');
                 ob_clean();
                 //$fname = basename($fname);
                 // upload del file

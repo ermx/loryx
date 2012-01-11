@@ -230,6 +230,7 @@ class stl_start
             $ppath = array_filter(explode('/',$this->uri->request),'strlen');
         }
         $this->trl_tbl = nvl($this->lngs[$this->lng]['trl_tbl'],'stl_trl_det');
+        $this->prp_tbl = nvl($this->prp_tbl,'stl_prp_det');
         env::set_var('trl_tbl',$this->trl_tbl);
         $id_par = '';
         $burl = array('.','bld');
@@ -310,12 +311,10 @@ class stl_start
                 $fbld = "./bld/".$sec['bld'];
                 $bld = is_file($fbld)?$fbld:$xbld;
                 
+                // proprietà della sezione
                 $id_par = $sec['id'];
-                if ($sec['id_prp'])
-                {
-                    $cmd = "select nme,val from [@{$this->trl_tbl}] where id_prp = [0] and lng=''";
-                    $asec->prp = $this->db->getList($cmd,$sec['id_prp']);
-                }
+                $cmd = "select nme,val from [@{$this->prp_tbl}] where id_prp = [0]";
+                $asec['prp'] = $this->db->getList($cmd,$sec['id']);
                 
                 if ($a)
                 {
@@ -332,6 +331,7 @@ class stl_start
                 
             }
         } while($sec['id'] and $a =  array_shift($path));
+        $this->sec = $sec;
         if ($a) array_unshift($path,$a);
         if (!$bld)
         {
