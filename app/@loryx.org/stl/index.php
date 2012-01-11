@@ -216,129 +216,112 @@ class stl_start
         $a = array_shift($path);
         $this->lngs = $this->db->getList("select lng, ttl, concat('/',lng,'/') url, trl_tbl from [@stl_lng] where ifnull(id_stl,'') in ('',[0]) order by ord",$this->_dat['id']);
         $this->lng = $this->lngs[$a]['lng'];
-        $base = array('');
         if ($this->lng) 
         {
-            $base[] = $a; 
-            $ppath = $path;
             $a = array_shift($path); // trovato idioma, passo alla sezione
         }
         else 
         {
             // l'idioma di default è quello trovato per primo o l'italiano in sua assenza
             $this->lng = $this->lng_def;  
-            $ppath = array_filter(explode('/',$this->uri->request),'strlen');
         }
         $this->trl_tbl = nvl($this->lngs[$this->lng]['trl_tbl'],'stl_trl_det');
         $this->prp_tbl = nvl($this->prp_tbl,'stl_prp_det');
         env::set_var('trl_tbl',$this->trl_tbl);
+        $base = array();
         $id_par = '';
         $burl = array('.','bld');
         do
         {
-            // individuazione sezione nel DB
-            $sec = $this->db->getFirst(" 
+            // individuazione sezione corrente nel DB
+            $lsec = $this->db->getAll(" 
                     select s.id, s.id_trl, s.lbl, s.ttl, ifnull(t.val,s.url) as url, s.url as burl, s.bld
                     from [@stl_sec] s 
                     left join [@{$this->trl_tbl}] t on (t.id_trl = s.id_trl and t.nme='url' and t.lng=[0]) 
                     where s.id_stl=[1] 
-                      and ifnull(ifnull(t.val,s.url),'') = [2]
-                      and ifnull(s.id_par,'') = [3]", $this->lng, $this->_dat['id'], $a ,$id_par);
-            if (!$sec['id'])
+                      and ifnull(ifnull(t.val,s.url),'') in ('',[2])
+                      and ifnull(s.id_par,'') = [3]", $this->lng, $this->id, $a ,$id_par);
+            $break = 0;
+            switch(count($lsec))
             {
-                // se non l'ha trovato ed è ancora al primo livello ... allora potrebbe essere
-                // una sotto sezione della sezione '' (se esiste)
-                if (!$this->uri->sec)
+            case 0:
+                // non è stato trovato
+                $break = 1;
+                break;
+            case 1:
+                // è stato trovata la sezione ricercata o la ''?
+                $this->sec = $lsec[0];
+                if ($lsec[0]['url']==$a)
                 {
-                    $sec = $this->db->getFirst(" 
-                            select s.id, s.id_trl, s.lbl, s.ttl, ifnull(t.val,s.url) as url, s.url as burl, 
-                                   sm.id as sm_id, sm.lbl as sm_lbl, 
-                                   sm.ttl, sm.id_trl as sm_id_trl, 
-                                   ifnull(tm.val,sm.url) as sm_url, sm.url as sm_burl
-                            from [@stl_sec] sm
-                            inner join [@stl_sec] s on (s.id_par = sm.id and sm.url='' and sm.id_stl=[1]) 
-                            left join [@{$this->trl_tbl}] t on (t.id_trl = s.id_trl and t.nme='url' and t.lng=[0]) 
-                            left join [@{$this->trl_tbl}] tm on (tm.id_trl = sm.id_trl and tm.nme='url' and tm.lng=[0]) 
-                            where s.id_stl=[1] 
-                              and ifnull(ifnull(t.val,s.url),'') = [2]", 
-                            $this->lng, $this->_dat['id'], $a);
-                    if ($sec['id'])
-                    {
-                        $this->uri->sec = array('id'=>$sec['sm_id'],'id_trl'=>$sec['sm_id_trl'],
-                                                'lbl'=>$sec['sm_lbl'],'ttl'=>$sec['sm_ttl'], 
-                                                'url'=>$sec['sm_url'],'burl'=>$sec['sm_burl'],
-                                                'sec'=>$sec);
-                        $asec = &$this->uri->sec['sec'];
-                    }
-                }
-            }
-            else
-            {
-                if (count($ppath)==1)
-                {
-                    // esistono sottosezioni configurate?
-                    $sub_sec = $this->db->getFirst(" 
-                    select s.id, s.id_trl, s.lbl, s.ttl, ifnull(t.val,s.url) as url, s.url as burl, s.bld
-                    from [@stl_sec] s 
-                    left join [@{$this->trl_tbl}] t on (t.id_trl = s.id_trl and t.nme='url' and t.lng=[0]) 
-                    where s.id_stl=[1] 
-                      and s.id_par = [2]
-                      order by s.ord", $this->lng, $this->id, $sec['id']);
-                    if ($sub_sec['id']) $path[] = $sub_sec['url'];
-                }
-                if (!$this->uri->sec)
-                {
-                    $this->uri->sec = $sec;
-                    $asec = &$this->uri->sec;
+                    $b = array_shift($path);
                 }
                 else
                 {
-                    $bsec = &$asec;
-                    unset($asec);
-                    $bsec['sec'] = $sec;
-                    $asec = &$bsec['sec'];
-                    unset($bsec);
+                    // bisogna vedere se $a è una subsection di ''
                 }
+                break;
+            default:
+                // due soli casi
+                $this->sec = ($lsec[0]['url']==$a)?$lsec[0]:$lsec[1];
+                $b = array_shift($path);
+                break;
             }
-            if ($sec['id'])
+            if ($break) break;
+            
+            $id_par = $this->sec['id'];
+            if (!$this->uri->sec)
             {
-                // se la sezione è stata trovata allora viene cercato il builder da caricare
-                $burl[] = $sec['burl'];
-                $fbld = implode('/',$burl); 
-                if (is_file($fbld.'.php')) $xbld = $fbld.'.php';
-                if (is_file($fbld.'/index.php')) $xbld = $fbld.'/index.php';
-                if ($a) $base [] = $a;
-                $fbld = "./bld/".$sec['bld'];
-                $bld = is_file($fbld)?$fbld:$xbld;
-                
-                // proprietà della sezione
-                $id_par = $sec['id'];
-                $cmd = "select nme,val from [@{$this->prp_tbl}] where id_prp = [0]";
-                $asec['prp'] = $this->db->getList($cmd,$sec['id']);
-                
-                if ($a)
-                {
-                    // individuazione parte di url relativo agli altri idiomi
-                    $cmd = "select lng,val from [@{$this->trl_tbl}] where id_trl = [0] and nme =[1]";
-                    $tr = $this->db->getList($cmd,$sec['id_trl'],'url');
-                    foreach($this->lngs as $l=>$v)
-                    {
-                        
-                        $this->lngs[$l]['url'] .= nvl($tr[$l],$sec['url']).'/';
-                    }
-                }
-                $asec['trl'] = new cTrl($asec['id_trl']);
-                
+                $this->uri->sec = $this->sec;
+                $asec = &$this->uri->sec;
             }
-        } while($sec['id'] and $a =  array_shift($path));
-        $this->sec = $sec;
-        if ($a) array_unshift($path,$a);
+            else
+            {
+                $bsec = &$asec;
+                unset($asec);
+                $bsec['sec'] = $this->sec;
+                $asec = &$bsec['sec'];
+                unset($bsec);
+            }
+            // calcolo del builder
+            $burl[] = $this->sec['burl'];
+            $fbld = implode('/',$burl);
+            $xbld = '';            
+            if (is_file($fbld.'.php')) $xbld = $fbld.'.php';
+            if (is_file($fbld.'/index.php')) $xbld = $fbld.'/index.php';
+            $fbld = "./bld/".$this->sec['bld'];
+            $nbld = is_file($fbld)?$fbld:$xbld;
+            if ($nbld) 
+            {
+                $base [] = $a;
+                $bld = $nbld;
+            }
+            // proprietà della sezione
+            $cmd = "select nme,val from [@{$this->prp_tbl}] where id_prp = [0]";
+            $asec['prp'] = $this->db->getList($cmd,$this->sec['id']);
+            
+            if ($a)
+            {
+                // individuazione parte di url relativo agli altri idiomi
+                $cmd = "select lng,val from [@{$this->trl_tbl}] where id_trl = [0] and nme =[1]";
+                $tr = $this->db->getList($cmd,$this->sec['id_trl'],'url');
+                foreach($this->lngs as $l=>$v)
+                {
+                    
+                    $this->lngs[$l]['url'] .= nvl($tr[$l],$sec['url']).'/';
+                }
+            }
+            $a = $b;
+            $asec['trl'] = new cTrl($asec['id_trl']);
+        } 
+        while($this->sec['id'] and $a);
+        
         if (!$bld)
         {
             // il builder viene cercato nel file system
             $pp = array('.','pub');
-            $pb = array('app');
-            while($a = array_shift($ppath))
+            $path = $this->path;
+            $base = array();
+            while($a = array_shift($path))
             {
                 $pp[] = $a;
                 $pa = implode('/',$pp);
@@ -347,6 +330,7 @@ class stl_start
                 if (is_file($fname))
                 {
                     $bld = $fname;
+                    $base[] = $a;
                     continue;
                 }
                 $fname = $pa.'.php';
@@ -354,29 +338,16 @@ class stl_start
                 if (is_file($fname))
                 {
                     $bld = $fname;
+                    $base[] = $a;
                     continue;
                 }
-                $pb[] = $a;
-                $pa = implode('/',$pb);
-                $fname = $pa.'/index.php';
-                if (is_file($fname))
-                {
-                    $bld = $fname;
-                    continue;
-                }
-                $fname = $pa.'.php';
-                if (is_file($fname))
-                {
-                    $bld = $fname;
-                    continue;
-                }
-                array_unshift($ppath,$a);
+                array_unshift($path,$a);
                 break;
             }
-            $path = $ppath;
         }
+        array_unshift($base,$this->lng);
         $this->uri->lng = $this->uri->host.'/'.$this->lng.'/';
-        $this->uri->base = $this->uri->host.implode('/',$base).'/';
+        $this->uri->base = $this->uri->host.'/'.implode('/',$base).'/';
         $this->uri->bld = $bld;
         $this->uri->arg = array();
         foreach($path as $p) $this->uri->arg[] = $p;
