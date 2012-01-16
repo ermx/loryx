@@ -314,7 +314,7 @@ class stl_start
             $asec['trl'] = new cTrl($asec['id_trl']);
         } 
         while($this->sec['id'] and $a);
-        
+        if ($a) array_unshift($path,$a);
         if (!$bld)
         {
             // il builder viene cercato nel file system
@@ -367,7 +367,7 @@ class stl_start
             return include('error.php');
         }
         //env::set_var('trl_tbl',nvl($this->_dat['trl_tbl'],'stl_trl_det'));
-        
+        $this->prp = $this->db->getList('select nme,val from stl_prp_det where id_prp=[0]',$this->id);
         // determinazione root del sito
         if (!$this->home) $this->home = 'default';
         $root = "./home/{$this->home}";
@@ -508,7 +508,9 @@ class stl_start
         $odir = env::chdir(dirname($bld));
         try{
             $ret = $this->incfile(basename($bld));
+            $fnc = $this->prp['fnc_encode_cnt'];
             $str = $this->ob_get();
+            if ($fnc and function_exists($fnc) and !$this->noencode) $str = $fnc($str);
         }
         catch(Exception $e)
         {
