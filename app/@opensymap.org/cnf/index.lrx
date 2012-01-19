@@ -61,4 +61,82 @@ zXDWPBMBrLMhfzbret4k
         opensymap.org/form frm_uld_app
         opensymap.org/title App Upload
     ]
+    [ men_usr opensymap.org/menu
+        opensymap.org/form frm_lst_usr
+        opensymap.org/title Utenti
+    ]
+    [ frm_lst_usr opensymap.org/form
+        opensymap.org/title Utenti
+        opensymap.org/form/init $_POST['inst'] = env::get_var('inst')->get_urn();
+        [ grd_usr opensymap.org/cmp/datagrid
+            opensymap.org/form frm_usr
+            opensymap.org/db/query % ...
+                select * from [@osy_usr] where inst=[inst] and dat_del is null
+            ...
+            [ c1 opensymap.org/column
+                opensymap.org/db/pk 1
+                opensymap.org/hide 1
+                opensymap.org/db/var id_usr
+                opensymap.org/db/field id
+            ]
+            [ c2 opensymap.org/column
+                opensymap.org/title login
+                opensymap.org/db/field login
+            ]
+            [ ? opensymap.org/column
+                opensymap.org/title lng
+                opensymap.org/db/field lng
+            ]
+            [ ? opensymap.org/column
+                opensymap.org/title rol
+                opensymap.org/db/field id_rol
+            ]
+            [ ? opensymap.org/column
+                opensymap.org/title gruppo
+                opensymap.org/db/field  id_grp
+            ]
+        ]
+    ]
+    [ frm_usr opensymap.org/form
+        opensymap.org/db/table osy_usr
+        opensymap.org/title Utente
+        opensymap.org/size/width 500px
+        [ id_usr opensymap.org/cmp/text
+            opensymap.org/type hidden
+            opensymap.org/db/pk 1
+            opensymap.org/db/field id
+        ]
+        [ txt_nme opensymap.org/cmp/text
+            opensymap.org/label Login
+            opensymap.org/db/field login
+            opensymap.org/pos 1,1
+        ]
+        [ txt_pwd opensymap.org/cmp/text
+            opensymap.org/label Password
+            opensymap.org/db/field pwd
+            opensymap.org/pos 1,1
+        ]
+        [ txt_rol opensymap.org/cmp/text
+            opensymap.org/label Ruolo
+            opensymap.org/db/field id_rol
+            opensymap.org/pos 2,1
+        ]
+        [ txt_grp opensymap.org/cmp/text
+            opensymap.org/label Gruppo
+            opensymap.org/db/field id_grp
+            opensymap.org/pos 2,2
+        ]
+        [ chk_att opensymap.org/cmp/check
+            opensymap.org/label Attivo
+            opensymap.org/db/field dat_att
+            opensymap.org/pos 3,2
+        ]
+        [ cmb_lng opensymap.org/cmp/combo
+            opensymap.org/label Lingua
+            opensymap.org/pos 3,1
+            opensymap.org/db/query % ...
+                select lng, ttl from stl_lng where ifnull(id_stl,'')=''
+            ...
+        ]
+    ]
 ]
