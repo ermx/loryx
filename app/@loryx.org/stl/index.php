@@ -95,6 +95,24 @@ class stl_menu
     {
         return nvl($this->menu[$lvl],array());
     }
+    function mkul($lvl)
+    {
+        $ul = new Tag('ul');
+        $stl = env::get_var('stl');
+        foreach($this->get($lvl) as $m)
+        {
+            $url = '/'.$m['url'].'/';
+            if (empty($m['url'])) $url = '/';
+            $li = $ul->Add(new Tag('li'));
+            $li->Add(new Tag('a'))
+               ->Att('href',$stl->url($url))
+               ->Att('title',$m['ttl'])
+               ->Add(new Tag('span'))
+               ->Add($m['lbl']);
+            if ($m['id']==$stl->uri->sec['id']) $li->Last->Att('class','active');
+        }
+        return $ul;
+    }
 }
 class stl_start
 {
@@ -128,7 +146,12 @@ class stl_start
         $bname = explode('.',$fname);
         $ext = array_pop($bname);
         $bname = implode('.',$bname);        
+        env::set_var('stl',$this);
 	}
+    function get_menu()
+    {
+        return new stl_menu($this->lng,$this->id);
+    }
 	function url($str,$lang='')
 	{
         if ($str{0}=='/')
@@ -283,17 +306,15 @@ class stl_start
                 unset($bsec);
             }
             // calcolo del builder
-            $burl[] = $this->sec['burl'];
+            $burl[] = nvl($this->sec['bld'],$this->sec['burl']);
             $fbld = implode('/',$burl);
             $xbld = '';            
             if (is_file($fbld.'.php')) $xbld = $fbld.'.php';
             if (is_file($fbld.'/index.php')) $xbld = $fbld.'/index.php';
-            $fbld = "./bld/".$this->sec['bld'];
-            $nbld = is_file($fbld)?$fbld:$xbld;
-            if ($nbld) 
+            if ($xbld) 
             {
                 $base [] = $a;
-                $bld = $nbld;
+                $bld = $xbld;
             }
             // proprietà della sezione
             $cmd = "select nme,val from [@{$this->prp_tbl}] where id_prp = [0]";
