@@ -43,7 +43,7 @@ function rrmdir($dir) {
        }
      }
      reset($objects);
-     rmdir($dir);
+     @rmdir($dir);
    }
  } 
 /*
@@ -122,7 +122,7 @@ class env
             if (!is_file($fpname))
             {
                 $struct[] = 'php';
-                $fload = 'include';
+                $fload = 'require';
                 $fpname = implode('.',$struct);
             }
         }
@@ -130,7 +130,7 @@ class env
         switch($ext)
         {
         case 'php':
-            $fload = 'include';
+            $fload = 'require';
             break;
         case 'css':
             env::set_ctype('text/css');
@@ -146,7 +146,12 @@ class env
             env::set_ctype('image/'.$ext);
             break;
         }
-        $fload($fpname);
+        switch($fload)
+        {
+        case 'include' : include($fpname); break;
+        case 'require' : require($fpname); break;
+        default        : $fload($fpname);
+        }
         exit;
     }
     public static function set_lng($lng)
