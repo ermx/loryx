@@ -58,7 +58,8 @@ class osy_panel extends osy_cmp
 {
     public function make($rs, $prp=null, $arg=null)
     {
-//        FB::log($rs->get_urn().'['.$rs->get_prp('opensymap.org/type').']','begin make');
+        
+        //FB::log($rs->get_urn().'['.$rs->get_prp('opensymap.org/type').']','begin make');
         $rs->set_prp('loryx.org/load_rs/exception',1);
         if ($rs->disabled()) return;
         parent::make($rs);

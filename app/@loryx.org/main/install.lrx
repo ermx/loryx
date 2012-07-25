@@ -45,7 +45,7 @@
         [ pnl_db opensymap.org/cmp/panel
             opensymap.org/pos 3
             opensymap.org/title Tipo Data Base
-            loryx.org/eval $rs->tag->Att('evn_focused',"W(this).find({'osy_map':'pnl_msg'}).fadeOut();");
+            loryx.org/eval $this->tag->Att('evn_focused',"W(this).find({'osy_map':'pnl_msg'}).fadeOut();");
         ]
         
         [ pnl_db_typ opensymap.org/cmp/panel

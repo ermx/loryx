@@ -1,5 +1,6 @@
 config.php
 lib/FirePHPCore/*
 apx/*
+apx*
 app/@loryx.org/osy/apx/*
 app/@loryx.org/stl/home/*

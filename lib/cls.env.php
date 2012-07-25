@@ -218,7 +218,7 @@ class env
                 $rs->serialized = true;
                 $rsa[] = $rs;
             }
-			if ($rs->get_prp('loryx.org/store')=='DBX')
+			if ($rs->get_prp('loryx.org/store')=='DBX' and env::get_var('dbx'))
 			{
 				env::get_var('dbx')->rs2store($rs);
 			}
@@ -259,6 +259,7 @@ class env
             switch($fs)
             {
             case 2:
+                // l'impostazione in memoria viene ritardata
                 $set_rs = 1;
                 $rs = new rs_urn($rs);
                 break;
@@ -269,17 +270,25 @@ class env
         //throw new Exception($rs->get_urn());
         if($rs->get_prp('loryx.org/load_rs/exception')) throw new TraceEx('load_rs');
         if ($rs->get_urn()=='') throw new TraceEx($rs->dump());
-        // reimpostazione della root 
+        
+        // ricerca dei file che contengano la definizione dell'oggetto richiesto
+        // reimpostazione del path root 
         $curr_root = self::chdir();
+        
+        // lista dei file da prendere in considerazione ...
         $list_path = array();
         if (!$rs->get_par()) $list_path[] = $rs->get_urn();
         $list_path[] = $rs->get_path();
         $list_path[] = $rs->get_path().DIRECTORY_SEPARATOR."index";
+        
         foreach($list_path as $f)
         {
+            // lista dei tipi di file da analizzare
             $lrx = self::$ctx->app_root.$f.'.lrx';
             $lro = self::$ctx->apx_root.$f.'.lro';
             $php = self::$ctx->app_root.$f.'.php';
+            
+            // se è presente un file php di inizializzazione ... memorizzalo
             if(is_file($php)) $php_inc = $php;
             // a prescindere del sorgente o meno ... ho trovato un compilato 
             if(is_file($lro)) $fs_rs = array('lro'=>$lro,'otime'=>filemtime($lro));
@@ -293,6 +302,7 @@ class env
                            'otime'=>is_file($lro)?filemtime($lro):0);
         }
         //var_dump($fs_rs);exit;
+        // se è stato richiesto che la presenza "necessaria" nel filesystem e non è stato trovato nulla allora ... return false
         if ($fs==1 and !$fs_rs) 
         {
             self::chdir($curr_root);
@@ -300,23 +310,28 @@ class env
         }
         //if ($fs_rs['otime'])
         {
+        
             $rss = array();
+            // se il sorgente ha data posteriore al compilato .. allora si compila il sorgente
             if ($fs_rs['xtime']>$fs_rs['otime'])
             { 
                 require_once('./lib/cls.prs.php');
                 $rss = I(new prs())->parse(file_get_contents($fs_rs['lrx']));
-				
+				// e si serializza
                 $fs_rs['oupdate'] = env::serialize_rs($rss,$fs_rs['lro']);
             }
             else 
             {
+                // altrimenti si desirializza se c'è
                 if ($fs_rs['otime']) $rss = env::unserialize_rs($fs_rs['lro']);
             }
+            // si impostano nell'ambiente gli oggetti trovai 
             foreach($rss as $rr)
             {
                 env::set_rs($rr);
             }
         }
+        // ritorno alla root dir precedente la chiamata
         self::chdir($curr_root);
         //var_dump($rs->dump());
 
@@ -327,25 +342,6 @@ class env
         
         env::reload_rs(env::get_var('dbx'),$rs);
         if (!$fs_rs and !$rs->stored) return false;
-        /*
-        var_dump($curr_root, $rs);exit;
-
-        if (!$fs_rs and !$rs->stored) return false;
-        
-        if ($rs->get_prp('loryx.org/store/data/time')<$fs_rs['xtime'])
-        {
-            if ($fs_rs['otime']<$fs_rs['xtime'] and !$fs_rs['oupdate'])
-            {
-                // se la versione sul DB è più vecchia di quella del sorgente
-                require_once('./lib/cls.prs.php');
-                $rss = I(new prs())->parse(file_get_contents($fs_rs['lrx']));
-                env::serialize_rs($rss,$fs_rs['lro']);
-            } 
-            // TODO :: oggorre aggiornare i dati sul DB
-            // $rs->set_prp('loryx.org/store/data/time',$fs_rs['lrx']);
-            // env::get_var('dbx')->store_rs($rs);
-        }
-        */
         if ($set_rs)
         {
             $rs = env::get_rs($rs->get_urn());
@@ -358,12 +354,15 @@ class env
         list($path,$sys) = explode('@',$urn);
         if (!is_array($opt)) $opt = array('autocreate' => $opt);
         $path = array_filter(explode('/',trim($path,'/')),'strlen');
+        // link base della risorsa richiesta
         $base = array_shift($path);
         $lnk = trim("{$base}@{$sys}",'@');
+        // caricamento
         $el = self::$ctx->rs[$lnk];
         //var_dump($urn,$el);exit;
         if (!$el)
         {
+            // se l'oggeto base non è presente in memoria ... viene caricato
             $el = self::load_rs($lnk);
         }
         $lbase = array();

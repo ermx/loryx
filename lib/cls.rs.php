@@ -68,7 +68,7 @@ class rs
         foreach($env as $n=>$v) $$n = $v;
         if (!$dbx) $dbx = env::get_var('dbx');
         // per evitare esplicitamente il merge ...
-        if ($this->get_prp('loryx.org/db/merge')!='no') $str = $dbx->merge($str,nvl($_POST,array()),
+        if ($this->get_prp('loryx.org/db/merge')!='no' and $dbx) $str = $dbx->merge($str,nvl($_POST,array()),
                                                                                 nvl($_POST['_']['pky'],array()),
                                                                                 nvl($_POST['_']['prt'],array()));
 		if (!empty($path_root))
@@ -77,7 +77,7 @@ class rs
 						$this->get_path('prp').'.'.
 						base64_encode($prp).'.php';
 			
-            FB::log($fname, 'exe '.$prp);
+            //FB::log($fname, 'exe '.$prp);
 			
 			$dname = dirname($fname);
 			if (!is_dir($dname)) mkdir($dname,0777,true);

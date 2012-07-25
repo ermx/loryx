@@ -23,7 +23,7 @@ class lrx_mod
 		}
         // nome di default dell'elemento "database principale"
         $db = $rs->config->get_cld($dbx?$dbx->name:'dbx');
-        // se precedentemente non era stato impostato il db .. ri effettua la rilettura
+        // se precedentemente non era stato impostato il db .. effettua la rilettura
         if (!$dbx) env::reload_rs($db,$rs);
         env::set_var('dbx',$db);
         // se è stato impostato il db ... viene impostato come default
@@ -193,6 +193,7 @@ class lrx_install
 {
     function make($rs,$p='',$v='')
     {
+        var_dump($rs->dump());
         if ($rs->hidden) return;
         $f = env::get_var('form');
         // nome tabella

@@ -522,7 +522,7 @@ var osy = new (function()
                 return sel;
             }
             var frm = box.data('iform');
-            if (!frm) return;
+            if (!frm[0]) frm = {'width':function(){return 450;}};
 			osy.event(box,'set_dim',frm);
 			if (box.data('center'))
 			{
@@ -615,8 +615,8 @@ var osy = new (function()
             else box.data('form').submit();
         }).bind('set_dim',function(ev,frm)
 		{
-            if (frm.height()) box.data('iframe').css('height',frm.height()+'px');
-            if (frm.width())  box.css('width',(frm.width())+'px');
+            if (frm && frm.height && frm.height()) box.data('iframe').css('height',frm.height()+'px');
+            if (frm && frm.width && frm.width())  box.css('width',(frm.width())+'px');
 		});
     
         box.data('form').submit();
