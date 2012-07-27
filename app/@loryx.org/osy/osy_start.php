@@ -171,6 +171,21 @@ class osy_start
                 if (!$frm) throw new Exception('Form non trovata : '.$ofrm->value);
                 env::set_var('form',$frm);
                 $scr->Add("osy.trigger(frameElement,'#cmd','init,reload,close');");
+                // se l'utente ha accesso all'applicazione osdk@opensymap.org allora può visualizzare l'icona di "make app"
+                $apx =  $rs->get_cld('config/app');
+                foreach($usr['prs']['opensymap.org/app'] as $kapp) 
+                {
+                    if ($apx->get_cld($kapp)->get_styp() != 'sdk@opensymap.org') continue;
+                    $sdk_app = $kapp;
+                    break;
+                }
+                
+                if ($sdk_app)
+                {
+                    $sdk_frm  = $app->get_typ()->get_cld($ofrm->value);
+                    $scr->Add("osy.trigger(frameElement,'#cmd',{'o':function(){osy.win(this,{'osy':{'app':'{$sdk_app}','frm':'frm_frm'},
+                              'pky':{'hdn_sys':'{$sdk_frm->sys}','hdn_base':'{$sdk_frm->base}',txt_name:'{$sdk_frm->name}'}})}});");
+                }
 				$scr->Add("W(window).bind('show.osy',function(){W('input:text:visible:first',document.body).focus()});");
                 
                 if (!$ocmp->value)

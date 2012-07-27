@@ -1,0 +1,826 @@
+[ stl@opensymap.org opensymap.org/app
+    loryx.org/builder/init % zXDIwOiahgQ6CxsT2yrJ
+class stl
+{
+static function init_sect($form)
+{
+if(osy::get_pky('id_sec')) return;
+$id_sec = osy::get_pky('id_sec');
+$id_stl = osy::get_prt('id_stl');
+// occorre individuare
+}
+public static function lng($el)
+{
+$el->tag->Last
+->Cell('a')->Att('class','link');
+}
+}
+zXDIwOiahgQ6CxsT2yrJ
+    opensymap.org/size/width 500
+    opensymap.org/title Site Multi Language
+    [ frm_sito opensymap.org/form
+        opensymap.org/db/table !stl
+        opensymap.org/size/width 700
+        opensymap.org/title Sito
+        [ cmb_dsbl opensymap.org/cmp/check
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field dsbl
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Disabilitato
+            opensymap.org/pos 2,3
+            opensymap.org/title 
+        ]
+        [ cmb_lng opensymap.org/cmp/combo
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field lng_def
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query % zXDIwOiaVsxAa4tgVSY9
+select lng,ttl
+from stl_lng
+where ifnull(id_stl,'') in ([#id_stl],'')
+order by ord
+zXDIwOiaVsxAa4tgVSY9
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Lang
+            opensymap.org/pos 2,2
+            opensymap.org/title 
+        ]
+        [ grd_prp opensymap.org/cmp/datagrid
+            loryx.org/parent pnl_tab
+            opensymap.org/colspan 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query % zXDIwOiaScJoca5FAKtW
+select nme, val
+from stl_prp_det
+where id_prp = [#id_stl]
+zXDIwOiaScJoca5FAKtW
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 3
+            opensymap.org/title Propietà
+            [ c_id opensymap.org/column
+                loryx.org/ord 
+                opensymap.org/db/field id
+                opensymap.org/db/par 
+                opensymap.org/db/pk 1
+                opensymap.org/db/var id
+                opensymap.org/hide 1
+                opensymap.org/title 
+            ]
+            [ c_nme opensymap.org/column
+                loryx.org/ord 
+                opensymap.org/db/field nme
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title Nome
+            ]
+            [ c_val opensymap.org/column
+                loryx.org/ord 
+                opensymap.org/db/field val
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title Valore
+            ]
+        ]
+        [ grd_sec opensymap.org/cmp/datagrid
+            loryx.org/parent pnl_tab
+            opensymap.org/colspan 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query % zXDIwOiaGi8nGnZOtbxL
+select *
+from stl_sec
+where id_stl=[#id_stl]
+and ifnull(id_par,'')=''
+order by ifnull(lvl,'')
+zXDIwOiaGi8nGnZOtbxL
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form frm_sit_sec
+            opensymap.org/label 
+            opensymap.org/pos 1
+            opensymap.org/title Sezioni
+            [ hdn_id opensymap.org/column
+                opensymap.org/db/field id
+                opensymap.org/db/par 
+                opensymap.org/db/pk 1
+                opensymap.org/db/var id_sec
+                opensymap.org/hide 1
+                opensymap.org/title 
+            ]
+            [ hdn_stl opensymap.org/column
+                opensymap.org/db/field 
+                opensymap.org/db/par #hdn_id
+                opensymap.org/db/pk 
+                opensymap.org/db/var id_stl
+                opensymap.org/hide 1
+                opensymap.org/title 
+            ]
+            [ txt_ttl 
+                opensymap.org/db/field bld
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title builder
+            ]
+            [ txt_lbl opensymap.org/column
+                loryx.org/ord 1
+                opensymap.org/db/field lbl
+                opensymap.org/db/field/title ttl
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title label
+            ]
+            [ txt_lvl opensymap.org/column
+                loryx.org/ord 10
+                opensymap.org/db/field lvl
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title livello
+            ]
+            [ txt_url opensymap.org/column
+                loryx.org/ord 5
+                opensymap.org/db/field url
+                opensymap.org/db/field/title bld
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title url
+            ]
+        ]
+        [ grd_trk opensymap.org/cmp/datagrid
+            loryx.org/parent pnl_tab
+            opensymap.org/colspan 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query % zXDIwOiarzzKpzwzrjyW
+select dat_ins as data, url, referer as ref, ip_addr, substr(agent,0,20) as agent
+from stl_trk
+where id_stl = [#id_stl]
+order by dat_ins desc
+zXDIwOiarzzKpzwzrjyW
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Trk
+            opensymap.org/pos 2
+            opensymap.org/title trk
+        ]
+        [ hdn_id 
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field id
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 1
+            opensymap.org/db/query 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+            opensymap.org/type hidden
+        ]
+        [ id_sit 
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field id
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 1
+            opensymap.org/db/query 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+        ]
+        [ id_stl opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field id
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 1
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 1
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+            opensymap.org/type hidden
+        ]
+        [ pnl_tab opensymap.org/cmp/panel
+            loryx.org/parent 
+            opensymap.org/colspan 4
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 3
+            opensymap.org/title 
+            opensymap.org/type tab
+        ]
+        [ txt_dom opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 3
+            opensymap.org/db/field dom
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/db/table 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Domain
+            opensymap.org/pos 1,1
+            opensymap.org/title 
+        ]
+        [ txt_home opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field home
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Home
+            opensymap.org/pos 2,1
+            opensymap.org/title 
+        ]
+    ]
+    [ frm_sit_sec opensymap.org/form
+        loryx.org/builder/init stl::init_sect($this);
+        opensymap.org/db/query 
+        opensymap.org/db/table !stl_sec
+        opensymap.org/size/width 500
+        opensymap.org/title Sezioni
+        opensymap.org/type hidden
+        [ cst_par opensymap.org/cmp/const
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field id_par
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+        ]
+        [ cst_stl opensymap.org/cmp/const
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field id_stl
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+        ]
+        [ cst_trl opensymap.org/cmp/const
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field id_trl
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+        ]
+        [ ev_bi_save opensymap.org/event
+            loryx.org/code % zXDIwOiaDo0WpsTlLeWA
+if(!$form->pk['id'] )
+{
+$id_stl = osy::get_prt('id_stl');
+if (!$id_stl)
+{
+$id_psec = osy::get_prt('id_sec');
+if (!$id_psec) osy::alert('Chiave genitore mancante');
+$cmd = "select * from stl_sec where id=[0]";
+$psec = $db->getFirst($cmd,$id_psec);
+$id_stl = $psec['id_stl'];
+}
+$form->get_cld('cst_stl')->setValue($id_stl);
+$form->get_cld('cst_trl')->setValue(env::sid('',20));
+$form->get_cld('cst_par')->setValue($id_psec);
+}
+zXDIwOiaDo0WpsTlLeWA
+            loryx.org/name save
+            opensymap.org/type before
+        ]
+        [ grd_prp opensymap.org/cmp/datagrid
+            loryx.org/parent pnl_tab
+            opensymap.org/colspan 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query select * from stl_prp_det where id_prp=[#id_sec]
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form frm_stl_prp
+            opensymap.org/label Proprietà
+            opensymap.org/pos 2
+            opensymap.org/title Proprietà
+            [ col_prp opensymap.org/column
+                opensymap.org/db/field nme
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title Nome
+            ]
+            [ col_val opensymap.org/column
+                opensymap.org/db/field val
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title Valore
+            ]
+            [ hdn_id opensymap.org/column
+                opensymap.org/db/field id
+                opensymap.org/db/par 
+                opensymap.org/db/pk 1
+                opensymap.org/db/var hdn_id
+                opensymap.org/hide 1
+                opensymap.org/title id
+            ]
+        ]
+        [ grd_sec opensymap.org/cmp/datagrid
+            loryx.org/parent pnl_tab
+            opensymap.org/colspan 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query % zXDIwOiaSVT0CBf5nsTv
+select *
+from stl_sec
+where id_par = [#id_sec]
+and length(id_par)>0
+order by ifnull(lvl,'')
+zXDIwOiaSVT0CBf5nsTv
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form frm_sit_sec
+            opensymap.org/label 
+            opensymap.org/pos 1
+            opensymap.org/title Sezioni
+            [ hdn_id opensymap.org/column
+                opensymap.org/db/field id
+                opensymap.org/db/par 
+                opensymap.org/db/pk 1
+                opensymap.org/db/var id_sec
+                opensymap.org/hide 1
+                opensymap.org/title 
+            ]
+            [ col_lbl opensymap.org/column
+                loryx.org/ord 1
+                opensymap.org/db/field lbl
+                opensymap.org/db/field/title ttl
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title label
+            ]
+            [ col_url opensymap.org/column
+                loryx.org/ord 10
+                opensymap.org/db/field url
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/title/title bld
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title url
+            ]
+            [ col_lvl opensymap.org/column
+                loryx.org/ord 5
+                opensymap.org/db/field lvl
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title livello
+            ]
+        ]
+        [ id_sec opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field id
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 1
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 1
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+            opensymap.org/type hidden
+        ]
+        [ pnl_sub_men opensymap.org/cmp/panel
+            loryx.org/parent 
+            opensymap.org/colspan 3
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Sub menu
+            opensymap.org/pos 9
+            opensymap.org/title 
+        ]
+        [ pnl_tab opensymap.org/cmp/panel
+            loryx.org/parent 
+            opensymap.org/colspan 5
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 10
+            opensymap.org/title 
+            opensymap.org/type tab
+        ]
+        [ txt_bld opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field bld
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Builder
+            opensymap.org/pos 5,2
+            opensymap.org/title 
+        ]
+        [ txt_lbl opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 3
+            opensymap.org/db/field lbl
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Label
+            opensymap.org/pos 1
+            opensymap.org/title 
+        ]
+        [ txt_lvl opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field lvl
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Livello
+            opensymap.org/pos 5,1
+            opensymap.org/title 
+        ]
+        [ txt_ord opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field ord
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Ord
+            opensymap.org/pos 5,3
+            opensymap.org/title 
+        ]
+        [ txt_smn_cls opensymap.org/cmp/text
+            loryx.org/parent pnl_sub_men
+            opensymap.org/colspan 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label class
+            opensymap.org/pos 1,1
+            opensymap.org/title 
+        ]
+        [ txt_smn_sel opensymap.org/cmp/text
+            loryx.org/parent pnl_sub_men
+            opensymap.org/colspan 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label select
+            opensymap.org/pos 1,3
+            opensymap.org/title 
+        ]
+        [ txt_smn_sty opensymap.org/cmp/text
+            loryx.org/parent pnl_sub_men
+            opensymap.org/colspan 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label style
+            opensymap.org/pos 1,2
+            opensymap.org/title 
+        ]
+        [ txt_ttl opensymap.org/cmp/text
+            loryx.org/builder/finish stl::lng($this);
+            loryx.org/parent 
+            opensymap.org/colspan 3
+            opensymap.org/db/field ttl
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Titolo
+            opensymap.org/pos 2
+            opensymap.org/size/width 500
+            opensymap.org/title 
+        ]
+        [ txt_url opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 3
+            opensymap.org/db/field url
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/prp/key 
+            opensymap.org/db/prp/nme 
+            opensymap.org/db/prp/ref 
+            opensymap.org/db/prp/table 
+            opensymap.org/db/prp/val 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Url
+            opensymap.org/pos 3
+            opensymap.org/title 
+        ]
+    ]
+    [ frm_stl_prp opensymap.org/form
+        opensymap.org/db/table !stl_prp_det
+        opensymap.org/size/width 500
+        opensymap.org/title Proprietà
+        [ cst_id_prp opensymap.org/cmp/const
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field id_prp
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+        ]
+        [ ev_save_bi opensymap.org/event
+            loryx.org/code % zXDIwOiaaEAOUZBP3y1T
+if ($form->pk['id']) return;
+$form->get_cld('cst_id_prp')->setValue([##id_sec]);
+zXDIwOiaaEAOUZBP3y1T
+            loryx.org/name save
+            opensymap.org/type before
+        ]
+        [ hdn_id opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field id
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 1
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 1
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+            opensymap.org/type hidden
+        ]
+        [ txt_nme opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field nme
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Nome
+            opensymap.org/pos 1
+            opensymap.org/title 
+        ]
+        [ txt_val opensymap.org/cmp/text
+            loryx.org/parent 
+            opensymap.org/colspan 
+            opensymap.org/db/field val
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pk 
+            opensymap.org/db/query 
+            opensymap.org/db/sid/auto 
+            opensymap.org/event 
+            opensymap.org/form 
+            opensymap.org/label Valore
+            opensymap.org/pos 2
+            opensymap.org/text/line 10
+            opensymap.org/title 
+        ]
+    ]
+    [ men_main opensymap.org/menu
+        opensymap.org/form vw_main
+        opensymap.org/title Lista siti
+    ]
+    [ vw_main opensymap.org/form
+        opensymap.org/db/table 
+        opensymap.org/size/width 500
+        opensymap.org/title Lista siti
+        [ dg_main opensymap.org/cmp/datagrid
+            loryx.org/parent 
+            opensymap.org/db/field 
+            opensymap.org/db/field/extern 
+            opensymap.org/db/pkey 
+            opensymap.org/db/query select * from stl
+            opensymap.org/db/table 
+            opensymap.org/event 
+            opensymap.org/form frm_sito
+            opensymap.org/label 
+            opensymap.org/pos 
+            opensymap.org/title 
+            [ d_dsbl 
+                loryx.org/ord 
+                opensymap.org/db/field dsbl
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title Disabilitato
+            ]
+            [ c_id opensymap.org/column
+                opensymap.org/db/field id
+                opensymap.org/db/par 
+                opensymap.org/db/pk 1
+                opensymap.org/db/var id_stl
+                opensymap.org/hide 1
+                opensymap.org/title 
+            ]
+            [ c_dom opensymap.org/column
+                loryx.org/ord 1
+                opensymap.org/db/field dom
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title Domain
+            ]
+            [ c_dsbl opensymap.org/column
+                loryx.org/ord 10
+                opensymap.org/db/field dsbl
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title Disabilitato
+            ]
+            [ c_home opensymap.org/column
+                loryx.org/ord 2
+                opensymap.org/db/field home
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title home
+            ]
+            [ c_lan opensymap.org/column
+                loryx.org/ord 3
+                opensymap.org/db/field lng_def
+                opensymap.org/db/par 
+                opensymap.org/db/pk 
+                opensymap.org/db/var 
+                opensymap.org/hide 
+                opensymap.org/title Lang
+            ]
+        ]
+    ]
+]
