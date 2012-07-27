@@ -309,7 +309,7 @@ var osy = new (function()
         if(!frm.length) frm=$('form:first');
 		var box = $('<div class="box" style="position:absolute; visibility:hidden; width:100px;">'+
                         '<div class="titlebar"><table cellspacing="3px" cellpadding="5px" width="100%">'+
-                            '<tr class="cmd"><th class="title" width="100%"></th></tr>'+
+                            '<tr><th class="title" width="100%"></th><td><table><tr class="cmd"></tr></table></td></tr>'+
                         '</table></div>'+
                         '<div class="content"></div>'+
                         '<div class="foot"></div>'+
@@ -363,42 +363,56 @@ var osy = new (function()
             var args = $.AR(arguments);
             var evn = args.shift();
             var data = args.shift();
-            box.data('cmd').find('td').remove();
-            $.each(data.split(','),function(idx,val)
+            if (typeof(data)=='object')
             {
-                switch(val)
+                for(e in data)
                 {
-                case 'close':
-                    $('<td>x</td>').bind('click',function()
+                    $('<td>'+e+'</td>').bind('click',function()
                     {
-                        try{
-                            osy.event(box.data('iwin'),'close.osy'); 
-                            osy.event(box,'close');
-                        }catch(e){}
+                        data[e].apply(box,[]);
                     })
-                                   .appendTo(box.data('cmd'));
-                    break;
-                case 'reload':
-                    $('<td>r</td>').bind('click',function(){osy.event(box,'reload')})
-                                   .appendTo(box.data('cmd'));
-                    break;
-                case 'init':
-                    $('<td>i</td>').bind('click',function(){box.data('form').submit()})
-                                   .appendTo(box.data('cmd'));
-                    break;
-                case 'everyfocus':
-                    box.data('everyfocus',1);
-                    break;
-                case 'center':
-					box.data('center',1);
-					break;
-                case 'position':
-                    var pos = args.shift();
-                    if (pos.x) box.css('left',pos.x);
-                    if (pos.y) box.css('top',pos.y);
-                    break;
+                   .prependTo(box.data('cmd'));
                 }
-            });
+            }
+            else  
+            {
+                box.data('cmd').find('td').remove();
+                $.each(data.split(','),function(idx,val)
+                {
+                    switch(val)
+                    {
+                    case 'close':
+                        $('<td>x</td>').bind('click',function()
+                        {
+                            try{
+                                osy.event(box.data('iwin'),'close.osy'); 
+                                osy.event(box,'close');
+                            }catch(e){}
+                        })
+                                       .appendTo(box.data('cmd'));
+                        break;
+                    case 'reload':
+                        $('<td>r</td>').bind('click',function(){osy.event(box,'reload')})
+                                       .appendTo(box.data('cmd'));
+                        break;
+                    case 'init':
+                        $('<td>i</td>').bind('click',function(){box.data('form').submit()})
+                                       .appendTo(box.data('cmd'));
+                        break;
+                    case 'everyfocus':
+                        box.data('everyfocus',1);
+                        break;
+                    case 'center':
+					    box.data('center',1);
+					    break;
+                    case 'position':
+                        var pos = args.shift();
+                        if (pos.x) box.css('left',pos.x);
+                        if (pos.y) box.css('top',pos.y);
+                        break;
+                    }
+                });
+            }
         });
         frm.find(':first input[name^="_["]')
            .each(function ()
