@@ -164,18 +164,22 @@ class osy_start
                 //$page->form->Att('ev_save',"this.upd?osy.exe(args[0],{'osy':{'evn':'save'},'form':this}):lrx.ev_start(args[0],'ok');");
                 // tramite questa applicazione è possibile modificare l'interfaccia
 				$app = $rs->get_cld('config/app/'.$oapp->value);
-                // esecuzionermannoe eventuale codice di inizializzazione
+
+                // esecuzione eventuale codice di inizializzazione
 				$page->Add($app->exe()->tag,1);
 				$frm = $app->get_cld($ofrm->value);
 				
                 if (!$frm) throw new Exception('Form non trovata : '.$ofrm->value);
                 env::set_var('form',$frm);
                 $scr->Add("osy.trigger(frameElement,'#cmd','init,reload,close');");
-                // se l'utente ha accesso all'applicazione osdk@opensymap.org allora può visualizzare l'icona di "make app"
+                $sdk = env::get_rs('sdk@opensymap.org');
+                // se l'utente ha accesso all'applicazione osdk@opensymap.org e può visualizzare l'icona di "make app" 
+                // a meno che l'sdk non sia l'app corrente ed esso non sia nel DB
                 $apx =  $rs->get_cld('config/app');
+                if ($app->get_styp()!=$sdk->get_urn() or ($sdk->get_prp('loryx.org/store')!='no'))
                 foreach($usr['prs']['opensymap.org/app'] as $kapp) 
                 {
-                    if ($apx->get_cld($kapp)->get_styp() != 'sdk@opensymap.org') continue;
+                    if ($apx->get_cld($kapp)->get_styp() != $sdk->get_urn() ) continue;
                     $sdk_app = $kapp;
                     break;
                 }
@@ -183,7 +187,7 @@ class osy_start
                 if ($sdk_app)
                 {
                     $sdk_frm  = $app->get_typ()->get_cld($ofrm->value);
-                    $scr->Add("osy.trigger(frameElement,'#cmd',{'o':function(){osy.win(this,{'osy':{'app':'{$sdk_app}','frm':'frm_frm'},
+                    $scr->Add("osy.trigger(frameElement,'#cmd',{'o':function(){osy.win(window,{'osy':{'app':'{$sdk_app}','frm':'frm_frm'},
                               'pky':{'hdn_sys':'{$sdk_frm->sys}','hdn_base':'{$sdk_frm->base}',txt_name:'{$sdk_frm->name}'}})}});");
                 }
 				$scr->Add("W(window).bind('show.osy',function(){W('input:text:visible:first',document.body).focus()});");

@@ -438,7 +438,7 @@ class mdb_mysqli extends mdb
 	}
     function rs2store($rs,$opt=array())
     {
-        
+        if (is_string($rs)) $rs = env::get_rs($rs);
         switch($rs->get_prp('loryx.org/store'))
         {
         case 'no' : return;

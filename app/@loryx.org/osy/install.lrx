@@ -88,10 +88,14 @@
                           ->sync(1);
                 //impostazione applicazioni
 				$apx = $cnf->set_cld('app');
-				$apx->set_cld(env::sid('tbl'),'cnf@opensymap.org');
-				$apx->set_cld(env::sid('tbl'),'sdk@opensymap.org');
-				$apx->set_cld(env::sid('tbl'),'stl@opensymap.org');
-				
+				foreach(array('loryx.org','opensymap.org','cnf@opensymap.org','stl@opensymap.org') as $m)
+				{
+				    $db->rs2store($m);
+				}
+				foreach(array('cnf@opensymap.org','sdk@opensymap.org','stl@opensymap.org') as $m)
+				{
+				    $apx->set_cld(env::sid('tbl'),$m);
+				}
 				// memorizzazione
                 $db->rs2store($aosy);
 
@@ -121,8 +125,7 @@
                                             'val'=>$form->get_cld('inp_adm_name')->value));
                 
                 // stl@loryx.org : molulo gestione siti multi lingua
-                env::get_rs('stl@loryx.org')
-                    ->install();
+                env::get_rs('stl@loryx.org')->install();
                 
                 // cnf@opensymap.org : applicativo osy per la configurazione del sistema
                 // env::get_rs('cnf@opensymap.org')->install($aosy);

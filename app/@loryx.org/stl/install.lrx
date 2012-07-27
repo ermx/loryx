@@ -38,6 +38,16 @@
                 loryx.org/db/field/type varchar
                 loryx.org/db/field/size 50
             ]
+            [? loryx.org/db/field
+                loryx.org/name home
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 256
+            ]
+            [? loryx.org/db/field
+                loryx.org/name dsbl
+                loryx.org/db/field/type varchar
+                loryx.org/db/field/size 1
+            ]
         ]
         [tbl_stl_lng loryx.org/db/table
             loryx.org/name stl_lng

@@ -306,7 +306,8 @@ var osy = new (function()
     function mk_box(el,opt,obs)
     {
         var frm = $(el).closest('form');
-        if(!frm.length) frm=$('form:first');
+        if (!frm[0] && el.document) frm = $(el.document.forms[0]);
+        if(!frm[0]) frm=$('form:first');
 		var box = $('<div class="box" style="position:absolute; visibility:hidden; width:100px;">'+
                         '<div class="titlebar"><table cellspacing="3px" cellpadding="5px" width="100%">'+
                             '<tr><th class="title" width="100%"></th><td><table><tr class="cmd"></tr></table></td></tr>'+
@@ -323,9 +324,10 @@ var osy = new (function()
            .each(function(){box.data(this.className,$(this))});
         box.data('title').bind('mousedown',function(ev){move_obj(box,ev)});
 		box.data('titlebar').hide();
-        // impostazione elementi del contenuto
         box.data('content')
-           .append('<iframe frameborder="no" style="width:100%" name="'+rand('win_')+'" onload="osy.event(this, \'#init\', this.contentWindow, this)"></iframe>')
+           .append('<iframe frameborder="no" style="width:100%" '+
+                           'name="'+rand('win_')+'" '+
+                           'onload="osy.event(this, \'#init\', this.contentWindow, this)"></iframe>')
            .find(':first').each(function()
            {
                 this.dsk = dsk;
@@ -353,7 +355,6 @@ var osy = new (function()
             box.data('cover').css('height',0);
             box.css('z-index',10);
         });
-        box.bind('click',function(){focus(box)});
         box.bind('close',function()
 		{
 			$(this).remove()
@@ -369,7 +370,7 @@ var osy = new (function()
                 {
                     $('<td>'+e+'</td>').bind('click',function()
                     {
-                        data[e].apply(box,[]);
+                        data[e].apply(this,[box]);
                     })
                    .prependTo(box.data('cmd'));
                 }
@@ -667,7 +668,8 @@ var osy = new (function()
         var box = focus(mk_box(el,opt,obs));
 		box.data('titlebar').show();
         
-        var box_self = $(el.ownerDocument && el.ownerDocument.defaultView && el.ownerDocument.defaultView.box);
+        var win_self = nvl(el.ownerDocument && el.ownerDocument.defaultView,el);
+        var box_self = $( win_self && win_self.box );
         
         box.bind('#init',function(evn,win,ifr){box.data('title').text(win.document.title)})
            .bind('close',function(){focus(box_self); osy.event(box_self.data('iwin'),'closechild')});
@@ -698,6 +700,7 @@ var osy = new (function()
                 box.css('left',pos.left+20);
             }
         }
+        return box;
     }
     this.par = function()
     {

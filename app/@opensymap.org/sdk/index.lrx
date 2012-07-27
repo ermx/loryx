@@ -5,6 +5,7 @@
 
 [ sdk@opensymap.org opensymap.org/app
     opensymap.org/title Opensymap SDK
+    loryx.org/store no
     [ men_app opensymap.org/menu
         opensymap.org/form frm_sdk
         opensymap.org/title Open SDK

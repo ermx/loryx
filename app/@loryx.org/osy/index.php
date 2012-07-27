@@ -59,6 +59,15 @@ class osy
         $_POST['_']['prt'][$k] = $v;
     }
 }
+class osy_app_builder
+{
+    function make($rs)
+    {}
+    function install($rs,$root)
+    {
+        var_dump($rs->get_urn());
+    }
+}
 class Menu extends Tag
 {
     public function __construct($root,$name,$ttl,$app='',$frm='')
